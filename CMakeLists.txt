@@ -4,7 +4,7 @@ project(NeuralNetwork)
 set(CMAKE_CXX_STANDARD 23)
 
 add_executable(NeuralNetwork main.cpp
-        MatrixExceptions.h
+        MatrixException.h
         Matrix.h)
 
 add_subdirectory(Tests)

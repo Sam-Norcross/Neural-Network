@@ -5,9 +5,9 @@
 #include <string>
 using namespace std;
 
-class MatrixExceptions : public exception {
+class MatrixException : public exception {
 public:
-    MatrixExceptions(string msg) : message(msg) {}
+    MatrixException(string msg) : message(msg) {}
 
     const char* what() const noexcept {
         return message.c_str();

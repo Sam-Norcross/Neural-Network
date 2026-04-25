@@ -1,15 +1,13 @@
-//
-// Created by Sam Norcross on 4/1/26.
-//
-
 // TODO--implement:
 // scalar multiplication/addition/subtraction/division
+// transpose
+// inverse?
 
 #include <iostream>
 #include <random>
-#include <ctime>
 #include <string>
-#include "MatrixExceptions.h"
+#include <functional>
+#include "MatrixException.h"
 using namespace std;
 
 template <typename T>
@@ -18,11 +16,11 @@ public:
     Matrix(int rSize, int cSize) : rng(random_device{}()), dist(-10, 10){
         rows = rSize;
         cols = cSize;
-        size = rows * cols;
+        matSize = rows * cols;
 
         mat = new T[rows * cols];
 
-        for (int i = 0; i < size; i++) {
+        for (int i = 0; i < matSize; i++) {
             mat[i] = (T)dist(rng);
         }
     }
@@ -30,11 +28,11 @@ public:
     Matrix(int rSize, int cSize, T arr[]) {
         rows = rSize;
         cols = cSize;
-        size = rows * cols;
+        matSize = rows * cols;
 
         mat = new T[rows * cols];
 
-        for (int i = 0; i < size; i++) {
+        for (int i = 0; i < matSize; i++) {
             mat[i] = arr[i];
         }
     }
@@ -57,14 +55,19 @@ public:
     }
 
     int getSize() {
-        return size;
+        return matSize;
+    }
+
+    Matrix copy() {
+        Matrix newMat = Matrix(getRowSize(), getColSize(), mat);
+        return newMat;
     }
 
     Matrix operator+(Matrix mat2) {
         if (getRowSize() != mat2.getRowSize() || getColSize() != mat2.getColSize()) {
             string errMsg1 = "Incorrect dimensions: can't add matrices with dimensions ";
             string errMsg2 = " and ";
-            throw MatrixExceptions( errMsg1 + dims() + errMsg2 + mat2.dims());
+            throw MatrixException( errMsg1 + dims() + errMsg2 + mat2.dims());
         }
 
         Matrix newMat = Matrix(getRowSize(), getColSize());
@@ -82,7 +85,7 @@ public:
         if (getRowSize() != mat2.getRowSize() || getColSize() != mat2.getColSize()) {
             string errMsg1 = "Incorrect dimensions: can't subtract matrices with dimensions ";
             string errMsg2 = " and ";
-            throw MatrixExceptions( errMsg1 + dims() + errMsg2 + mat2.dims());
+            throw MatrixException( errMsg1 + dims() + errMsg2 + mat2.dims());
         }
         else {
             Matrix newMat = Matrix(getRowSize(), getColSize());
@@ -101,7 +104,7 @@ public:
         if (getRowSize() != mat2.getRowSize() || getColSize() != mat2.getColSize()) {
             string errMsg1 = "Incorrect dimensions: can't perform element-wise multiplication on matrices with dimensions ";
             string errMsg2 = " and ";
-            throw MatrixExceptions( errMsg1 + dims() + errMsg2 + mat2.dims());
+            throw MatrixException( errMsg1 + dims() + errMsg2 + mat2.dims());
         }
 
         Matrix newMat = Matrix(getRowSize(), getColSize());
@@ -119,7 +122,7 @@ public:
         if (getRowSize() != mat2.getRowSize() || getColSize() != mat2.getColSize()) {
             string errMsg1 = "Incorrect dimensions: can't perform element-wise division on matrices with dimensions ";
             string errMsg2 = " and ";
-            throw MatrixExceptions( errMsg1 + dims() + errMsg2 + mat2.dims());
+            throw MatrixException( errMsg1 + dims() + errMsg2 + mat2.dims());
         }
 
         Matrix newMat = Matrix(getRowSize(), getColSize());
@@ -133,11 +136,51 @@ public:
         return newMat;
     }
 
+    void updateAll(function<T(T, T)> f, T val) {
+        // f(T, T) takes in the value in the original matrix and a new value and performs some operation
+
+        for (int r = 0; r < getRowSize(); r++) {
+            for (int c = 0; c < getColSize(); c++) {
+                get(r, c) = f(get(r, c), val);
+            }
+        }
+    }
+
+    Matrix operator+(T scalar) {
+        Matrix newMat = copy();
+
+        function add = [](T x, T y) {return x + y;};
+        newMat.updateAll(add, scalar);
+        return newMat;
+    }
+
+    Matrix operator-(T scalar) {
+        return operator+(-scalar);
+    }
+
+    Matrix operator*(T scalar) {
+        Matrix newMat = copy();
+
+        function mult = [](T x, T y) {return x * y;};
+        newMat.updateAll(mult, scalar);
+        return newMat;
+    }
+
+    Matrix operator/(T scalar) {
+        // return operator*(1 / scalar);
+
+        Matrix newMat = copy();
+
+        function div = [](T x, T y) {return x / y;};
+        newMat.updateAll(div, scalar);
+        return newMat;
+    }
+
     Matrix matMul(Matrix mat2) {
         if (getColSize() != mat2.getRowSize()) {
             string errMsg1 = "Incorrect dimensions: can't multiply matrices with dimensions ";
             string errMsg2 = " and ";
-            throw MatrixExceptions( errMsg1 + dims() + errMsg2 + mat2.dims());
+            throw MatrixException( errMsg1 + dims() + errMsg2 + mat2.dims());
         }
 
         Matrix newMat = Matrix(getRowSize(), mat2.getColSize());
@@ -171,20 +214,6 @@ public:
     }
 
     string toString() {
-        // string matString = "[";
-        // for (int i = 0; i < size; i++) {
-        //     matString += to_string(mat[i]);
-        //     if (i % rows == rows - 1) {
-        //         if (i == size - 1) {
-        //             matString += "]";
-        //         } else {
-        //             matString += "\n";
-        //         }
-        //     } else {
-        //         matString += ", ";
-        //     }
-        // }
-
         string matString = "[";
         for (int r = 0; r < getRowSize(); r++) {
             for (int c = 0; c < getColSize(); c++) {
@@ -203,19 +232,6 @@ public:
 
     void display() {
         cout << toString() << endl;
-        // cout << "[";
-        // for (int i = 0; i < size; i++) {
-        //     cout << mat[i];
-        //     if (i % rows == rows - 1) {
-        //         if (i == size - 1) {
-        //             cout << "]";
-        //         }
-        //         cout << endl;
-        //     } else {
-        //         cout << ", ";
-        //     }
-        // }
-
     }
 
     string dims() {
@@ -229,7 +245,7 @@ private:
     T *mat;
     int rows;
     int cols;
-    int size;
+    int matSize;
 
     // For matrix initialization
     mt19937 rng;
@@ -239,14 +255,25 @@ private:
         if (row >= rows) {
             string errMsg1 = "Row index ";
             string errMsg2 = " is beyond the bounds of the matrix";
-            throw MatrixExceptions(errMsg1 + to_string(row) + errMsg2);
+            throw MatrixException(errMsg1 + to_string(row) + errMsg2);
         }
 
         if (col >= cols) {
             string errMsg1 = "Column index ";
             string errMsg2 = " is beyond the bounds of the matrix";
-            throw MatrixExceptions(errMsg1 + to_string(col) + errMsg2);
+            throw MatrixException(errMsg1 + to_string(col) + errMsg2);
         }
     }
 
 };
+
+// Extra operator functions to implement commutative operators
+template <typename T>
+Matrix<T> operator+(T scalar, Matrix<T> mat) {
+    return mat + scalar;
+}
+
+template <typename T>
+Matrix<T> operator*(T scalar, Matrix<T> mat) {
+    return mat * scalar;
+}

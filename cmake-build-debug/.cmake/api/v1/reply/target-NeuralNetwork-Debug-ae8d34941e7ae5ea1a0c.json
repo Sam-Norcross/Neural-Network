@@ -109,7 +109,7 @@
 		},
 		{
 			"backtrace" : 1,
-			"path" : "MatrixExceptions.h",
+			"path" : "MatrixException.h",
 			"sourceGroupIndex" : 1
 		},
 		{

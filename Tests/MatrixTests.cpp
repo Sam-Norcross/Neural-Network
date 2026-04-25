@@ -1,7 +1,7 @@
 #include <catch2/catch_test_macros.hpp>
 #include "Matrix.h"
 
-TEST_CASE("Matrix Get", "[Matrix]") {
+TEST_CASE("Matrix get()", "[Matrix]") {
     int arr1[4] = {1, 2, 3, 4};
     Matrix mat1(2, 2, arr1);
 
@@ -31,7 +31,7 @@ TEST_CASE("Matrix Get", "[Matrix]") {
     CHECK(mat4.get(2, 1) == 6);
 }
 
-TEST_CASE("Matrix Display", "{Matrix}") {
+TEST_CASE("Matrix toString()", "{Matrix}") {
     int arr1[4] = {1, 2, 3, 4};
     Matrix mat1(2, 2, arr1);
     string mat1String = "[1, 2\n3, 4]";
@@ -70,6 +70,15 @@ TEST_CASE("Matrix Equality", "[Matrix]") {
     CHECK(mat1 != mat3);
 }
 
+TEST_CASE("Matrix copy()", "[Matrix]") {
+    int arr1[4] = {1, 2, 3, 4};
+    Matrix mat1(2, 2, arr1);
+
+    Matrix mat2 = mat1.copy();
+
+    CHECK(mat1 == mat2);
+}
+
 TEST_CASE("Matrix Addition", "[Matrix]") {
     int arr1[4] = {1, 2, 3, 4};
     Matrix mat1(2, 2, arr1);
@@ -90,7 +99,66 @@ TEST_CASE("Matrix Subtraction", "[Matrix]") {
     CHECK(mat1 - mat2 == mat3);
 }
 
-TEST_CASE("Matrix Multiplication", "[Matrix]") {
+TEST_CASE("Matrix Element-Wise Multiplication", "[Matrix]") {
+    int arr1[6] = {1, 2, 3, 4, 5, 6};
+    Matrix mat1(2, 3, arr1);
+    Matrix mat2(2, 3, arr1);
+
+    int arr3[6] = {1, 4, 9, 16, 25, 36};
+    Matrix mat3(2, 3, arr3);
+    CHECK(mat1 * mat2 == mat3);
+}
+
+TEST_CASE("Matrix Element-Wise Division", "[Matrix]") {
+    int arr1[6] = {1, 2, 3, 4, 5, 6};
+    Matrix mat1(2, 3, arr1);
+    Matrix mat2(2, 3, arr1);
+
+    int arr3[6] = {1, 1, 1, 1, 1, 1};
+    Matrix mat3(2, 3, arr3);
+    CHECK(mat1 / mat2 == mat3);
+}
+
+TEST_CASE("Matrix Multiplication 1x1", "[Matrix]") {
+    int arr1[1] = {2};
+    Matrix mat1(1, 1, arr1);
+
+    int arr2[1] = {3};
+    Matrix mat2(1, 1, arr2);
+
+    int arr3[1] = {6};
+    Matrix resultMat(1, 1, arr3);
+
+    CHECK(mat1.matMul(mat2) == resultMat);
+}
+
+TEST_CASE("Matrix Multiplication 1x2 * 2x1", "[Matrix]") {
+    int arr1[2] = {2, 3};
+    Matrix mat1(1, 2, arr1);
+
+    int arr2[2] = {3, 4};
+    Matrix mat2(2, 1, arr2);
+
+    int arr3[1] = {18};
+    Matrix resultMat(1, 1, arr3);
+
+    CHECK(mat1.matMul(mat2) == resultMat);
+}
+
+TEST_CASE("Matrix Multiplication 2x1 * 1x2", "[Matrix]") {
+    int arr1[2] = {2, 3};
+    Matrix mat1(2, 1, arr1);
+
+    int arr2[2] = {3, 4};
+    Matrix mat2(1, 2, arr2);
+
+    int arr3[4] = {6, 8, 9, 12};
+    Matrix resultMat(2, 2, arr3);
+
+    CHECK(mat1.matMul(mat2) == resultMat);
+}
+
+TEST_CASE("Matrix Multiplication 2x2", "[Matrix]") {
     int arr1[4] = {1, 2, 3, 4};
     Matrix mat1(2, 2, arr1);
 
@@ -98,10 +166,57 @@ TEST_CASE("Matrix Multiplication", "[Matrix]") {
     Matrix mat2(2, 2, arr2);
 
     int arr3[4] = {10, 13, 22, 29};
+    Matrix resultMat(2, 2, arr3);
+
+    CHECK(mat1.matMul(mat2) == resultMat);
+}
+
+TEST_CASE("Scalar Addition", "[Matrix]") {
+    int arr1[4] = {1, 2, 3, 4};
+    Matrix mat1(2, 2, arr1);
+
+    int addVal = 5;
+
+    int arr3[4] = {6, 7, 8, 9};
     Matrix mat3(2, 2, arr3);
 
-    (mat1 * mat2).display();
-    mat3.display();
+    CHECK(mat1 + addVal == mat3);
+    CHECK(addVal + mat1 == mat3);
+}
 
-    CHECK(mat1 * mat2 == mat3);
+TEST_CASE("Scalar Subtraction", "[Matrix]") {
+    int arr1[4] = {1, 2, 3, 4};
+    Matrix mat1(2, 2, arr1);
+
+    int subVal = 5;
+
+    int arr3[4] = {-4, -3, -2, -1};
+    Matrix mat3(2, 2, arr3);
+
+    CHECK(mat1 - subVal == mat3);
+}
+
+TEST_CASE("Scalar Multiplication", "[Matrix]") {
+    int arr1[4] = {1, 2, 3, 4};
+    Matrix mat1(2, 2, arr1);
+
+    int multVal = 5;
+
+    int arr3[4] = {5, 10, 15, 20};
+    Matrix mat3(2, 2, arr3);
+
+    CHECK(mat1 * multVal == mat3);
+    CHECK(multVal * mat1 == mat3);
+}
+
+TEST_CASE("Scalar Division", "[Matrix]") {
+    int arr1[4] = {2, 4, 6, 8};
+    Matrix mat1(2, 2, arr1);
+
+    int divVal = 2;
+
+    int arr3[4] = {1, 2, 3, 4};
+    Matrix mat3(2, 2, arr3);
+
+    CHECK(mat1 / divVal == mat3);
 }

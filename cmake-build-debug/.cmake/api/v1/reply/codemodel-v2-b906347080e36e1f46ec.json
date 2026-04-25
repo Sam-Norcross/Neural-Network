@@ -1,0 +1,115 @@
+{
+	"configurations" : 
+	[
+		{
+			"abstractTargets" : 
+			[
+				{
+					"directoryIndex" : 1,
+					"id" : "Catch2::Catch2::@3e3005ae7443f751ac85",
+					"jsonFile" : "target-Catch2__Catch2-Debug-13378e9a5c9173ed8e47.json",
+					"name" : "Catch2::Catch2",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 1,
+					"id" : "Catch2::Catch2WithMain::@3e3005ae7443f751ac85",
+					"jsonFile" : "target-Catch2__Catch2WithMain-Debug-822955f9808feb8e07c5.json",
+					"name" : "Catch2::Catch2WithMain",
+					"projectIndex" : 0
+				}
+			],
+			"directories" : 
+			[
+				{
+					"build" : ".",
+					"childIndexes" : 
+					[
+						1
+					],
+					"jsonFile" : "directory-.-Debug-9ad1a58d4644cf6543fa.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.25"
+					},
+					"projectIndex" : 0,
+					"source" : ".",
+					"targetIndexes" : 
+					[
+						1
+					]
+				},
+				{
+					"abstractTargetIndexes" : 
+					[
+						0,
+						1
+					],
+					"build" : "Tests",
+					"jsonFile" : "directory-Tests-Debug-36bf9fcac8a7999bf6bb.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.25"
+					},
+					"parentIndex" : 0,
+					"projectIndex" : 0,
+					"source" : "Tests",
+					"targetIndexes" : 
+					[
+						0
+					]
+				}
+			],
+			"name" : "Debug",
+			"projects" : 
+			[
+				{
+					"abstractTargetIndexes" : 
+					[
+						0,
+						1
+					],
+					"directoryIndexes" : 
+					[
+						0,
+						1
+					],
+					"name" : "NeuralNetwork",
+					"targetIndexes" : 
+					[
+						0,
+						1
+					]
+				}
+			],
+			"targets" : 
+			[
+				{
+					"directoryIndex" : 1,
+					"id" : "MatrixTestsRun::@3e3005ae7443f751ac85",
+					"jsonFile" : "target-MatrixTestsRun-Debug-bbf3745233662b01525d.json",
+					"name" : "MatrixTestsRun",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "NeuralNetwork::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-NeuralNetwork-Debug-abf4aa80cdf26e8dd53f.json",
+					"name" : "NeuralNetwork",
+					"projectIndex" : 0
+				}
+			]
+		}
+	],
+	"kind" : "codemodel",
+	"paths" : 
+	{
+		"build" : "/Users/samnorcross/Desktop/NeuralNetwork/cmake-build-debug",
+		"source" : "/Users/samnorcross/Desktop/NeuralNetwork"
+	},
+	"version" : 
+	{
+		"major" : 2,
+		"minor" : 9
+	}
+}

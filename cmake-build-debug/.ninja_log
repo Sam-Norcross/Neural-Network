@@ -1,0 +1,12 @@
+# ninja log v7
+1	59	1777071400720802171	build.ninja	ed3808dbc38ef6d5
+1	59	1777071400719439446	/Users/samnorcross/Desktop/NeuralNetwork/cmake-build-debug/cmake_install.cmake	ed3808dbc38ef6d5
+1	59	1777071400720097017	/Users/samnorcross/Desktop/NeuralNetwork/cmake-build-debug/Tests/cmake_install.cmake	ed3808dbc38ef6d5
+2	414	1777071010731493863	CMakeFiles/NeuralNetwork.dir/main.cpp.o	c4612d8fa0931f7d
+414	457	1777071011143511109	NeuralNetwork	d8cdb010de0079b0
+2	511	1777073207145635039	Tests/CMakeFiles/MatrixTestsRun.dir/MatrixTests.cpp.o	37adb3b5f9c28694
+511	766	1777073207908820961	Tests/MatrixTestsRun	e8333f44e20ed4c6
+511	766	1777073207908820961	Tests/MatrixTestsRun-b12d07c_tests.cmake	e8333f44e20ed4c6
+511	766	1777073207908820961	/Users/samnorcross/Desktop/NeuralNetwork/cmake-build-debug/Tests/MatrixTestsRun-b12d07c_tests.cmake	e8333f44e20ed4c6
+3	422	1777073212239652781	CMakeFiles/NeuralNetwork.dir/main.cpp.o	c4612d8fa0931f7d
+422	465	1777073212658056364	NeuralNetwork	d8cdb010de0079b0

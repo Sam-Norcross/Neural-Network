@@ -1,0 +1,74 @@
+{
+	"abstract" : true,
+	"artifacts" : 
+	[
+		{
+			"path" : "/usr/local/lib/libCatch2.a"
+		}
+	],
+	"backtrace" : 5,
+	"backtraceGraph" : 
+	{
+		"commands" : 
+		[
+			"add_library",
+			"include",
+			"find_package"
+		],
+		"files" : 
+		[
+			"/usr/local/lib/cmake/Catch2/Catch2Targets.cmake",
+			"/usr/local/lib/cmake/Catch2/Catch2Config.cmake",
+			"Tests/CMakeLists.txt"
+		],
+		"nodes" : 
+		[
+			{
+				"file" : 2
+			},
+			{
+				"command" : 2,
+				"file" : 2,
+				"line" : 1,
+				"parent" : 0
+			},
+			{
+				"file" : 1,
+				"parent" : 1
+			},
+			{
+				"command" : 1,
+				"file" : 1,
+				"line" : 32,
+				"parent" : 2
+			},
+			{
+				"file" : 0,
+				"parent" : 3
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 59,
+				"parent" : 4
+			}
+		]
+	},
+	"codemodelVersion" : 
+	{
+		"major" : 2,
+		"minor" : 9
+	},
+	"id" : "Catch2::Catch2::@3e3005ae7443f751ac85",
+	"imported" : true,
+	"local" : true,
+	"name" : "Catch2::Catch2",
+	"nameOnDisk" : "libCatch2.a",
+	"paths" : 
+	{
+		"build" : "Tests",
+		"source" : "Tests"
+	},
+	"sources" : [],
+	"type" : "STATIC_LIBRARY"
+}

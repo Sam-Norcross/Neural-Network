@@ -1,0 +1,14 @@
+[
+{
+  "directory": "/Users/samnorcross/Desktop/NeuralNetwork/cmake-build-debug",
+  "command": "/usr/bin/c++ -g -std=gnu++2b -arch arm64 -fcolor-diagnostics -o CMakeFiles/NeuralNetwork.dir/main.cpp.o -c /Users/samnorcross/Desktop/NeuralNetwork/main.cpp",
+  "file": "/Users/samnorcross/Desktop/NeuralNetwork/main.cpp",
+  "output": "/Users/samnorcross/Desktop/NeuralNetwork/cmake-build-debug/CMakeFiles/NeuralNetwork.dir/main.cpp.o"
+},
+{
+  "directory": "/Users/samnorcross/Desktop/NeuralNetwork/cmake-build-debug",
+  "command": "/usr/bin/c++ -I/Users/samnorcross/Desktop/NeuralNetwork -g -std=gnu++2b -arch arm64 -fcolor-diagnostics -o Tests/CMakeFiles/MatrixTestsRun.dir/MatrixTests.cpp.o -c /Users/samnorcross/Desktop/NeuralNetwork/Tests/MatrixTests.cpp",
+  "file": "/Users/samnorcross/Desktop/NeuralNetwork/Tests/MatrixTests.cpp",
+  "output": "/Users/samnorcross/Desktop/NeuralNetwork/cmake-build-debug/Tests/CMakeFiles/MatrixTestsRun.dir/MatrixTests.cpp.o"
+}
+]

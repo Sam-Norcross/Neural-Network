@@ -1,0 +1,5 @@
+if(EXISTS "/Users/samnorcross/Desktop/NeuralNetwork/cmake-build-debug/Tests/MatrixTestsRun-b12d07c_tests.cmake")
+  include("/Users/samnorcross/Desktop/NeuralNetwork/cmake-build-debug/Tests/MatrixTestsRun-b12d07c_tests.cmake")
+else()
+  add_test(MatrixTestsRun_NOT_BUILT-b12d07c MatrixTestsRun_NOT_BUILT-b12d07c)
+endif()

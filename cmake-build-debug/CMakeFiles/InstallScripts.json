@@ -1,0 +1,8 @@
+{
+	"InstallScripts" : 
+	[
+		"/Users/samnorcross/Desktop/NeuralNetwork/cmake-build-debug/cmake_install.cmake",
+		"/Users/samnorcross/Desktop/NeuralNetwork/cmake-build-debug/Tests/cmake_install.cmake"
+	],
+	"Parallel" : false
+}

@@ -5,6 +5,7 @@ set(CMAKE_CXX_STANDARD 23)
 
 add_executable(NeuralNetwork main.cpp
         MatrixException.h
-        Matrix.h)
+        Matrix.h
+        Dual.h)
 
 add_subdirectory(Tests)

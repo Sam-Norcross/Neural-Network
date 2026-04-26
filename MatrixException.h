@@ -1,8 +1,6 @@
-//
-// Created by Sam Norcross on 4/2/26.
-//
 #include <exception>
 #include <string>
+#pragma once
 using namespace std;
 
 class MatrixException : public exception {

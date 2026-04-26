@@ -95,7 +95,8 @@
 			"sourceIndexes" : 
 			[
 				1,
-				2
+				2,
+				3
 			]
 		}
 	],
@@ -115,6 +116,11 @@
 		{
 			"backtrace" : 1,
 			"path" : "Matrix.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "Dual.h",
 			"sourceGroupIndex" : 1
 		}
 	],

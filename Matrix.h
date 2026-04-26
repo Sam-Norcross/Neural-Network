@@ -1,6 +1,4 @@
 // TODO--implement:
-// scalar multiplication/addition/subtraction/division
-// transpose
 // inverse?
 
 #include <iostream>
@@ -8,6 +6,7 @@
 #include <string>
 #include <functional>
 #include "MatrixException.h"
+#pragma once
 using namespace std;
 
 template <typename T>
@@ -61,6 +60,20 @@ public:
     Matrix copy() {
         Matrix newMat = Matrix(getRowSize(), getColSize(), mat);
         return newMat;
+    }
+
+    bool operator==(Matrix mat2) {
+        if (getRowSize() != mat2.getRowSize() || getColSize() != mat2.getColSize()) {
+            return false;
+        }
+        for (int r = 0; r < getRowSize(); r++) {
+            for (int c = 0; c < getColSize(); c++) {
+                if (get(r, c) != mat2.get(r, c)) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
     Matrix operator+(Matrix mat2) {
@@ -199,19 +212,19 @@ public:
         return newMat;
     }
 
-    bool operator==(Matrix mat2) {
-        if (getRowSize() != mat2.getRowSize() || getColSize() != mat2.getColSize()) {
-            return false;
-        }
+    Matrix transpose() {
+        Matrix newMat = Matrix(getColSize(), getRowSize());
+
         for (int r = 0; r < getRowSize(); r++) {
             for (int c = 0; c < getColSize(); c++) {
-                if (get(r, c) != mat2.get(r, c)) {
-                    return false;
-                }
+                newMat.get(c, r) = get(r, c);
             }
         }
-        return true;
+
+        return newMat;
     }
+
+
 
     string toString() {
         string matString = "[";

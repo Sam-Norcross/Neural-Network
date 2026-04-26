@@ -36,7 +36,7 @@
 					"source" : ".",
 					"targetIndexes" : 
 					[
-						1
+						2
 					]
 				},
 				{
@@ -56,7 +56,8 @@
 					"source" : "Tests",
 					"targetIndexes" : 
 					[
-						0
+						0,
+						1
 					]
 				}
 			],
@@ -78,7 +79,8 @@
 					"targetIndexes" : 
 					[
 						0,
-						1
+						1,
+						2
 					]
 				}
 			],
@@ -86,15 +88,22 @@
 			[
 				{
 					"directoryIndex" : 1,
+					"id" : "DualTestsRun::@3e3005ae7443f751ac85",
+					"jsonFile" : "target-DualTestsRun-Debug-01295ca17c4b93b06d81.json",
+					"name" : "DualTestsRun",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 1,
 					"id" : "MatrixTestsRun::@3e3005ae7443f751ac85",
-					"jsonFile" : "target-MatrixTestsRun-Debug-bbf3745233662b01525d.json",
+					"jsonFile" : "target-MatrixTestsRun-Debug-65f6e951c80e11b16a62.json",
 					"name" : "MatrixTestsRun",
 					"projectIndex" : 0
 				},
 				{
 					"directoryIndex" : 0,
 					"id" : "NeuralNetwork::@6890427a1f51a3e7e1df",
-					"jsonFile" : "target-NeuralNetwork-Debug-ae8d34941e7ae5ea1a0c.json",
+					"jsonFile" : "target-NeuralNetwork-Debug-a95d4c216cc35a79ac0c.json",
 					"name" : "NeuralNetwork",
 					"projectIndex" : 0
 				}

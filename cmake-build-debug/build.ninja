@@ -143,6 +143,45 @@ build Tests/MatrixTestsRun Tests/MatrixTestsRun-b12d07c_tests.cmake | ${cmake_ni
   TARGET_PDB = MatrixTestsRun.dbg
   TARGET_SUPPORT_DIR = Tests/CMakeFiles/MatrixTestsRun.dir
 
+# =============================================================================
+# Object build statements for EXECUTABLE target DualTestsRun
+
+
+#############################################
+# Order-only phony target for DualTestsRun
+
+build cmake_object_order_depends_target_DualTestsRun: phony || .
+
+build Tests/CMakeFiles/DualTestsRun.dir/DualTests.cpp.o: CXX_COMPILER__DualTestsRun_unscanned_Debug /Users/samnorcross/Desktop/NeuralNetwork/Tests/DualTests.cpp || cmake_object_order_depends_target_DualTestsRun
+  CONFIG = Debug
+  DEP_FILE = Tests/CMakeFiles/DualTestsRun.dir/DualTests.cpp.o.d
+  FLAGS = -g -std=gnu++2b -arch arm64 -fcolor-diagnostics
+  INCLUDES = -I/Users/samnorcross/Desktop/NeuralNetwork
+  OBJECT_DIR = Tests/CMakeFiles/DualTestsRun.dir
+  OBJECT_FILE_DIR = Tests/CMakeFiles/DualTestsRun.dir
+  TARGET_SUPPORT_DIR = Tests/CMakeFiles/DualTestsRun.dir
+
+
+# =============================================================================
+# Link build statements for EXECUTABLE target DualTestsRun
+
+
+#############################################
+# Link the executable Tests/DualTestsRun
+
+build Tests/DualTestsRun Tests/DualTestsRun-b12d07c_tests.cmake | ${cmake_ninja_workdir}Tests/DualTestsRun-b12d07c_tests.cmake: CXX_EXECUTABLE_LINKER__DualTestsRun_Debug Tests/CMakeFiles/DualTestsRun.dir/DualTests.cpp.o | /usr/local/lib/libCatch2Main.a /usr/local/lib/libCatch2.a
+  CONFIG = Debug
+  FLAGS = -g -arch arm64
+  LINK_FLAGS = -Wl,-search_paths_first -Wl,-headerpad_max_install_names
+  LINK_LIBRARIES = /usr/local/lib/libCatch2Main.a  /usr/local/lib/libCatch2.a
+  OBJECT_DIR = Tests/CMakeFiles/DualTestsRun.dir
+  POST_BUILD = cd /Users/samnorcross/Desktop/NeuralNetwork/cmake-build-debug/Tests && /Applications/CLion.app/Contents/bin/cmake/mac/aarch64/bin/cmake -D TEST_TARGET=DualTestsRun -D TEST_EXECUTABLE=/Users/samnorcross/Desktop/NeuralNetwork/cmake-build-debug/Tests/DualTestsRun -D TEST_EXECUTOR= -D TEST_WORKING_DIR=/Users/samnorcross/Desktop/NeuralNetwork/cmake-build-debug/Tests -D TEST_SPEC= -D TEST_EXTRA_ARGS= -D "TEST_PROPERTIES=SKIP_RETURN_CODE;4" -D TEST_PREFIX= -D TEST_SUFFIX= -D TEST_LIST=DualTestsRun_TESTS -D TEST_REPORTER= -D TEST_OUTPUT_DIR= -D TEST_OUTPUT_PREFIX= -D TEST_OUTPUT_SUFFIX= -D TEST_DL_PATHS= -D TEST_DL_FRAMEWORK_PATHS= -D CTEST_FILE=/Users/samnorcross/Desktop/NeuralNetwork/cmake-build-debug/Tests/DualTestsRun-b12d07c_tests.cmake -D ADD_TAGS_AS_LABELS=FALSE -P /usr/local/lib/cmake/Catch2/CatchAddTests.cmake
+  PRE_LINK = :
+  RESTAT = 1
+  TARGET_FILE = Tests/DualTestsRun
+  TARGET_PDB = DualTestsRun.dbg
+  TARGET_SUPPORT_DIR = Tests/CMakeFiles/DualTestsRun.dir
+
 
 #############################################
 # Utility command for edit_cache
@@ -169,6 +208,8 @@ build Tests/rebuild_cache: phony Tests/CMakeFiles/rebuild_cache.util
 # =============================================================================
 # Target aliases.
 
+build DualTestsRun: phony Tests/DualTestsRun
+
 build MatrixTestsRun: phony Tests/MatrixTestsRun
 
 # =============================================================================
@@ -186,7 +227,7 @@ build all: phony NeuralNetwork Tests/all
 #############################################
 # Folder: /Users/samnorcross/Desktop/NeuralNetwork/cmake-build-debug/Tests
 
-build Tests/all: phony Tests/MatrixTestsRun
+build Tests/all: phony Tests/MatrixTestsRun Tests/DualTestsRun
 
 # =============================================================================
 # Built-in targets

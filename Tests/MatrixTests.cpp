@@ -220,3 +220,43 @@ TEST_CASE("Scalar Division", "[Matrix]") {
 
     CHECK(mat1 / divVal == mat3);
 }
+
+TEST_CASE("Matrix transpose() 1x1", "[Matrix]") {
+    int arr1[1] = {1};
+    Matrix mat1(1, 1, arr1);
+
+    CHECK(mat1.transpose() == mat1);
+}
+
+TEST_CASE("Matrix transpose() 2x1", "[Matrix]") {
+    int arr1[2] = {1, 2};
+    Matrix mat1(2, 1, arr1);
+
+    int arr2[2] = {1, 2};
+    Matrix mat2(1, 2, arr2);
+
+    CHECK(mat1.transpose() == mat2);
+    CHECK(mat2.transpose() == mat1);
+}
+
+TEST_CASE("Matrix transpose() 2x2", "[Matrix]") {
+    int arr1[4] = {1, 2, 3, 4};
+    Matrix mat1(2, 2, arr1);
+
+    int arr2[4] = {1, 3, 2, 4};
+    Matrix mat2(2, 2, arr2);
+
+    CHECK(mat1.transpose() == mat2);
+    CHECK(mat2.transpose() == mat1);
+}
+
+TEST_CASE("Matrix transpose() 2x3", "[Matrix]") {
+    int arr1[6] = {1, 2, 3, 4, 5, 6};
+    Matrix mat1(2, 3, arr1);
+
+    int arr2[6] = {1, 4, 2, 5, 3, 6};
+    Matrix mat2(3, 2, arr2);
+
+    CHECK(mat1.transpose() == mat2);
+    CHECK(mat2.transpose() == mat1);
+}

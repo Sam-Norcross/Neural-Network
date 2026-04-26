@@ -1,0 +1,7 @@
+add_test( [==[Autodiff scalar addition/subtraction/multiplication/division]==] /Users/samnorcross/Desktop/NeuralNetwork/cmake-build-debug/Tests/DualTestsRun [==[Autodiff scalar addition/subtraction/multiplication/division]==]  )
+set_tests_properties( [==[Autodiff scalar addition/subtraction/multiplication/division]==] PROPERTIES WORKING_DIRECTORY /Users/samnorcross/Desktop/NeuralNetwork/cmake-build-debug/Tests SKIP_RETURN_CODE 4)
+add_test( [==[Autodiff scalar multiplication and addition]==] /Users/samnorcross/Desktop/NeuralNetwork/cmake-build-debug/Tests/DualTestsRun [==[Autodiff scalar multiplication and addition]==]  )
+set_tests_properties( [==[Autodiff scalar multiplication and addition]==] PROPERTIES WORKING_DIRECTORY /Users/samnorcross/Desktop/NeuralNetwork/cmake-build-debug/Tests SKIP_RETURN_CODE 4)
+add_test( [==[Autodiff exponent]==] /Users/samnorcross/Desktop/NeuralNetwork/cmake-build-debug/Tests/DualTestsRun [==[Autodiff exponent]==]  )
+set_tests_properties( [==[Autodiff exponent]==] PROPERTIES WORKING_DIRECTORY /Users/samnorcross/Desktop/NeuralNetwork/cmake-build-debug/Tests SKIP_RETURN_CODE 4)
+set( DualTestsRun_TESTS [==[Autodiff scalar addition/subtraction/multiplication/division]==] [==[Autodiff scalar multiplication and addition]==] [==[Autodiff exponent]==])

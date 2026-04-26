@@ -1,0 +1,5 @@
+if(EXISTS "/Users/samnorcross/Desktop/NeuralNetwork/cmake-build-debug/Tests/DualTestsRun-b12d07c_tests.cmake")
+  include("/Users/samnorcross/Desktop/NeuralNetwork/cmake-build-debug/Tests/DualTestsRun-b12d07c_tests.cmake")
+else()
+  add_test(DualTestsRun_NOT_BUILT-b12d07c DualTestsRun_NOT_BUILT-b12d07c)
+endif()

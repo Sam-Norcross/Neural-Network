@@ -1,4 +1,4 @@
-/Applications/CLion.app/Contents/bin/cmake/mac/aarch64/bin/cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_MAKE_PROGRAM=/Applications/CLion.app/Contents/bin/ninja/mac/aarch64/ninja -G Ninja -S /Users/samnorcross/Desktop/NeuralNetwork -B /Users/samnorcross/Desktop/NeuralNetwork/cmake-build-debug
+"D:\CLion 2026.1.1\bin\cmake\win\x64\bin\cmake.exe" -DCMAKE_BUILD_TYPE=Debug -DCMAKE_TOOLCHAIN_FILE=C:\Users\norcr\.vcpkg-clion\vcpkg\scripts\buildsystems\vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-mingw-dynamic -G "MinGW Makefiles" -S C:\Users\norcr\Desktop\NeuralNetwork -B C:\Users\norcr\Desktop\NeuralNetwork\cmake-build-debug
 -- Configuring done (0.1s)
--- Generating done (0.0s)
--- Build files have been written to: /Users/samnorcross/Desktop/NeuralNetwork/cmake-build-debug
+-- Generating done (0.1s)
+-- Build files have been written to: C:/Users/norcr/Desktop/NeuralNetwork/cmake-build-debug

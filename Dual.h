@@ -1,5 +1,5 @@
 #include <iostream>
-#include "Matrix.h"
+#include <cmath>
 #pragma once
 using namespace std;
 
@@ -8,12 +8,19 @@ class Dual {
 public:
     Dual(T value, T derivative) : val(value), der(derivative) {}
 
+    // Default constructor for use in Matrix() declaration
+    Dual() : val(0), der(1) {}
+
     T getValue() {
         return val;
     }
 
     T getDerivative() {
         return der;
+    }
+
+    Dual operator()(T val) {
+        return Dual(val, 1.0);
     }
 
     Dual operator+(Dual dual2) {
@@ -54,6 +61,12 @@ private:
 };
 
 template <typename T>
+string to_string(Dual<T> dual) {
+    return to_string(dual.getValue());
+}
+
+// Overloaded operators for Dual() objects
+template <typename T>
 Dual<T> operator+(T val, Dual<T> dual) {
     return dual + val;
 }
@@ -68,7 +81,46 @@ Dual<T> operator*(T val, Dual<T> dual) {
     return dual * val;
 }
 
+// Overloaded mathematical functions for Dual() objects
 template <typename T>
 Dual<T> pow(Dual<T> dual, T val) {
     return Dual(pow(dual.getValue(), val), val * pow(dual.getValue(), (val - 1)) * dual.getDerivative());
 }
+
+template <typename T>
+Dual<T> pow(T val, Dual<T> dual) {
+    return Dual(pow(val, dual.getValue()), pow(val, dual.getValue()) * log(val) * dual.getDerivative());
+}
+
+template <typename T>
+Dual<T> log(Dual<T> dual) {
+    return Dual(log(dual.getValue()), dual.getDerivative() / dual.getValue());
+}
+
+template <typename T>
+Dual<T> log10(Dual<T> dual) {
+    return Dual(log10(dual.getValue()), dual.getDerivative() / (log(10.0) * dual.getValue()));
+}
+
+template <typename T>
+Dual<T> log2(Dual<T> dual) {
+    return Dual(log10(dual.getValue()), dual.getDerivative() / (log(2.0) * dual.getValue()));
+}
+
+template <typename T>
+Dual<T> exp(Dual<T> dual) {
+    return Dual(exp(dual.getValue()), exp(dual.getValue()) * dual.getDerivative());
+}
+
+template <typename T>
+Dual<T> sin(Dual<T> dual) {
+    return Dual(sin(dual.getValue()), cos(dual.getValue()) * dual.getDerivative());
+}
+
+template <typename T>
+Dual<T> cos(Dual<T> dual) {
+    return Dual(cos(dual.getValue()), -1 * sin(dual.getValue()) * dual.getDerivative());
+}
+
+
+// ADD COMMENTS!!!

@@ -281,12 +281,71 @@ private:
 };
 
 // Extra operator functions to implement commutative operators
-template <typename T>
-Matrix<T> operator+(T scalar, Matrix<T> mat) {
+template <typename T, typename U>
+Matrix<T> operator+(T scalar, Matrix<U> mat) {
     return mat + scalar;
 }
 
-template <typename T>
-Matrix<T> operator*(T scalar, Matrix<T> mat) {
+template <typename T, typename U>
+Matrix<T> operator*(T scalar, Matrix<U> mat) {
     return mat * scalar;
 }
+
+// Overloaded mathematical functions for Matrix() objects
+// template <typename T, typename U>
+// Matrix<T> pow(Matrix<T> mat, U val) {
+//     Matrix newMat = mat.copy();
+//
+//     // function add = [](T x, T y) {return x + y;};
+//     function customPow = [](T x, U y) {return pow(x, y);};
+//     newMat.updateAll(customPow, val);
+//     return newMat;
+// }
+
+template <typename T, typename U>
+Matrix<T> pow(Matrix<T> mat, U val) {
+    Matrix newMat = mat.copy();
+
+    for (int r = 0; r < newMat.getRowSize(); r++) {
+        for (int c = 0; c < newMat.getColSize(); c++) {
+            newMat.get(r, c) = pow(newMat.get(r, c), val);
+        }
+    }
+
+    return newMat;
+}
+
+// template <typename T>
+// Dual<T> pow(T val, Dual<T> dual) {
+//     return Dual(pow(val, dual.getValue()), pow(val, dual.getValue()) * log(val) * dual.getDerivative());
+// }
+//
+// template <typename T>
+// Dual<T> log(Dual<T> dual) {
+//     return Dual(log(dual.getValue()), dual.getDerivative() / dual.getValue());
+// }
+//
+// template <typename T>
+// Dual<T> log10(Dual<T> dual) {
+//     return Dual(log10(dual.getValue()), dual.getDerivative() / (log(10.0) * dual.getValue()));
+// }
+//
+// template <typename T>
+// Dual<T> log2(Dual<T> dual) {
+//     return Dual(log10(dual.getValue()), dual.getDerivative() / (log(2.0) * dual.getValue()));
+// }
+//
+// template <typename T>
+// Dual<T> exp(Dual<T> dual) {
+//     return Dual(exp(dual.getValue()), exp(dual.getValue()) * dual.getDerivative());
+// }
+//
+// template <typename T>
+// Dual<T> sin(Dual<T> dual) {
+//     return Dual(sin(dual.getValue()), cos(dual.getValue()) * dual.getDerivative());
+// }
+//
+// template <typename T>
+// Dual<T> cos(Dual<T> dual) {
+//     return Dual(cos(dual.getValue()), -1 * sin(dual.getValue()) * dual.getDerivative());
+// }

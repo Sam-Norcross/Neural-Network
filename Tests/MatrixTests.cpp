@@ -77,6 +77,8 @@ TEST_CASE("Matrix copy()", "[Matrix]") {
     Matrix mat2 = mat1.copy();
 
     CHECK(mat1 == mat2);
+
+    //TODO--check that editing the copy doesn't edit the original
 }
 
 TEST_CASE("Matrix Addition", "[Matrix]") {

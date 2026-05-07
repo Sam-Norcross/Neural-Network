@@ -1,8 +1,0 @@
-{
-	"InstallScripts" : 
-	[
-		"C:/Users/norcr/Desktop/NeuralNetwork/cmake-build-debug/cmake_install.cmake",
-		"C:/Users/norcr/Desktop/NeuralNetwork/cmake-build-debug/Tests/cmake_install.cmake"
-	],
-	"Parallel" : false
-}

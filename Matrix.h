@@ -20,7 +20,7 @@ public:
         mat = new T[rows * cols];
 
         for (int i = 0; i < matSize; i++) {
-            mat[i] = (T)dist(rng);
+            mat[i] = dist(rng);//static_cast<T>(dist(rng));
         }
     }
 

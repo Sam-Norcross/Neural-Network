@@ -1,5 +1,6 @@
 #include <catch2/catch_test_macros.hpp>
 #include "Matrix.h"
+#include "Dual.h"
 
 TEST_CASE("Matrix get()", "[Matrix]") {
     int arr1[4] = {1, 2, 3, 4};
@@ -261,4 +262,15 @@ TEST_CASE("Matrix transpose() 2x3", "[Matrix]") {
 
     CHECK(mat1.transpose() == mat2);
     CHECK(mat2.transpose() == mat1);
+}
+
+TEST_CASE("Matrix addition with Dual elements", "[Matrix]") {
+    Dual<double> arr[4] = {Dual(1.0, 1.0), Dual(2.0, 1.0), Dual(3.0, 1.0), Dual(4.0, 1.0)};
+    Matrix mat1(2, 2, arr);
+    Matrix mat2(2, 2, arr);
+
+    Dual<double> resultArr[4] = {Dual(2.0, 2.0), Dual(4.0, 2.0), Dual(6.0, 2.0), Dual(8.0, 2.0)};
+    Matrix mat3(2, 2, resultArr);
+
+    CHECK(mat1 + mat2 == mat3);
 }

@@ -1,6 +1,6 @@
 #include <iostream>
 #include "Matrix.h"
-#include <iterator>
+#include "Dual.h"
 using namespace std;
 
 int main() {
@@ -13,6 +13,18 @@ int main() {
     // Matrix mat3(2, 2, arr3);
     //
     // cout << (mat1 != mat3) << endl;
+
+    // Dual<double> arr[4] = {Dual(1.0, 1.0), Dual(2.0, 1.0), Dual(3.0, 1.0), Dual(4.0, 1.0)};
+    // Matrix mat(2, 2, arr);
+    //
+    // mat.display();
+
+    Matrix<Dual<double>> mat2(2, 2);
+
+    mat2.display();
+
+    Dual el1 = mat2.get(0, 0);
+    cout << el1.getValue() << ", " << el1.getDerivative() << endl;
 
     return 0;
 }

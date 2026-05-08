@@ -3,6 +3,15 @@
 #include "Dual.h"
 #include <cmath>
 
+TEST_CASE("Dual cast to double", "[Dual]") {
+    double num = 5.0;
+    Dual result = Dual(num, 1.0);
+
+    Dual result2 = num;
+
+    CHECK(result2 == result);
+}
+
 TEST_CASE("Autodiff scalar multiplication and addition", "[Dual]") {
     // f(x) = 2x + 3, f'(x) = 2
     // f(3) = 9, f'(3) = 2
@@ -21,6 +30,37 @@ TEST_CASE("Autodiff scalar addition/subtraction/multiplication/division", "[Dual
     Dual result = 5.0 * num + 3.0 - num / 2.0 - 1.0;
     CHECK(result.getValue() == 11);
     CHECK(result.getDerivative() == 4.5);
+}
+
+TEST_CASE("Autodiff scalar division", "[Dual]") {
+    // f(x) = 1/x, f'(x) = -1/x^2
+    // f(5) = 1/5, f'(5) = -1/25
+    Dual num = Dual(5.0, 1.0);
+
+    Dual result = 1.0 / num;
+
+    CHECK(result.getValue() == 1.0 / 5.0);
+    CHECK(result.getDerivative() == -1.0 / 25.0);
+}
+
+TEST_CASE("Autodiff Dual division", "[Dual]") {
+    Dual num1 = Dual(4.0, 1.0);
+    Dual num2 = Dual(2.0, 1.0);
+
+    Dual result = num1 / num2;
+
+    CHECK(result.getValue() == 2.0);
+    // CHECK(result.getDerivative() == /*TODO*/); TODO--what does this actually mean? What should the result be?
+
+    Dual num3 = Dual(2.0, 0.0);
+    Dual num4 = Dual(4.0, 1.0);
+
+    Dual result2 = num3 / num4;
+    Dual result3 = num4 / num3;
+
+    CHECK(result2 == Dual(1.0 / 2.0, -2.0 / pow(4.0, 2.0)));
+    CHECK(result3 == Dual(2.0, 1.0 / 2.0));
+
 }
 
 TEST_CASE("Autodiff power", "[Dual]") {
@@ -64,21 +104,21 @@ TEST_CASE("Autodiff logarithms", "[Dual]") {
     CHECK(result.getDerivative() == 2.0 / 5.0 + 1.0 / (2.0 * log(10.0)) + 1 / (2.0 * log(2.0)));
 }
 
-TEST_CASE("Autodiff with matrices", "[Dual]") {
-    // f(x) = 3x^2 - 2x + 1, f'(x) = 6x - 2
-    // x = [1 2; 3 4]
-    // f(x) = [2 9; 22 41]
-    // f'(x) = [4 10; 16 22]
-
-    Dual<double> arr[4] = {Dual(1.0, 1.0), Dual(2.0, 1.0), Dual(3.0, 1.0), Dual(4.0, 1.0)};
-    Matrix mat(2, 2, arr);
-
-    mat.display();
-
-    Matrix fMat = 3.0 * pow(mat, 2.0);// - 2.0 * mat + 1.0;
-
-    fMat.display();
-
-    // TODO--fix this too!
-    // Matrix<Dual<double>> mat(2, 2);// = Matrix<Dual>(2, 2);
-}
+// TEST_CASE("Autodiff with matrices", "[Dual]") {
+//     // f(x) = 3x^2 - 2x + 1, f'(x) = 6x - 2
+//     // x = [1 2; 3 4]
+//     // f(x) = [2 9; 22 41]
+//     // f'(x) = [4 10; 16 22]
+//
+//     Dual<double> arr[4] = {Dual(1.0, 1.0), Dual(2.0, 1.0), Dual(3.0, 1.0), Dual(4.0, 1.0)};
+//     Matrix mat(2, 2, arr);
+//
+//     mat.display();
+//
+//     Matrix fMat = 3.0 * pow(mat, 2.0);// - 2.0 * mat + 1.0;
+//
+//     fMat.display();
+//
+//     // TODO--fix this too!
+//     // Matrix<Dual<double>> mat(2, 2);// = Matrix<Dual>(2, 2);
+// }

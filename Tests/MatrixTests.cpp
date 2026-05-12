@@ -274,3 +274,17 @@ TEST_CASE("Matrix addition with Dual elements", "[Matrix]") {
 
     CHECK(mat1 + mat2 == mat3);
 }
+
+TEST_CASE("Matrix getValue() and getDerivative()", "[Matrix]") {
+    Dual<double> arr[4] = {Dual(1.0, 1.0), Dual(2.0, 0.0), Dual(3.0, -1.0), Dual(4.0, -2.0)};
+    Matrix mat(2, 2, arr);
+
+    double vals[4] = {1.0, 2.0, 3.0, 4.0};
+    double ders[4] = {1.0, 0.0, -1.0, -2.0};
+
+    Matrix valMat = Matrix(2, 2, vals);
+    Matrix derMat = Matrix(2, 2, ders);
+
+    CHECK(getValue(mat) == valMat);
+    CHECK(getDerivative(mat) == derMat);
+}

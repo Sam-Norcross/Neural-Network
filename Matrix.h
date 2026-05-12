@@ -5,6 +5,8 @@
 #include <random>
 #include <string>
 #include <functional>
+
+#include "Dual.h"
 #include "MatrixException.h"
 #pragma once
 using namespace std;
@@ -149,7 +151,8 @@ public:
         return newMat;
     }
 
-    void updateAll(function<T(T, T)> f, T val) {
+    template <typename U>
+    void updateAll(function<T(T, U)> f, U val) {
         // f(T, T) takes in the value in the original matrix and a new value and performs some operation
 
         for (int r = 0; r < getRowSize(); r++) {
@@ -159,32 +162,36 @@ public:
         }
     }
 
-    Matrix operator+(T scalar) {
+    template <typename U>
+    Matrix operator+(U scalar) {
         Matrix newMat = copy();
 
-        function add = [](T x, T y) {return x + y;};
+        function add = [](T x, U y) {return x + y;};
         newMat.updateAll(add, scalar);
         return newMat;
     }
 
-    Matrix operator-(T scalar) {
+    template <typename U>
+    Matrix operator-(U scalar) {
         return operator+(-scalar);
     }
 
-    Matrix operator*(T scalar) {
+    template <typename U>
+    Matrix operator*(U scalar) {
         Matrix newMat = copy();
 
-        function mult = [](T x, T y) {return x * y;};
+        function mult = [](T x, U y) {return x * y;};
         newMat.updateAll(mult, scalar);
         return newMat;
     }
 
-    Matrix operator/(T scalar) {
+    template <typename U>
+    Matrix operator/(U scalar) {
         // return operator*(1 / scalar);
 
         Matrix newMat = copy();
 
-        function div = [](T x, T y) {return x / y;};
+        function div = [](T x, U y) {return x / y;};
         newMat.updateAll(div, scalar);
         return newMat;
     }
@@ -280,6 +287,33 @@ private:
 
 };
 
+// Functions to allow Dual functionality with Matrix<Dual> objects
+template <typename T>
+Matrix<T> getValue(Matrix<Dual<T>> mat) {
+    Matrix<T> valMat = Matrix<T>(mat.getRowSize(), mat.getColSize());
+
+    for (int r = 0; r < valMat.getRowSize(); r++) {
+        for (int c = 0; c < valMat.getColSize(); c++) {
+            valMat.get(r, c) = mat.get(r, c).getValue();
+        }
+    }
+
+    return valMat;
+}
+
+template <typename T>
+Matrix<T> getDerivative(Matrix<Dual<T>> mat) {
+    Matrix<T> derMat = Matrix<T>(mat.getRowSize(), mat.getColSize());
+
+    for (int r = 0; r < derMat.getRowSize(); r++) {
+        for (int c = 0; c < derMat.getColSize(); c++) {
+            derMat.get(r, c) = mat.get(r, c).getDerivative();
+        }
+    }
+
+    return derMat;
+}
+
 // Extra operator functions to implement commutative operators
 template <typename T, typename U>
 Matrix<T> operator+(T scalar, Matrix<U> mat) {
@@ -287,65 +321,32 @@ Matrix<T> operator+(T scalar, Matrix<U> mat) {
 }
 
 template <typename T, typename U>
-Matrix<T> operator*(T scalar, Matrix<U> mat) {
+Matrix<T> operator*(U scalar, Matrix<T> mat) {
     return mat * scalar;
 }
 
 // Overloaded mathematical functions for Matrix() objects
-// template <typename T, typename U>
-// Matrix<T> pow(Matrix<T> mat, U val) {
-//     Matrix newMat = mat.copy();
-//
-//     // function add = [](T x, T y) {return x + y;};
-//     function customPow = [](T x, U y) {return pow(x, y);};
-//     newMat.updateAll(customPow, val);
-//     return newMat;
-// }
-
 template <typename T, typename U>
 Matrix<T> pow(Matrix<T> mat, U val) {
     Matrix newMat = mat.copy();
 
-    for (int r = 0; r < newMat.getRowSize(); r++) {
-        for (int c = 0; c < newMat.getColSize(); c++) {
-            newMat.get(r, c) = pow(newMat.get(r, c), val);
-        }
-    }
-
+    // function add = [](T x, T y) {return x + y;};
+    function customPow = [](T x, U y) {return pow(x, y);};
+    newMat.updateAll(customPow, val);
     return newMat;
 }
 
-// template <typename T>
-// Dual<T> pow(T val, Dual<T> dual) {
-//     return Dual(pow(val, dual.getValue()), pow(val, dual.getValue()) * log(val) * dual.getDerivative());
-// }
+// template <typename T, typename U>
+// Matrix<T> pow(Matrix<T> mat, U val) {
+//     Matrix newMat = mat.copy();
 //
-// template <typename T>
-// Dual<T> log(Dual<T> dual) {
-//     return Dual(log(dual.getValue()), dual.getDerivative() / dual.getValue());
-// }
+//     for (int r = 0; r < newMat.getRowSize(); r++) {
+//         for (int c = 0; c < newMat.getColSize(); c++) {
+//             newMat.get(r, c) = pow(newMat.get(r, c), val);
+//         }
+//     }
 //
-// template <typename T>
-// Dual<T> log10(Dual<T> dual) {
-//     return Dual(log10(dual.getValue()), dual.getDerivative() / (log(10.0) * dual.getValue()));
+//     return newMat;
 // }
-//
-// template <typename T>
-// Dual<T> log2(Dual<T> dual) {
-//     return Dual(log10(dual.getValue()), dual.getDerivative() / (log(2.0) * dual.getValue()));
-// }
-//
-// template <typename T>
-// Dual<T> exp(Dual<T> dual) {
-//     return Dual(exp(dual.getValue()), exp(dual.getValue()) * dual.getDerivative());
-// }
-//
-// template <typename T>
-// Dual<T> sin(Dual<T> dual) {
-//     return Dual(sin(dual.getValue()), cos(dual.getValue()) * dual.getDerivative());
-// }
-//
-// template <typename T>
-// Dual<T> cos(Dual<T> dual) {
-//     return Dual(cos(dual.getValue()), -1 * sin(dual.getValue()) * dual.getDerivative());
-// }
+
+// TODO--implement log, log10, log2, exp, sin, cos

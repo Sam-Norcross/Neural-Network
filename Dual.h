@@ -28,10 +28,6 @@ public:
         return "(" + to_string(getValue()) + ", " + to_string(getDerivative()) + ")";
     }
 
-    Dual operator()(T val) {
-        return Dual(val, 1.0);
-    }
-
     bool operator==(Dual dual2) {
         return (getValue() == dual2.getValue()) && (getDerivative() == dual2.getDerivative());
     }

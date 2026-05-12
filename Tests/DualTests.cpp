@@ -104,21 +104,22 @@ TEST_CASE("Autodiff logarithms", "[Dual]") {
     CHECK(result.getDerivative() == 2.0 / 5.0 + 1.0 / (2.0 * log(10.0)) + 1 / (2.0 * log(2.0)));
 }
 
-// TEST_CASE("Autodiff with matrices", "[Dual]") {
-//     // f(x) = 3x^2 - 2x + 1, f'(x) = 6x - 2
-//     // x = [1 2; 3 4]
-//     // f(x) = [2 9; 22 41]
-//     // f'(x) = [4 10; 16 22]
-//
-//     Dual<double> arr[4] = {Dual(1.0, 1.0), Dual(2.0, 1.0), Dual(3.0, 1.0), Dual(4.0, 1.0)};
-//     Matrix mat(2, 2, arr);
-//
-//     mat.display();
-//
-//     Matrix fMat = 3.0 * pow(mat, 2.0);// - 2.0 * mat + 1.0;
-//
-//     fMat.display();
-//
-//     // TODO--fix this too!
-//     // Matrix<Dual<double>> mat(2, 2);// = Matrix<Dual>(2, 2);
-// }
+TEST_CASE("Autodiff with matrices", "[Dual]") {
+    // f(x) = 3x^2 - 2x + 1, f'(x) = 6x - 2
+    // x = [1 2; 3 4]
+    // f(x) = [2 9; 22 41]
+    // f'(x) = [4 10; 16 22]
+
+    Dual<double> arr[4] = {Dual(1.0, 1.0), Dual(2.0, 1.0), Dual(3.0, 1.0), Dual(4.0, 1.0)};
+    Matrix mat(2, 2, arr);
+
+    Matrix fMat = 3.0 * pow(mat, 2.0) - 2.0 * mat + 1.0;
+
+    double vals[4] = {2.0, 9.0, 22.0, 41.0};
+    double ders[4] = {4.0, 10.0, 16.0, 22.0};
+    Matrix valMat = Matrix(2, 2, vals);
+    Matrix derMat = Matrix(2, 2, ders);
+
+    CHECK(getValue(fMat) == valMat);
+    CHECK(getDerivative(fMat) == derMat);
+}

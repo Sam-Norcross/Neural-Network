@@ -2,6 +2,8 @@
 
 #include <iostream>
 #include <cmath>
+
+#include "Matrix.h"
 #pragma once
 using namespace std;
 
@@ -9,12 +11,23 @@ template <typename T>
 class Dual {
 public:
     Dual(T value, T derivative) : val(value), der(derivative) {}
+    // Dual(T value, T derivative) {
+    //     val = value;
+    //     der = Matrix(1, 1, {derivative});
+    // }
+
+    // Dual(T value, T derivative[], int rows, int cols) {
+    //     val = value;
+    //     der = Matrix(rows, cols, {derivative});
+    // }
 
     // Default constructor for use in Matrix() declaration
     Dual() : val(0), der(1) {}
+    // Dual() : val(0.0), der(Matrix<T>(1, 1, {1.0})) {}
 
     // For use with static_cast<>
     Dual(T val) : val(val), der(1) {}
+    // Dual(T val) : val(val), der(Matrix<T>(1, 1, {1.0})){}
 
     T getValue() {
         return val;
@@ -24,8 +37,8 @@ public:
         return der;
     }
 
-    string display() {
-        return "(" + to_string(getValue()) + ", " + to_string(getDerivative()) + ")";
+    void display() {
+        cout << "(" + to_string(getValue()) + ", " + to_string(getDerivative()) + ")" << endl;
     }
 
     bool operator==(Dual dual2) {
@@ -70,13 +83,15 @@ public:
 
 private:
     T val;  // value
-    T der;  // derivative
+    T der;
+    // Matrix<T> der;  // derivative
 };
 
 template <typename T>
 string to_string(Dual<T> dual) {
     return to_string(dual.getValue());
 }
+
 
 // Overloaded operators for Dual() objects
 template <typename T>
@@ -138,6 +153,35 @@ Dual<T> sin(Dual<T> dual) {
 template <typename T>
 Dual<T> cos(Dual<T> dual) {
     return Dual(cos(dual.getValue()), -1 * sin(dual.getValue()) * dual.getDerivative());
+}
+
+
+
+// Functions to allow Dual functionality with Matrix<Dual> objects
+template <typename T>
+Matrix<T> getValue(Matrix<Dual<T>> mat) {
+    Matrix<T> valMat = Matrix<T>(mat.getRowSize(), mat.getColSize());
+
+    for (int r = 0; r < valMat.getRowSize(); r++) {
+        for (int c = 0; c < valMat.getColSize(); c++) {
+            valMat.get(r, c) = mat.get(r, c).getValue();
+        }
+    }
+
+    return valMat;
+}
+
+template <typename T>
+Matrix<T> getDerivative(Matrix<Dual<T>> mat) {
+    Matrix<T> derMat = Matrix<T>(mat.getRowSize(), mat.getColSize());
+
+    for (int r = 0; r < derMat.getRowSize(); r++) {
+        for (int c = 0; c < derMat.getColSize(); c++) {
+            derMat.get(r, c) = mat.get(r, c).getDerivative();
+        }
+    }
+
+    return derMat;
 }
 
 

@@ -6,7 +6,7 @@
 #include <string>
 #include <functional>
 
-#include "Dual.h"
+// #include "Dual.h"
 #include "MatrixException.h"
 #pragma once
 using namespace std;
@@ -287,32 +287,32 @@ private:
 
 };
 
-// Functions to allow Dual functionality with Matrix<Dual> objects
-template <typename T>
-Matrix<T> getValue(Matrix<Dual<T>> mat) {
-    Matrix<T> valMat = Matrix<T>(mat.getRowSize(), mat.getColSize());
-
-    for (int r = 0; r < valMat.getRowSize(); r++) {
-        for (int c = 0; c < valMat.getColSize(); c++) {
-            valMat.get(r, c) = mat.get(r, c).getValue();
-        }
-    }
-
-    return valMat;
-}
-
-template <typename T>
-Matrix<T> getDerivative(Matrix<Dual<T>> mat) {
-    Matrix<T> derMat = Matrix<T>(mat.getRowSize(), mat.getColSize());
-
-    for (int r = 0; r < derMat.getRowSize(); r++) {
-        for (int c = 0; c < derMat.getColSize(); c++) {
-            derMat.get(r, c) = mat.get(r, c).getDerivative();
-        }
-    }
-
-    return derMat;
-}
+// // Functions to allow Dual functionality with Matrix<Dual> objects
+// template <typename T>
+// Matrix<T> getValue(Matrix<Dual<T>> mat) {
+//     Matrix<T> valMat = Matrix<T>(mat.getRowSize(), mat.getColSize());
+//
+//     for (int r = 0; r < valMat.getRowSize(); r++) {
+//         for (int c = 0; c < valMat.getColSize(); c++) {
+//             valMat.get(r, c) = mat.get(r, c).getValue();
+//         }
+//     }
+//
+//     return valMat;
+// }
+//
+// template <typename T>
+// Matrix<T> getDerivative(Matrix<Dual<T>> mat) {
+//     Matrix<T> derMat = Matrix<T>(mat.getRowSize(), mat.getColSize());
+//
+//     for (int r = 0; r < derMat.getRowSize(); r++) {
+//         for (int c = 0; c < derMat.getColSize(); c++) {
+//             derMat.get(r, c) = mat.get(r, c).getDerivative();
+//         }
+//     }
+//
+//     return derMat;
+// }
 
 // Extra operator functions to implement commutative operators
 template <typename T, typename U>
@@ -350,3 +350,4 @@ Matrix<T> pow(Matrix<T> mat, U val) {
 // }
 
 // TODO--implement log, log10, log2, exp, sin, cos
+// TODO--change updateAll() to map() that applies the function directly to each value without needing an extra argument?

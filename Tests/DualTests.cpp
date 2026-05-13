@@ -123,3 +123,20 @@ TEST_CASE("Autodiff with matrices", "[Dual]") {
     CHECK(getValue(fMat) == valMat);
     CHECK(getDerivative(fMat) == derMat);
 }
+
+TEST_CASE("Scalar gradient", "[Dual]") {
+    // f(x, y, z) = 2 x^2 y + xyz + 3z
+    // Df(x, y, z) = (4x y + yz, 2x^2 + xz, xy + 3)
+    // f(1, 2, 3) = 4 + 6 + 9 = 19
+    // Df(1, 2, 3) = (8 + 6, 2 + 3, 2 + 3) = (14, 5, 5)
+
+    Dual x = Dual(1.0, 1.0);//{1.0, 0, 0.0});
+    Dual y = Dual(2.0, 0.0);//{0.0, 1.0, 0.0});
+    Dual z = Dual(3.0, 0.0);//{0.0, 0.0, 1.0});
+
+    Dual f = 2.0 * pow(x, 2.0) * y + x * y * z + 3.0 * z;
+
+    f.display();
+
+    CHECK(f.getValue() == 19.0);
+}

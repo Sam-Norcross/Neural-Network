@@ -7,10 +7,10 @@
 #pragma once
 using namespace std;
 
-template <typename T>
+template <typename T, typename U>
 class Dual {
 public:
-    Dual(T value, T derivative) : val(value), der(derivative) {}
+    Dual(T value, U derivative) : val(value), der(derivative) {}
     // Dual(T value, T derivative) {
     //     val = value;
     //     der = Matrix(1, 1, {derivative});
@@ -22,18 +22,18 @@ public:
     // }
 
     // Default constructor for use in Matrix() declaration
-    Dual() : val(0), der(1) {}
+    Dual() : val(0.0), der(1.0) {}
     // Dual() : val(0.0), der(Matrix<T>(1, 1, {1.0})) {}
 
     // For use with static_cast<>
-    Dual(T val) : val(val), der(1) {}
+    Dual(T val) : val(val), der(1.0) {}
     // Dual(T val) : val(val), der(Matrix<T>(1, 1, {1.0})){}
 
     T getValue() {
         return val;
     }
 
-    T getDerivative() {
+    U getDerivative() {
         return der;
     }
 
@@ -83,83 +83,87 @@ public:
 
 private:
     T val;  // value
-    T der;
+    U der;  // derivative
     // Matrix<T> der;  // derivative
 };
 
-template <typename T>
-string to_string(Dual<T> dual) {
+// Deduction guides--TODO--can this remove the need for <double, double> in test case "Dual cast to double"?
+// template <typename  T, typename U>
+// Dual(T, U) -> Dual<T, U>;
+
+template <typename T, typename U>
+string to_string(Dual<T, U> dual) {
     return to_string(dual.getValue());
 }
 
 
 // Overloaded operators for Dual() objects
-template <typename T>
-Dual<T> operator+(T val, Dual<T> dual) {
+template <typename T, typename U>
+Dual<T, U> operator+(T val, Dual<T, U> dual) {
     return dual + val;
 }
 
-template <typename T>
-Dual<T> operator-(T val, Dual<T> dual) {
+template <typename T, typename U>
+Dual<T, U> operator-(T val, Dual<T, U> dual) {
     return Dual(val - dual.getValue(), dual.getDerivative());;
 }
 
-template <typename T>
-Dual<T> operator*(T val, Dual<T> dual) {
+template <typename T, typename U>
+Dual<T, U> operator*(T val, Dual<T, U> dual) {
     return dual * val;
 }
 
-template <typename T>
-Dual<T> operator/(T val, Dual<T> dual) {
+template <typename T, typename U>
+Dual<T, U> operator/(T val, Dual<T, U> dual) {
     return Dual(val / dual.getValue(), -val * dual.getDerivative() / pow(dual.getValue(), 2));
 }
 
 // Overloaded mathematical functions for Dual() objects
-template <typename T>
-Dual<T> pow(Dual<T> dual, T val) {
+template <typename T, typename U>
+Dual<T, U> pow(Dual<T, U> dual, T val) {
     return Dual(pow(dual.getValue(), val), val * pow(dual.getValue(), (val - 1)) * dual.getDerivative());
 }
 
-template <typename T>
-Dual<T> pow(T val, Dual<T> dual) {
+template <typename T, typename U>
+Dual<T, U> pow(T val, Dual<T, U> dual) {
     return Dual(pow(val, dual.getValue()), pow(val, dual.getValue()) * log(val) * dual.getDerivative());
 }
 
-template <typename T>
-Dual<T> log(Dual<T> dual) {
+template <typename T, typename U>
+Dual<T, U> log(Dual<T, U> dual) {
     return Dual(log(dual.getValue()), dual.getDerivative() / dual.getValue());
 }
 
-template <typename T>
-Dual<T> log10(Dual<T> dual) {
+template <typename T, typename U>
+Dual<T, U> log10(Dual<T, U> dual) {
     return Dual(log10(dual.getValue()), dual.getDerivative() / (log(10.0) * dual.getValue()));
 }
 
-template <typename T>
-Dual<T> log2(Dual<T> dual) {
+template <typename T, typename U>
+Dual<T, U> log2(Dual<T, U> dual) {
     return Dual(log10(dual.getValue()), dual.getDerivative() / (log(2.0) * dual.getValue()));
 }
 
-template <typename T>
-Dual<T> exp(Dual<T> dual) {
+template <typename T, typename U>
+Dual<T, U> exp(Dual<T, U> dual) {
     return Dual(exp(dual.getValue()), exp(dual.getValue()) * dual.getDerivative());
 }
 
-template <typename T>
-Dual<T> sin(Dual<T> dual) {
+template <typename T, typename U>
+Dual<T, U> sin(Dual<T, U> dual) {
     return Dual(sin(dual.getValue()), cos(dual.getValue()) * dual.getDerivative());
 }
 
-template <typename T>
-Dual<T> cos(Dual<T> dual) {
+template <typename T, typename U>
+Dual<T, U> cos(Dual<T, U> dual) {
     return Dual(cos(dual.getValue()), -1 * sin(dual.getValue()) * dual.getDerivative());
 }
 
 
 
 // Functions to allow Dual functionality with Matrix<Dual> objects
-template <typename T>
-Matrix<T> getValue(Matrix<Dual<T>> mat) {
+template <typename T, typename U>
+Matrix<T> getValue(Matrix<Dual<T, U>> mat) {
     Matrix<T> valMat = Matrix<T>(mat.getRowSize(), mat.getColSize());
 
     for (int r = 0; r < valMat.getRowSize(); r++) {
@@ -171,9 +175,9 @@ Matrix<T> getValue(Matrix<Dual<T>> mat) {
     return valMat;
 }
 
-template <typename T>
-Matrix<T> getDerivative(Matrix<Dual<T>> mat) {
-    Matrix<T> derMat = Matrix<T>(mat.getRowSize(), mat.getColSize());
+template <typename T, typename U>
+Matrix<U> getDerivative(Matrix<Dual<T, U>> mat) {
+    Matrix<U> derMat = Matrix<U>(mat.getRowSize(), mat.getColSize());
 
     for (int r = 0; r < derMat.getRowSize(); r++) {
         for (int c = 0; c < derMat.getColSize(); c++) {

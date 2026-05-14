@@ -287,6 +287,11 @@ private:
 
 };
 
+template <typename T>
+string to_string(Matrix<T> mat) {
+    return mat.toString();
+}
+
 // // Functions to allow Dual functionality with Matrix<Dual> objects
 // template <typename T>
 // Matrix<T> getValue(Matrix<Dual<T>> mat) {

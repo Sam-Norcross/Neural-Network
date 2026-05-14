@@ -265,18 +265,18 @@ TEST_CASE("Matrix transpose() 2x3", "[Matrix]") {
 }
 
 TEST_CASE("Matrix addition with Dual elements", "[Matrix]") {
-    Dual<double> arr[4] = {Dual(1.0, 1.0), Dual(2.0, 1.0), Dual(3.0, 1.0), Dual(4.0, 1.0)};
+    Dual<double, double> arr[4] = {Dual(1.0, 1.0), Dual(2.0, 1.0), Dual(3.0, 1.0), Dual(4.0, 1.0)};
     Matrix mat1(2, 2, arr);
     Matrix mat2(2, 2, arr);
 
-    Dual<double> resultArr[4] = {Dual(2.0, 2.0), Dual(4.0, 2.0), Dual(6.0, 2.0), Dual(8.0, 2.0)};
+    Dual<double, double> resultArr[4] = {Dual(2.0, 2.0), Dual(4.0, 2.0), Dual(6.0, 2.0), Dual(8.0, 2.0)};
     Matrix mat3(2, 2, resultArr);
 
     CHECK(mat1 + mat2 == mat3);
 }
 
 TEST_CASE("Matrix getValue() and getDerivative()", "[Matrix]") {
-    Dual<double> arr[4] = {Dual(1.0, 1.0), Dual(2.0, 0.0), Dual(3.0, -1.0), Dual(4.0, -2.0)};
+    Dual<double, double> arr[4] = {Dual(1.0, 1.0), Dual(2.0, 0.0), Dual(3.0, -1.0), Dual(4.0, -2.0)};
     Matrix mat(2, 2, arr);
 
     double vals[4] = {1.0, 2.0, 3.0, 4.0};

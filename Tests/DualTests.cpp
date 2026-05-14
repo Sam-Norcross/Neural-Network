@@ -7,7 +7,7 @@ TEST_CASE("Dual cast to double", "[Dual]") {
     double num = 5.0;
     Dual result = Dual(num, 1.0);
 
-    Dual result2 = num;
+    Dual<double, double> result2 = num;
 
     CHECK(result2 == result);
 }
@@ -110,7 +110,7 @@ TEST_CASE("Autodiff with matrices", "[Dual]") {
     // f(x) = [2 9; 22 41]
     // f'(x) = [4 10; 16 22]
 
-    Dual<double> arr[4] = {Dual(1.0, 1.0), Dual(2.0, 1.0), Dual(3.0, 1.0), Dual(4.0, 1.0)};
+    Dual<double, double> arr[4] = {Dual(1.0, 1.0), Dual(2.0, 1.0), Dual(3.0, 1.0), Dual(4.0, 1.0)};
     Matrix mat(2, 2, arr);
 
     Matrix fMat = 3.0 * pow(mat, 2.0) - 2.0 * mat + 1.0;
@@ -130,13 +130,23 @@ TEST_CASE("Scalar gradient", "[Dual]") {
     // f(1, 2, 3) = 4 + 6 + 9 = 19
     // Df(1, 2, 3) = (8 + 6, 2 + 3, 2 + 3) = (14, 5, 5)
 
-    Dual x = Dual(1.0, 1.0);//{1.0, 0, 0.0});
-    Dual y = Dual(2.0, 0.0);//{0.0, 1.0, 0.0});
-    Dual z = Dual(3.0, 0.0);//{0.0, 0.0, 1.0});
+    double arrX[3] = {1.0, 0.0, 0.0};   //TODO--maybe clean up this structure better? Add another Dual constructor that takes in an initializer list or array to remove the extra lines?
+    Matrix<double> matX = Matrix<double>(1, 3, arrX);
+
+    double arrY[3] = {0.0, 1.0, 0.0};
+    Matrix<double> matY = Matrix<double>(1, 3, arrY);
+
+    double arrZ[3] = {0.0, 0.0, 1.0};
+    Matrix<double> matZ = Matrix<double>(1, 3, arrZ);
+
+    Dual x = Dual(1.0, matX);// 1.0);//{1.0, 0.0, 0.0});
+    Dual y = Dual(2.0, matY);//{0.0, 1.0, 0.0});
+    Dual z = Dual(3.0, matZ);//{0.0, 0.0, 1.0});
 
     Dual f = 2.0 * pow(x, 2.0) * y + x * y * z + 3.0 * z;
 
-    f.display();
-
     CHECK(f.getValue() == 19.0);
+    CHECK(f.getDerivative().get(0, 0) == 14.0);
+    CHECK(f.getDerivative().get(0, 1) == 5.0);
+    CHECK(f.getDerivative().get(0, 2) == 5.0);
 }

@@ -1,6 +1,7 @@
 #include <iostream>
 #include "Matrix.h"
 #include "Dual.h"
+#include "Dataset.h"
 using namespace std;
 
 int main() {
@@ -19,12 +20,16 @@ int main() {
     //
     // mat.display();
 
-    Matrix<Dual<double>> mat2(2, 2);
+    // Matrix<Dual<double>> mat2(2, 2);
+    //
+    // mat2.display();
+    //
+    // Dual el1 = mat2.get(0, 0);
+    // cout << el1.getValue() << ", " << el1.getDerivative() << endl;
 
-    mat2.display();
-
-    Dual el1 = mat2.get(0, 0);
-    cout << el1.getValue() << ", " << el1.getDerivative() << endl;
+    string fileName = "Tests/TestDatasets/TestData1.csv";
+    Dataset dataset(fileName);
+    cout << dataset.getNumEntries() << endl;
 
     return 0;
 }

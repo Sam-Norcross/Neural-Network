@@ -38,6 +38,14 @@ public:
         }
     }
 
+    // Default constructor for use in Dataset initialization--TODO--maybe not necessary if using an inherited class in the future
+    Matrix() {
+        rows = -1;
+        cols = -1;
+        matSize = -1;
+        mat = new T[1];
+    }
+
     ~Matrix() {
         mat = nullptr;
     }
@@ -102,17 +110,16 @@ public:
             string errMsg2 = " and ";
             throw MatrixException( errMsg1 + dims() + errMsg2 + mat2.dims());
         }
-        else {
-            Matrix newMat = Matrix(getRowSize(), getColSize());
 
-            for (int r = 0; r < getRowSize(); r++) {
-                for (int c = 0; c < getColSize(); c++) {
-                    newMat.get(r, c) = get(r, c) - mat2.get(r, c);
-                }
+        Matrix newMat = Matrix(getRowSize(), getColSize());
+
+        for (int r = 0; r < getRowSize(); r++) {
+            for (int c = 0; c < getColSize(); c++) {
+                newMat.get(r, c) = get(r, c) - mat2.get(r, c);
             }
-
-            return newMat;
         }
+
+        return newMat;
     }
 
     Matrix operator*(Matrix mat2) {

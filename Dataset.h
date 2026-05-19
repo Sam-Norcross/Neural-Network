@@ -52,7 +52,9 @@ public:
         entries = Matrix<double>(numEntries, numFields);
         for (int entryIndex = 0; entryIndex < numEntries; entryIndex++) {
             getline(readFile, line);
-            string *tokens = split(line);
+
+            string *tokens = split(line);   // Split string line into an array of string tokens
+
             for (int fieldIndex = 0; fieldIndex < numFields; fieldIndex++) {
                 entries.get(entryIndex, fieldIndex) = stod(tokens[fieldIndex]); // stod() converts string to double
             }
@@ -120,20 +122,25 @@ private:
 
         int tokenIndex = 0;
         int startIndex = 0;
-        int endIndex = 0;
+        int tokenLength = 0;
         bool quotes = false; // Keeps track of when quotes open and close
 
         for (char c : tokenString) {
+            tokenLength++;
+
             if (c == '"') {
                 quotes = !quotes;
             }
-            if (c == ',' || (isspace(c) && !quotes)) { // isspace(c) checks for a newline character
-                tokens[tokenIndex] = tokenString.substr(startIndex, endIndex - startIndex);
+
+            if (c == ',' || (isspace(c) && !quotes)) {
+                tokens[tokenIndex] = tokenString.substr(startIndex, tokenLength - 1);
 
                 tokenIndex++;
-                startIndex = endIndex + 1;
+                startIndex += tokenLength;
+                tokenLength = 0;
+            } else if (startIndex + tokenLength == tokenString.length()) {  // If the end of the string is reached, add the rest to tokens
+                tokens[tokenIndex] = tokenString.substr(startIndex, tokenLength);
             }
-            endIndex++;
         }
 
         return tokens;

@@ -60,6 +60,10 @@ public:
         readFile.close();
     }
 
+    ~Dataset() {
+        header = nullptr;
+    }
+
     int getNumEntries() {
         return numEntries;
     }

@@ -27,12 +27,6 @@ TEST_CASE("TestData1 read", "[Dataset]") {
     CHECK(dataset.get(0, 0) == 1.0);
     CHECK(dataset.get(0, 1) == 2.0);
     CHECK(dataset.get(0, 2) == 3.0);
-
-    // // Check that dataset accessors work
-    // CHECK(dataset.get(0)[0] == 1.0);
-    // CHECK(dataset.get(0)[1] == 2.0);
-    // CHECK(dataset.get(0)[2] == 3.0);
-
 }
 
 TEST_CASE("TestData2 read", "[Dataset]") {
@@ -47,4 +41,24 @@ TEST_CASE("TestData2 read", "[Dataset]") {
 
     CHECK(header[0] == "\"Column one\"");
     CHECK(header[1] == "\"Column two\"");
+}
+
+TEST_CASE("Dataset accessors", "[Dataset]") {
+    string fileName = "Tests/TestDatasets/TestData1.csv";;
+    Dataset dataset(fileName);
+
+    CHECK(dataset.getEntry("Ones", 0) == 1.0);
+    CHECK(dataset.getEntry("Ones", 1) == 1.0);
+    CHECK(dataset.getEntry("Ones", 2) == 1.0);
+
+    CHECK(dataset.getEntry("Twos", 1) == 2.0);
+    CHECK(dataset.getEntry("Threes", 2) == 3.0);
+
+    CHECK(dataset.getRow(0)[0] == 1.0);
+    CHECK(dataset.getRow(0)[1] == 2.0);
+    CHECK(dataset.getRow(0)[2] == 3.0);
+
+    CHECK(dataset.getColumn("Ones")[0] == 1.0);
+    CHECK(dataset.getColumn("Ones")[1] == 1.0);
+    CHECK(dataset.getColumn("Ones")[2] == 1.0);
 }

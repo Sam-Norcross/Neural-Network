@@ -1,6 +1,3 @@
-// TODO--Refactor this class to inherit from Matrix with a few wrapper functions to handle reading in the data--that way,
-    // arithmetic will work
-
 #include <iostream>
 #include <string>
 #include <fstream>
@@ -11,7 +8,7 @@
 #pragma once
 using namespace std;
 
-class Dataset {
+class Dataset : public Matrix<double> {
 public:
     Dataset(string filePath) : numFields(1), numEntries(0) {
         // Open file
@@ -49,14 +46,14 @@ public:
         header = headerTokens;
 
         // Iterate through data entries and store in the appropriate arrays
-        entries = Matrix<double>(numEntries, numFields);
+        setSize(numEntries, numFields);
         for (int entryIndex = 0; entryIndex < numEntries; entryIndex++) {
             getline(readFile, line);
 
             string *tokens = split(line);   // Split string line into an array of string tokens
 
             for (int fieldIndex = 0; fieldIndex < numFields; fieldIndex++) {
-                entries.get(entryIndex, fieldIndex) = stod(tokens[fieldIndex]); // stod() converts string to double
+                get(entryIndex, fieldIndex) = stod(tokens[fieldIndex]); // stod() converts string to double
             }
         }
 
@@ -75,30 +72,31 @@ public:
         return header;
     }
 
-    Matrix<double>& getData() {
-        return entries;
+    // Return underlying Matrix object
+    Matrix& getData() {
+        return *this;
     }
 
-    double get(string field, int entryIndex) {
+    double getEntry(string field, int entryIndex) {
         int fieldIndex = getFieldIndex(field);
-        return entries.get(entryIndex, fieldIndex);
+        return get(entryIndex, fieldIndex);
     }
 
-    double* get(int entryIndex) {
+    double* getRow(int entryIndex) {
         double* data = new double[numEntries];
         for (int fieldIndex = 0; fieldIndex < numFields; fieldIndex++) {
-            data[fieldIndex] = entries.get(entryIndex, fieldIndex);
+            data[fieldIndex] = get(entryIndex, fieldIndex);
         }
 
         return data;
     }
 
-    double* get(string field) {
+    double* getColumn(string field) {
         int fieldIndex = getFieldIndex(field);
         double* data = new double[numEntries];
 
         for (int entryIndex = 0; entryIndex < numEntries; entryIndex++) {
-            data[entryIndex] =  entries.get(entryIndex, fieldIndex);
+            data[entryIndex] =  get(entryIndex, fieldIndex);
         }
 
         return data;
@@ -110,11 +108,8 @@ private:
     string* header;     // Array with the names of each column
     int numEntries;     // Number of data points (rows in the CSV)
     int numFields;      // Number of fields (columns in the CSV
-    // int* entriesInt;
-    // double* entriesDouble;  // Stores the fields of each data entry
-    // string* entriesString;
 
-    Matrix<double> entries; // The rows represent individual entries, the columns represent different fields
+    // Matrix<double> entries; // The rows represent individual entries, the columns represent different fields
 
     // Divide a comma-separated string into an array of strings
     string* split(string tokenString) {
@@ -132,13 +127,15 @@ private:
                 quotes = !quotes;
             }
 
+            int tokenStringLength = tokenString.length();
+
             if (c == ',' || (isspace(c) && !quotes)) {
                 tokens[tokenIndex] = tokenString.substr(startIndex, tokenLength - 1);
 
                 tokenIndex++;
                 startIndex += tokenLength;
                 tokenLength = 0;
-            } else if (startIndex + tokenLength == tokenString.length()) {  // If the end of the string is reached, add the rest to tokens
+            } else if (startIndex + tokenLength == tokenStringLength) {  // If the end of the string is reached, add the rest to tokens
                 tokens[tokenIndex] = tokenString.substr(startIndex, tokenLength);
             }
         }

@@ -38,7 +38,7 @@ public:
         }
     }
 
-    // Default constructor for use in Dataset initialization--TODO--maybe not necessary if using an inherited class in the future
+    // Default constructor for use in Dataset initialization
     Matrix() {
         rows = -1;
         cols = -1;
@@ -61,6 +61,12 @@ public:
 
     int getColSize() {
         return cols;
+    }
+
+    void setSize(int rowNum, int colNum) {
+        rows = rowNum;
+        cols = colNum;
+        matSize = rows * cols;
     }
 
     int getSize() {

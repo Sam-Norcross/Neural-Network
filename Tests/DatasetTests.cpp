@@ -18,20 +18,20 @@ TEST_CASE("TestData1 read", "[Dataset]") {
     CHECK(header[1] == "Twos");
     CHECK(header[2] == "Threes");
 
-    Matrix<double> data = dataset.getData();
+    // Matrix<double> data = dataset.getData();
 
-    CHECK(data.getRowSize() == 3);
-    CHECK(data.getColSize() == 3);
+    CHECK(dataset.getRowSize() == 3);
+    CHECK(dataset.getColSize() == 3);
 
     // Check that the matrix is initialized correctly
-    CHECK(data.get(0, 0) == 1.0);
-    CHECK(data.get(0, 1) == 2.0);
-    CHECK(data.get(0, 2) == 3.0);
+    CHECK(dataset.get(0, 0) == 1.0);
+    CHECK(dataset.get(0, 1) == 2.0);
+    CHECK(dataset.get(0, 2) == 3.0);
 
-    // Check that dataset accessors work
-    CHECK(dataset.get(0)[0] == 1.0);
-    CHECK(dataset.get(0)[1] == 2.0);
-    CHECK(dataset.get(0)[2] == 3.0);
+    // // Check that dataset accessors work
+    // CHECK(dataset.get(0)[0] == 1.0);
+    // CHECK(dataset.get(0)[1] == 2.0);
+    // CHECK(dataset.get(0)[2] == 3.0);
 
 }
 

@@ -42,8 +42,14 @@ public:
         getline(readFile, line);
 
         // Save header line
-        string *headerTokens = split(line);
+        string *headerTokens = split(line); //TODO--maybe make a "getToken(line, tokenNumber)" function to return a single string
         header = headerTokens;
+
+        // string headerS[numFields];
+        // for (int i = 0; i < numFields; i++) {
+        //     headerS[i] = getToken(headerS[i], i);
+        //     cout << "Header: " << headerS[i] << endl;
+        // }
 
         // Iterate through data entries and store in the appropriate arrays
         setSize(numEntries, numFields);
@@ -51,6 +57,8 @@ public:
             getline(readFile, line);
 
             string *tokens = split(line);   // Split string line into an array of string tokens
+
+            cout << line << endl;
 
             for (int fieldIndex = 0; fieldIndex < numFields; fieldIndex++) {
                 get(entryIndex, fieldIndex) = stod(tokens[fieldIndex]); // stod() converts string to double
@@ -62,6 +70,7 @@ public:
 
     ~Dataset() {
         header = nullptr;
+        delete header;
     }
 
     int getNumEntries() {
@@ -145,6 +154,41 @@ private:
         }
 
         return tokens;
+    }
+
+    // Gets the specified token from a comma-separated list of tokens
+    string getToken(string tokenString, int tokenNum) { // tokenNum starts at 0
+        string token;
+
+        int tokenIndex = 0;
+        int startIndex = 0;
+        int tokenLength = 0;
+        bool quotes = false; // Keeps track of when quotes open and close
+
+        for (char c : tokenString) {
+            tokenLength++;
+
+            if (c == '"') {
+                quotes = !quotes;
+            }
+
+            int tokenStringLength = tokenString.length();
+
+            if (c == ',' || (isspace(c) && !quotes)) {
+
+                if (tokenIndex == tokenNum) {
+                    return tokenString.substr(startIndex, tokenLength - 1);
+                }
+
+                tokenIndex++;
+                startIndex += tokenLength;
+                tokenLength = 0;
+            } else if (startIndex + tokenLength == tokenStringLength) {  // If the end of the string is reached, add the rest to tokens
+                if (tokenIndex == tokenNum) {
+                    return tokenString.substr(startIndex, tokenLength);
+                }
+            }
+        }
     }
 
     int getFieldIndex(string fieldName) {

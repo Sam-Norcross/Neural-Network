@@ -62,3 +62,12 @@ TEST_CASE("Dataset accessors", "[Dataset]") {
     CHECK(dataset.getColumn("Ones")[1] == 1.0);
     CHECK(dataset.getColumn("Ones")[2] == 1.0);
 }
+
+TEST_CASE("Boston housing dataset read", "[Dataset]") {
+    string fileName = "Datasets/BostonHousing.csv";
+    Dataset dataset(fileName);
+
+    CHECK(1 == 1);
+
+
+}

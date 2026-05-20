@@ -48,6 +48,7 @@ public:
 
     ~Matrix() {
         mat = nullptr;
+        delete[] mat;
     }
 
     T& get(int row, int col) {

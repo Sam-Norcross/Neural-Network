@@ -2,7 +2,6 @@
 #include <string>
 
 #include "Dataset.h"
-#include "Matrix.h"
 
 TEST_CASE("TestData1 read", "[Dataset]") {
     string fileName = "Tests/TestDatasets/TestData1.csv";;
@@ -14,11 +13,11 @@ TEST_CASE("TestData1 read", "[Dataset]") {
 
     string* header = dataset.getHeader();
 
+    cout << "HEADER[0] " << header[0] << endl;
+
     CHECK(header[0] == "Ones");
     CHECK(header[1] == "Twos");
     CHECK(header[2] == "Threes");
-
-    // Matrix<double> data = dataset.getData();
 
     CHECK(dataset.getRowSize() == 3);
     CHECK(dataset.getColSize() == 3);

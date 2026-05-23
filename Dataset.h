@@ -42,26 +42,62 @@ public:
         getline(readFile, line);
 
         // Save header line
-        string *headerTokens = split(line); //TODO--maybe make a "getToken(line, tokenNumber)" function to return a single string
-        header = headerTokens;
+        header = new string[numFields];
+        int fieldIndex = 0;
+        int startIndex = 0;
+        int fieldLength = 0;
+        bool quotes = false; // Keeps track of when quotes open and close
 
-        // string headerS[numFields];
-        // for (int i = 0; i < numFields; i++) {
-        //     headerS[i] = getToken(headerS[i], i);
-        //     cout << "Header: " << headerS[i] << endl;
-        // }
+        for (char c : line) {
+            fieldLength++;
+
+            if (c == '"') {
+                quotes = !quotes;
+            }
+
+            int tokenStringLength = line.length();
+
+            if (c == ',' || (isspace(c) && !quotes)) {
+                header[fieldIndex] = line.substr(startIndex, fieldLength - 1);
+
+                fieldIndex++;
+                startIndex += fieldLength;
+                fieldLength = 0;
+            } else if (startIndex + fieldLength == tokenStringLength) {  // If the end of the string is reached, add the rest to tokens
+                header[fieldIndex] = line.substr(startIndex, fieldLength);
+            }
+        }
+
 
         // Iterate through data entries and store in the appropriate arrays
         setSize(numEntries, numFields);
-        for (int entryIndex = 0; entryIndex < numEntries; entryIndex++) {
+
+        for (int lineNum = 0; lineNum < numEntries; lineNum++) {
             getline(readFile, line);
 
-            string *tokens = split(line);   // Split string line into an array of string tokens
+            fieldIndex = 0;
+            startIndex = 0;
+            fieldLength = 0;
 
-            cout << line << endl;
+            for (char c : line) {
+                fieldLength++;
 
-            for (int fieldIndex = 0; fieldIndex < numFields; fieldIndex++) {
-                get(entryIndex, fieldIndex) = stod(tokens[fieldIndex]); // stod() converts string to double
+                if (c == '"') {
+                    quotes = !quotes;
+                }
+
+                int tokenStringLength = line.length();
+
+                if (c == ',' || (isspace(c) && !quotes)) {
+                    get(lineNum, fieldIndex) = stod(line.substr(startIndex, fieldLength - 1));
+
+                    fieldIndex++;
+                    startIndex += fieldLength;
+                    fieldLength = 0;
+                } else if (startIndex + fieldLength == tokenStringLength) {  // If the end of the string is reached, add the rest to tokens
+                    get(lineNum, fieldIndex) = stod(line.substr(startIndex, fieldLength));
+                }
+
             }
         }
 
@@ -69,8 +105,8 @@ public:
     }
 
     ~Dataset() {
+        delete [] header;
         header = nullptr;
-        delete header;
     }
 
     int getNumEntries() {
@@ -122,74 +158,72 @@ private:
     int numEntries;     // Number of data points (rows in the CSV)
     int numFields;      // Number of fields (columns in the CSV
 
-    // Matrix<double> entries; // The rows represent individual entries, the columns represent different fields
+    // // Divide a comma-separated string into an array of strings
+    // string* split(string tokenString) {
+    //     string* tokens = new string[numFields];
+    //
+    //     int tokenIndex = 0;
+    //     int startIndex = 0;
+    //     int tokenLength = 0;
+    //     bool quotes = false; // Keeps track of when quotes open and close
+    //
+    //     for (char c : tokenString) {
+    //         tokenLength++;
+    //
+    //         if (c == '"') {
+    //             quotes = !quotes;
+    //         }
+    //
+    //         int tokenStringLength = tokenString.length();
+    //
+    //         if (c == ',' || (isspace(c) && !quotes)) {
+    //             tokens[tokenIndex] = tokenString.substr(startIndex, tokenLength - 1);
+    //
+    //             tokenIndex++;
+    //             startIndex += tokenLength;
+    //             tokenLength = 0;
+    //         } else if (startIndex + tokenLength == tokenStringLength) {  // If the end of the string is reached, add the rest to tokens
+    //             tokens[tokenIndex] = tokenString.substr(startIndex, tokenLength);
+    //         }
+    //     }
+    //
+    //     return tokens;
+    // }
 
-    // Divide a comma-separated string into an array of strings
-    string* split(string tokenString) {
-        string* tokens = new string[numFields];
-
-        int tokenIndex = 0;
-        int startIndex = 0;
-        int tokenLength = 0;
-        bool quotes = false; // Keeps track of when quotes open and close
-
-        for (char c : tokenString) {
-            tokenLength++;
-
-            if (c == '"') {
-                quotes = !quotes;
-            }
-
-            int tokenStringLength = tokenString.length();
-
-            if (c == ',' || (isspace(c) && !quotes)) {
-                tokens[tokenIndex] = tokenString.substr(startIndex, tokenLength - 1);
-
-                tokenIndex++;
-                startIndex += tokenLength;
-                tokenLength = 0;
-            } else if (startIndex + tokenLength == tokenStringLength) {  // If the end of the string is reached, add the rest to tokens
-                tokens[tokenIndex] = tokenString.substr(startIndex, tokenLength);
-            }
-        }
-
-        return tokens;
-    }
-
-    // Gets the specified token from a comma-separated list of tokens
-    string getToken(string tokenString, int tokenNum) { // tokenNum starts at 0
-        string token;
-
-        int tokenIndex = 0;
-        int startIndex = 0;
-        int tokenLength = 0;
-        bool quotes = false; // Keeps track of when quotes open and close
-
-        for (char c : tokenString) {
-            tokenLength++;
-
-            if (c == '"') {
-                quotes = !quotes;
-            }
-
-            int tokenStringLength = tokenString.length();
-
-            if (c == ',' || (isspace(c) && !quotes)) {
-
-                if (tokenIndex == tokenNum) {
-                    return tokenString.substr(startIndex, tokenLength - 1);
-                }
-
-                tokenIndex++;
-                startIndex += tokenLength;
-                tokenLength = 0;
-            } else if (startIndex + tokenLength == tokenStringLength) {  // If the end of the string is reached, add the rest to tokens
-                if (tokenIndex == tokenNum) {
-                    return tokenString.substr(startIndex, tokenLength);
-                }
-            }
-        }
-    }
+    // // Gets the specified token from a comma-separated list of tokens
+    // string getToken(string tokenString, int tokenNum) { // tokenNum starts at 0
+    //     string token;
+    //
+    //     int tokenIndex = 0;
+    //     int startIndex = 0;
+    //     int tokenLength = 0;
+    //     bool quotes = false; // Keeps track of when quotes open and close
+    //
+    //     for (char c : tokenString) {
+    //         tokenLength++;
+    //
+    //         if (c == '"') {
+    //             quotes = !quotes;
+    //         }
+    //
+    //         int tokenStringLength = tokenString.length();
+    //
+    //         if (c == ',' || (isspace(c) && !quotes)) {
+    //
+    //             if (tokenIndex == tokenNum) {
+    //                 return tokenString.substr(startIndex, tokenLength - 1);
+    //             }
+    //
+    //             tokenIndex++;
+    //             startIndex += tokenLength;
+    //             tokenLength = 0;
+    //         } else if (startIndex + tokenLength == tokenStringLength) {  // If the end of the string is reached, add the rest to tokens
+    //             if (tokenIndex == tokenNum) {
+    //                 return tokenString.substr(startIndex, tokenLength);
+    //             }
+    //         }
+    //     }
+    // }
 
     int getFieldIndex(string fieldName) {
         for (int fieldIndex = 0; fieldIndex < numFields; fieldIndex++) {

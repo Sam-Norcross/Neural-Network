@@ -64,12 +64,6 @@ public:
         return cols;
     }
 
-    void setSize(int rowNum, int colNum) {
-        rows = rowNum;
-        cols = colNum;
-        matSize = rows * cols;
-    }
-
     int getSize() {
         return matSize;
     }
@@ -299,39 +293,23 @@ private:
         }
     }
 
+protected:
+
+    void setSize(int rowNum, int colNum) {
+        rows = rowNum;
+        cols = colNum;
+        matSize = rows * cols;
+
+        delete [] mat;
+        mat = new T[rows * cols];
+    }
+
 };
 
 template <typename T>
 string to_string(Matrix<T> mat) {
     return mat.toString();
 }
-
-// // Functions to allow Dual functionality with Matrix<Dual> objects
-// template <typename T>
-// Matrix<T> getValue(Matrix<Dual<T>> mat) {
-//     Matrix<T> valMat = Matrix<T>(mat.getRowSize(), mat.getColSize());
-//
-//     for (int r = 0; r < valMat.getRowSize(); r++) {
-//         for (int c = 0; c < valMat.getColSize(); c++) {
-//             valMat.get(r, c) = mat.get(r, c).getValue();
-//         }
-//     }
-//
-//     return valMat;
-// }
-//
-// template <typename T>
-// Matrix<T> getDerivative(Matrix<Dual<T>> mat) {
-//     Matrix<T> derMat = Matrix<T>(mat.getRowSize(), mat.getColSize());
-//
-//     for (int r = 0; r < derMat.getRowSize(); r++) {
-//         for (int c = 0; c < derMat.getColSize(); c++) {
-//             derMat.get(r, c) = mat.get(r, c).getDerivative();
-//         }
-//     }
-//
-//     return derMat;
-// }
 
 // Extra operator functions to implement commutative operators
 template <typename T, typename U>

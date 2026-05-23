@@ -2,6 +2,52 @@
 #include "Matrix.h"
 #include "Dual.h"
 
+TEST_CASE("Matrix initialization and randomization", "[Matrix]") {
+    Matrix<int> mat1(2, 2);
+
+    mat1.randomize();   // Randomizes values within (-10, 10)
+
+    // Check that matrix values are randomized within the bounds
+    for (int r = 0; r < 2; r++) {
+        for (int c = 0; c < 2; c++) {
+            CHECK(mat1.get(r, c) > -10);
+            CHECK(mat1.get(r, c) < 10);
+        }
+    }
+
+    // Reset matrix values
+    mat1.get(0, 0) = 100;
+    mat1.get(0, 1) = 100;
+    mat1.get(1, 0) = 100;
+    mat1.get(1, 1) = 100;
+
+    // Randomize to within (-5, 5) and recheck
+    mat1.randomize(-5, 5);
+
+    for (int r = 0; r < 2; r++) {
+        for (int c = 0; c < 2; c++) {
+            CHECK(mat1.get(r, c) > -5);
+            CHECK(mat1.get(r, c) < 5);
+        }
+    }
+
+    // Check for a matrix of double values
+    Matrix<double> mat2(2, 2);
+
+    mat2.randomize();   // Randomizes values within (-10, 10)
+
+    // Check that matrix values are randomized within the bounds
+    for (int r = 0; r < 2; r++) {
+        for (int c = 0; c < 2; c++) {
+            CHECK(mat2.get(r, c) > -10);
+            CHECK(mat2.get(r, c) < 10);
+        }
+    }
+
+    mat2.display();
+
+}
+
 TEST_CASE("Matrix get()", "[Matrix]") {
     int arr1[4] = {1, 2, 3, 4};
     Matrix mat1(2, 2, arr1);
@@ -72,14 +118,28 @@ TEST_CASE("Matrix Equality", "[Matrix]") {
 }
 
 TEST_CASE("Matrix copy()", "[Matrix]") {
+
+    // Check assigning a new matrix (mat2) to an existing matrix (mat1)
     int arr1[4] = {1, 2, 3, 4};
     Matrix mat1(2, 2, arr1);
 
-    Matrix mat2 = mat1.copy();
+    Matrix mat2 = mat1;//.copy();
 
     CHECK(mat1 == mat2);
 
-    //TODO--check that editing the copy doesn't edit the original
+    // Check assigning an existing matrix (mat3) to an existing matrix (mat1)
+    Matrix<int> mat3(2, 2);
+    mat3 = mat1;
+
+    CHECK(mat1 == mat3);
+    CHECK(mat2 == mat3);
+
+    // Check that editing the copy doesn't edit the original
+    mat3.get(0, 0) = 100;
+
+    CHECK(mat1.get(0, 0) == 1);
+    CHECK(mat2.get(0, 0) == 1);
+    CHECK(mat3.get(0, 0) == 100);
 }
 
 TEST_CASE("Matrix Addition", "[Matrix]") {

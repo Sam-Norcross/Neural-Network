@@ -106,7 +106,7 @@ public:
 
     ~Dataset() {
         delete [] header;
-        header = nullptr;
+        // header = nullptr;
     }
 
     int getNumEntries() {

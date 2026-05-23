@@ -13,8 +13,6 @@ TEST_CASE("TestData1 read", "[Dataset]") {
 
     string* header = dataset.getHeader();
 
-    cout << "HEADER[0] " << header[0] << endl;
-
     CHECK(header[0] == "Ones");
     CHECK(header[1] == "Twos");
     CHECK(header[2] == "Threes");
@@ -66,7 +64,6 @@ TEST_CASE("Boston housing dataset read", "[Dataset]") {
     string fileName = "Datasets/BostonHousing.csv";
     Dataset dataset(fileName);
 
-    CHECK(1 == 1);
-
-
+    CHECK(dataset.getNumEntries() == 506);
+    CHECK(dataset.getNumFields() == 13);
 }

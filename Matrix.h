@@ -1,12 +1,8 @@
-// TODO--implement:
-// inverse?
-
 #include <iostream>
 #include <random>
 #include <string>
 #include <functional>
 
-// #include "Dual.h"
 #include "MatrixException.h"
 #pragma once
 using namespace std;
@@ -14,47 +10,52 @@ using namespace std;
 template <typename T>
 class Matrix {
 public:
-    Matrix(int rSize, int cSize) : rng(random_device{}()), dist(-10, 10){
-        rows = rSize;
-        cols = cSize;
-        matSize = rows * cols;
+    Matrix(int rSize, int cSize) : rows(rSize), cols(cSize), matSize(rSize * cSize), mat(new T[rSize * cSize]) {}
 
-        mat = new T[rows * cols];
-
-        for (int i = 0; i < matSize; i++) {
-            mat[i] = dist(rng);//static_cast<T>(dist(rng));
-        }
-    }
-
-    Matrix(int rSize, int cSize, T arr[]) {
-        rows = rSize;
-        cols = cSize;
-        matSize = rows * cols;
-
-        mat = new T[rows * cols];
-
+    Matrix(int rSize, int cSize, T arr[]) : rows(rSize), cols(cSize), matSize(rSize * cSize), mat(new T[rSize * cSize]) {
         for (int i = 0; i < matSize; i++) {
             mat[i] = arr[i];
         }
     }
 
     // Default constructor for use in Dataset initialization
-    Matrix() {
-        rows = -1;
-        cols = -1;
-        matSize = -1;
-        mat = new T[1];
+    Matrix() : rows(-1), cols(-1), matSize(-1), mat(new T[1]) {}
+
+    // Copy constructor
+    Matrix(const Matrix& other) {
+        rows = other.rows;
+        cols = other.cols;
+        matSize = other.matSize;
+
+        mat = new T[matSize];
+        for (int i = 0; i < matSize; i++) {
+            mat[i] = other.mat[i];
+        }
     }
 
     ~Matrix() {
-        mat = nullptr;
-        delete[] mat;
+        delete [] mat;
     }
 
     T& get(int row, int col) {
         checkValidIndex(row, col);
         return mat[row * cols + col];
     }
+
+    // TODO!
+    // Matrix<T> getRow(int row) {
+    //     T* arr = new T[cols];
+    //
+    //     Matrix mat(1, getColSize(), arr);
+    //
+    //     delete[] arr;
+    //
+    //     return mat;
+    // }
+    //
+    // Matrix<T> getCol(int col) {
+    //
+    // }
 
     int getRowSize() {
         return rows;
@@ -68,9 +69,37 @@ public:
         return matSize;
     }
 
-    Matrix copy() {
-        Matrix newMat = Matrix(getRowSize(), getColSize(), mat);
-        return newMat;
+    void randomize() {
+        randomize(-10, 10);
+    }
+
+    // Assigns random values to all matrix elements
+    void randomize(int lowBound, int highBound) {
+        mt19937 rng(random_device{}());
+        uniform_real_distribution<double> dist(lowBound, highBound);
+        for (int i = 0; i < matSize; i++) {
+            mat[i] = dist(rng);
+        }
+    }
+
+    // Copy assignment operator
+    Matrix& operator=(const Matrix& other) {
+        if (this == &other) {
+            return *this;
+        }
+
+        delete [] mat;
+
+        rows = other.rows;
+        cols = other.cols;
+        matSize = other.matSize;
+
+        mat = new T[matSize];
+        for (int i = 0; i < matSize; i++) {
+            mat[i] = other.mat[i];
+        }
+
+        return *this;
     }
 
     bool operator==(Matrix mat2) {
@@ -172,7 +201,7 @@ public:
 
     template <typename U>
     Matrix operator+(U scalar) {
-        Matrix newMat = copy();
+        Matrix newMat = *this;
 
         function add = [](T x, U y) {return x + y;};
         newMat.updateAll(add, scalar);
@@ -186,7 +215,7 @@ public:
 
     template <typename U>
     Matrix operator*(U scalar) {
-        Matrix newMat = copy();
+        Matrix newMat = *this;
 
         function mult = [](T x, U y) {return x * y;};
         newMat.updateAll(mult, scalar);
@@ -195,9 +224,7 @@ public:
 
     template <typename U>
     Matrix operator/(U scalar) {
-        // return operator*(1 / scalar);
-
-        Matrix newMat = copy();
+        Matrix newMat = *this;
 
         function div = [](T x, U y) {return x / y;};
         newMat.updateAll(div, scalar);
@@ -275,10 +302,6 @@ private:
     int cols;
     int matSize;
 
-    // For matrix initialization
-    mt19937 rng;
-    uniform_real_distribution<double> dist;
-
     void checkValidIndex(int row, int col) {
         if (row >= rows) {
             string errMsg1 = "Row index ";
@@ -325,7 +348,7 @@ Matrix<T> operator*(U scalar, Matrix<T> mat) {
 // Overloaded mathematical functions for Matrix() objects
 template <typename T, typename U>
 Matrix<T> pow(Matrix<T> mat, U val) {
-    Matrix newMat = mat.copy();
+    Matrix newMat = mat;
 
     // function add = [](T x, T y) {return x + y;};
     function customPow = [](T x, U y) {return pow(x, y);};
@@ -335,7 +358,7 @@ Matrix<T> pow(Matrix<T> mat, U val) {
 
 // template <typename T, typename U>
 // Matrix<T> pow(Matrix<T> mat, U val) {
-//     Matrix newMat = mat.copy();
+//     Matrix newMat = mat;
 //
 //     for (int r = 0; r < newMat.getRowSize(); r++) {
 //         for (int c = 0; c < newMat.getColSize(); c++) {

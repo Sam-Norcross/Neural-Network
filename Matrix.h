@@ -42,20 +42,21 @@ public:
         return mat[row * cols + col];
     }
 
-    // TODO!
-    // Matrix<T> getRow(int row) {
-    //     T* arr = new T[cols];
-    //
-    //     Matrix mat(1, getColSize(), arr);
-    //
-    //     delete[] arr;
-    //
-    //     return mat;
-    // }
-    //
-    // Matrix<T> getCol(int col) {
-    //
-    // }
+    Matrix getRow(int row) {
+        Matrix mat(1, getColSize());
+        for (int c = 0; c < getColSize(); c++) {
+            mat.get(0, c) = get(row, c);
+        }
+        return mat;
+    }
+
+    Matrix<T> getCol(int col) {
+        Matrix mat(getRowSize(), 1);
+        for (int r = 0; r < getRowSize(); r++) {
+            mat.get(r, 0) = get(r, col);
+        }
+        return mat;
+    }
 
     int getRowSize() {
         return rows;

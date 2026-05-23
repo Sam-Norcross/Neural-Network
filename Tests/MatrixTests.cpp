@@ -43,9 +43,6 @@ TEST_CASE("Matrix initialization and randomization", "[Matrix]") {
             CHECK(mat2.get(r, c) < 10);
         }
     }
-
-    mat2.display();
-
 }
 
 TEST_CASE("Matrix get()", "[Matrix]") {
@@ -76,6 +73,28 @@ TEST_CASE("Matrix get()", "[Matrix]") {
     CHECK(mat4.get(0, 0) == 1);
     CHECK(mat4.get(1, 1) == 4);
     CHECK(mat4.get(2, 1) == 6);
+}
+
+TEST_CASE("Matrix getRow() and getCol()", "[Matrix]") {
+    int arr1[4] = {1, 2, 3, 4};
+    Matrix mat1(2, 2, arr1);
+
+    int row0Arr[2] = {1, 2};
+    Matrix row0(1, 2, row0Arr);
+
+    int row1Arr[2] = {3, 4};
+    Matrix row1(1, 2, row1Arr);
+
+    int col0Arr[2] = {1, 3};
+    Matrix col0(2, 1, col0Arr);
+
+    int col1Arr[2] = {2, 4};
+    Matrix col1(2, 1, col1Arr);
+
+    CHECK(mat1.getRow(0) == row0);
+    CHECK(mat1.getRow(1) == row1);
+    CHECK(mat1.getCol(0) == col0);
+    CHECK(mat1.getCol(1) == col1);
 }
 
 TEST_CASE("Matrix toString()", "{Matrix}") {

@@ -1,3 +1,5 @@
+// TODO--add a variable to store the dependent variable of the dataset and update constructors accordingly
+
 #include <iostream>
 #include <string>
 #include <fstream>
@@ -8,9 +10,12 @@
 #pragma once
 using namespace std;
 
-class Dataset : public Matrix<double> {
+template <typename T>   // TODO--the template is currently meaningless, as all values are cast to double
+class Dataset {
 public:
-    Dataset(string filePath) : numFields(1), numEntries(0) {
+    Dataset(string filePath, string depName) : numFields(0), numEntries(0), dependentVar(depName) {
+        // Num fields starts at 0 so it doesn't count the dependent variable column
+
         // Open file
         ifstream readFile(filePath);
         string line;
@@ -48,6 +53,8 @@ public:
         int fieldLength = 0;
         bool quotes = false; // Keeps track of when quotes open and close
 
+        int depInd = -1;    // Column index of the dependent variable column
+
         for (char c : line) {
             fieldLength++;
 
@@ -58,11 +65,21 @@ public:
             int tokenStringLength = line.length();
 
             if (c == ',' || (isspace(c) && !quotes)) {
-                header[fieldIndex] = line.substr(startIndex, fieldLength - 1);
+                string field = line.substr(startIndex, fieldLength - 1);
 
-                fieldIndex++;
-                startIndex += fieldLength;
-                fieldLength = 0;
+                if (field == dependentVar) {
+                    startIndex += fieldLength;
+                    fieldLength = 0;
+
+                    depInd = fieldIndex;
+                } else {
+                    header[fieldIndex] = line.substr(startIndex, fieldLength - 1);
+
+                    fieldIndex++;
+                    startIndex += fieldLength;
+                    fieldLength = 0;
+                }
+
             } else if (startIndex + fieldLength == tokenStringLength) {  // If the end of the string is reached, add the rest to tokens
                 header[fieldIndex] = line.substr(startIndex, fieldLength);
             }
@@ -70,7 +87,10 @@ public:
 
 
         // Iterate through data entries and store in the appropriate arrays
-        setSize(numEntries, numFields);
+        data = Matrix<T>(numEntries, numFields);
+        dependent = Matrix<T>(numEntries, 1);
+
+        bool depFound = false; // Records when the dependent variable is found
 
         for (int lineNum = 0; lineNum < numEntries; lineNum++) {
             getline(readFile, line);
@@ -78,6 +98,8 @@ public:
             fieldIndex = 0;
             startIndex = 0;
             fieldLength = 0;
+
+            depFound = false;
 
             for (char c : line) {
                 fieldLength++;
@@ -89,13 +111,28 @@ public:
                 int tokenStringLength = line.length();
 
                 if (c == ',' || (isspace(c) && !quotes)) {
-                    get(lineNum, fieldIndex) = stod(line.substr(startIndex, fieldLength - 1));
+                    //TODO--define custom casting function for more data types instead of just using stod()?
+
+                    if (fieldIndex == depInd and depFound == false) {
+                        dependent.get(lineNum, 0) = stod(line.substr(startIndex, fieldLength - 1));
+
+                        startIndex += fieldLength;
+                        fieldLength = 0;
+                        depFound = true;
+                    }
+                    data.get(lineNum, fieldIndex) = stod(line.substr(startIndex, fieldLength - 1));
 
                     fieldIndex++;
                     startIndex += fieldLength;
                     fieldLength = 0;
-                } else if (startIndex + fieldLength == tokenStringLength) {  // If the end of the string is reached, add the rest to tokens
-                    get(lineNum, fieldIndex) = stod(line.substr(startIndex, fieldLength));
+                } else if (startIndex + fieldLength == tokenStringLength) {
+                    // If the end of the string is reached, add the rest to tokens
+
+                    if (depFound == false) {
+                        dependent.get(lineNum, 0) = stod(line.substr(startIndex, fieldLength));
+                    } else {
+                        data.get(lineNum, fieldIndex) = stod(line.substr(startIndex, fieldLength));
+                    }
                 }
 
             }
@@ -106,7 +143,6 @@ public:
 
     ~Dataset() {
         delete [] header;
-        // header = nullptr;
     }
 
     int getNumEntries() {
@@ -121,109 +157,45 @@ public:
         return header;
     }
 
-    // Return underlying Matrix object
-    Matrix& getData() {
-        return *this;
+    string getDependentVar() {
+        return dependentVar;
+    }
+
+    Matrix<T> getData() {
+        return data;
+    }
+
+    Matrix<T> getDependent() {
+        return dependent;
     }
 
     double getEntry(string field, int entryIndex) {
         int fieldIndex = getFieldIndex(field);
-        return get(entryIndex, fieldIndex);
+        return data.get(entryIndex, fieldIndex);
     }
 
-    double* getRow(int entryIndex) {
-        double* data = new double[numEntries];
-        for (int fieldIndex = 0; fieldIndex < numFields; fieldIndex++) {
-            data[fieldIndex] = get(entryIndex, fieldIndex);
-        }
-
-        return data;
+    Matrix<T> getRow(int entryIndex) {
+        return data.getRow(entryIndex);
     }
 
-    double* getColumn(string field) {
+    Matrix<T> getColumn(int fieldIndex) {
+        return data.getColumn(fieldIndex);
+    }
+
+    Matrix<T> getColumn(string field) {
         int fieldIndex = getFieldIndex(field);
-        double* data = new double[numEntries];
-
-        for (int entryIndex = 0; entryIndex < numEntries; entryIndex++) {
-            data[entryIndex] =  get(entryIndex, fieldIndex);
-        }
-
-        return data;
+        return getColumn(fieldIndex);
     }
 
 
 
 private:
     string* header;     // Array with the names of each column
+    string dependentVar;    // Name of the independent variable
+    Matrix<T> data;     // Contains the independent variables
+    Matrix<T> dependent;   // Dependent variable in the dataset
     int numEntries;     // Number of data points (rows in the CSV)
-    int numFields;      // Number of fields (columns in the CSV
-
-    // // Divide a comma-separated string into an array of strings
-    // string* split(string tokenString) {
-    //     string* tokens = new string[numFields];
-    //
-    //     int tokenIndex = 0;
-    //     int startIndex = 0;
-    //     int tokenLength = 0;
-    //     bool quotes = false; // Keeps track of when quotes open and close
-    //
-    //     for (char c : tokenString) {
-    //         tokenLength++;
-    //
-    //         if (c == '"') {
-    //             quotes = !quotes;
-    //         }
-    //
-    //         int tokenStringLength = tokenString.length();
-    //
-    //         if (c == ',' || (isspace(c) && !quotes)) {
-    //             tokens[tokenIndex] = tokenString.substr(startIndex, tokenLength - 1);
-    //
-    //             tokenIndex++;
-    //             startIndex += tokenLength;
-    //             tokenLength = 0;
-    //         } else if (startIndex + tokenLength == tokenStringLength) {  // If the end of the string is reached, add the rest to tokens
-    //             tokens[tokenIndex] = tokenString.substr(startIndex, tokenLength);
-    //         }
-    //     }
-    //
-    //     return tokens;
-    // }
-
-    // // Gets the specified token from a comma-separated list of tokens
-    // string getToken(string tokenString, int tokenNum) { // tokenNum starts at 0
-    //     string token;
-    //
-    //     int tokenIndex = 0;
-    //     int startIndex = 0;
-    //     int tokenLength = 0;
-    //     bool quotes = false; // Keeps track of when quotes open and close
-    //
-    //     for (char c : tokenString) {
-    //         tokenLength++;
-    //
-    //         if (c == '"') {
-    //             quotes = !quotes;
-    //         }
-    //
-    //         int tokenStringLength = tokenString.length();
-    //
-    //         if (c == ',' || (isspace(c) && !quotes)) {
-    //
-    //             if (tokenIndex == tokenNum) {
-    //                 return tokenString.substr(startIndex, tokenLength - 1);
-    //             }
-    //
-    //             tokenIndex++;
-    //             startIndex += tokenLength;
-    //             tokenLength = 0;
-    //         } else if (startIndex + tokenLength == tokenStringLength) {  // If the end of the string is reached, add the rest to tokens
-    //             if (tokenIndex == tokenNum) {
-    //                 return tokenString.substr(startIndex, tokenLength);
-    //             }
-    //         }
-    //     }
-    // }
+    int numFields;      // Number of fields (columns in the CSV)
 
     int getFieldIndex(string fieldName) {
         for (int fieldIndex = 0; fieldIndex < numFields; fieldIndex++) {
@@ -235,3 +207,170 @@ private:
     }
 
 };
+
+
+
+
+
+
+// class Dataset : public Matrix<double> {
+// public:
+//     Dataset(string filePath) : numFields(1), numEntries(0) {
+//         // Open file
+//         ifstream readFile(filePath);
+//         string line;
+//
+//         // Check if the file is found
+//         if (!readFile.is_open()) {
+//             throw DatasetException("Error opening file");
+//         }
+//
+//         // Count the number of fields in the dataset
+//         getline(readFile, line); // Read header line
+//         for (char c: line) {
+//             if (c == ',') {
+//                 numFields++;
+//             }
+//         }
+//
+//         // Count how many data points (lines) the csv file contains
+//         while (!readFile.eof()) {
+//             getline(readFile, line);
+//             if (line != "" && line != "\n") {
+//                 numEntries++;
+//             }
+//         }
+//         readFile.close();
+//
+//         // Reopen file to read data
+//         readFile.open(filePath);
+//         getline(readFile, line);
+//
+//         // Save header line
+//         header = new string[numFields];
+//         int fieldIndex = 0;
+//         int startIndex = 0;
+//         int fieldLength = 0;
+//         bool quotes = false; // Keeps track of when quotes open and close
+//
+//         for (char c : line) {
+//             fieldLength++;
+//
+//             if (c == '"') {
+//                 quotes = !quotes;
+//             }
+//
+//             int tokenStringLength = line.length();
+//
+//             if (c == ',' || (isspace(c) && !quotes)) {
+//                 header[fieldIndex] = line.substr(startIndex, fieldLength - 1);
+//
+//                 fieldIndex++;
+//                 startIndex += fieldLength;
+//                 fieldLength = 0;
+//             } else if (startIndex + fieldLength == tokenStringLength) {  // If the end of the string is reached, add the rest to tokens
+//                 header[fieldIndex] = line.substr(startIndex, fieldLength);
+//             }
+//         }
+//
+//
+//         // Iterate through data entries and store in the appropriate arrays
+//         setSize(numEntries, numFields);
+//
+//         for (int lineNum = 0; lineNum < numEntries; lineNum++) {
+//             getline(readFile, line);
+//
+//             fieldIndex = 0;
+//             startIndex = 0;
+//             fieldLength = 0;
+//
+//             for (char c : line) {
+//                 fieldLength++;
+//
+//                 if (c == '"') {
+//                     quotes = !quotes;
+//                 }
+//
+//                 int tokenStringLength = line.length();
+//
+//                 if (c == ',' || (isspace(c) && !quotes)) {
+//                     get(lineNum, fieldIndex) = stod(line.substr(startIndex, fieldLength - 1));
+//
+//                     fieldIndex++;
+//                     startIndex += fieldLength;
+//                     fieldLength = 0;
+//                 } else if (startIndex + fieldLength == tokenStringLength) {  // If the end of the string is reached, add the rest to tokens
+//                     get(lineNum, fieldIndex) = stod(line.substr(startIndex, fieldLength));
+//                 }
+//
+//             }
+//         }
+//
+//         readFile.close();
+//     }
+//
+//     ~Dataset() {
+//         delete [] header;
+//         // header = nullptr;
+//     }
+//
+//     int getNumEntries() {
+//         return numEntries;
+//     }
+//
+//     int getNumFields() {
+//         return numFields;
+//     }
+//
+//     string* getHeader() {
+//         return header;
+//     }
+//
+//     // Return underlying Matrix object
+//     Matrix& getData() {
+//         return *this;
+//     }
+//
+//     double getEntry(string field, int entryIndex) {
+//         int fieldIndex = getFieldIndex(field);
+//         return get(entryIndex, fieldIndex);
+//     }
+//
+//     double* getRow(int entryIndex) {
+//         double* data = new double[numEntries];
+//         for (int fieldIndex = 0; fieldIndex < numFields; fieldIndex++) {
+//             data[fieldIndex] = get(entryIndex, fieldIndex);
+//         }
+//
+//         return data;
+//     }
+//
+//     double* getColumn(string field) {
+//         int fieldIndex = getFieldIndex(field);
+//         double* data = new double[numEntries];
+//
+//         for (int entryIndex = 0; entryIndex < numEntries; entryIndex++) {
+//             data[entryIndex] =  get(entryIndex, fieldIndex);
+//         }
+//
+//         return data;
+//     }
+//
+//
+//
+// private:
+//     string* header;     // Array with the names of each column
+//     int numEntries;     // Number of data points (rows in the CSV)
+//     int numFields;      // Number of fields (columns in the CSV
+//     Matrix<double> dependent;   // Dependent variable in the dataset
+//
+//     int getFieldIndex(string fieldName) {
+//         for (int fieldIndex = 0; fieldIndex < numFields; fieldIndex++) {
+//             if (header[fieldIndex] == fieldName) {
+//                 return fieldIndex; //entries.get(fieldIndex, fieldName);
+//             }
+//         }
+//         throw DatasetException("Field " + fieldName + " not found");
+//     }
+//
+// };

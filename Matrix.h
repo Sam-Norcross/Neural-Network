@@ -11,9 +11,11 @@ using namespace std;
 template <typename T>
 class Matrix {
 public:
-    Matrix(int rSize, int cSize) : rows(rSize), cols(cSize), matSize(rSize * cSize), mat(new T[rSize * cSize]) {}
 
-    Matrix(int rSize, int cSize, T arr[]) : rows(rSize), cols(cSize), matSize(rSize * cSize), mat(new T[rSize * cSize]) {
+    // numRows and numCols are the number of rows and columns, respectively
+    Matrix(int numRows, int numCols) : rows(numRows), cols(numCols), matSize(numRows * numCols), mat(new T[numRows * numCols]) {}
+
+    Matrix(int numRows, int numCols, T arr[]) : rows(numRows), cols(numCols), matSize(numRows * numCols), mat(new T[numRows * numCols]) {
         for (int i = 0; i < matSize; i++) {
             mat[i] = arr[i];
         }
@@ -51,7 +53,7 @@ public:
         return mat;
     }
 
-    Matrix<T> getCol(int col) {
+    Matrix getCol(int col) {
         Matrix mat(getRowSize(), 1);
         for (int r = 0; r < getRowSize(); r++) {
             mat.get(r, 0) = get(r, col);
@@ -117,6 +119,71 @@ public:
         }
         return true;
     }
+
+    bool operator<(Matrix mat2) {
+        if (getRowSize() != mat2.getRowSize() || getColSize() != mat2.getColSize()) {
+            throw MatrixException("Matrices of different dimensions cannot be compared with the < operator.");
+        }
+
+        for (int r = 0; r < getRowSize(); r++) {
+            for (int c = 0; c < getColSize(); c++) {
+                if (get(r, c) >= mat2.get(r, c)) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
+    bool operator>(Matrix mat2) {
+        if (getRowSize() != mat2.getRowSize() || getColSize() != mat2.getColSize()) {
+            throw MatrixException("Matrices of different dimensions cannot be compared with the > operator.");
+        }
+
+        for (int r = 0; r < getRowSize(); r++) {
+            for (int c = 0; c < getColSize(); c++) {
+                if (get(r, c) <= mat2.get(r, c)) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
+    bool operator<=(Matrix mat2) {
+        if (getRowSize() != mat2.getRowSize() || getColSize() != mat2.getColSize()) {
+            throw MatrixException("Matrices of different dimensions cannot be compared with the <= operator.");
+        }
+
+        for (int r = 0; r < getRowSize(); r++) {
+            for (int c = 0; c < getColSize(); c++) {
+                if (get(r, c) > mat2.get(r, c)) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
+    bool operator>=(Matrix mat2) {
+        if (getRowSize() != mat2.getRowSize() || getColSize() != mat2.getColSize()) {
+            throw MatrixException("Matrices of different dimensions cannot be compared with the >= operator.");
+        }
+
+        for (int r = 0; r < getRowSize(); r++) {
+            for (int c = 0; c < getColSize(); c++) {
+                if (get(r, c) < mat2.get(r, c)) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
 
     Matrix operator+(Matrix mat2) {
         if (getRowSize() != mat2.getRowSize() || getColSize() != mat2.getColSize()) {

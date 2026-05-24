@@ -136,6 +136,22 @@ TEST_CASE("Matrix Equality", "[Matrix]") {
     CHECK(mat1 != mat3);
 }
 
+TEST_CASE("Matrix comparison operators", "[Matrix]") {
+    int arr1[4] = {1, 2, 3, 4};
+    Matrix mat1(2, 2, arr1);
+
+    int arr2[4] = {2, 3, 4, 5};
+    Matrix mat2(2, 2, arr2);
+
+    CHECK(mat1 < mat2);
+    CHECK(mat1 <= mat2);
+    CHECK(mat2 > mat1);
+    CHECK(mat2 >= mat1);
+
+    CHECK(mat1 <= mat1);
+    CHECK(mat2 >= mat2);
+}
+
 TEST_CASE("Matrix copy()", "[Matrix]") {
 
     // Check assigning a new matrix (mat2) to an existing matrix (mat1)

@@ -1,2 +1,7 @@
 cmake-build-debug/
 .idea/
+
+.DS_Store
+Tests/.DS_Store
+Tests/TestDatasets/.DS_Store
+Datasets/.DS_Store

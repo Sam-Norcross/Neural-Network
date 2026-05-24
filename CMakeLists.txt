@@ -8,6 +8,8 @@ add_executable(NeuralNetwork main.cpp
         Matrix.h
         Dual.h
         Dataset.h
-        DatasetException.h)
+        DatasetException.h
+        NeuralNetwork.h
+        Layer.h)
 
 add_subdirectory(Tests)

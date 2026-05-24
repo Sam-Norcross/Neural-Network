@@ -27,9 +27,13 @@ int main() {
     // Dual el1 = mat2.get(0, 0);
     // cout << el1.getValue() << ", " << el1.getDerivative() << endl;
 
-    string fileName = "Tests/TestDatasets/TestData1.csv";
-    Dataset dataset(fileName);
-    cout << dataset.getNumEntries() << endl;
+    // string fileName = "Tests/TestDatasets/TestData1.csv";
+    // Dataset dataset(fileName);
+    // cout << dataset.getNumEntries() << endl;
+
+    Matrix<double> mat2(2, 2);
+    mat2.randomize();
+    mat2.display();
 
     return 0;
 }

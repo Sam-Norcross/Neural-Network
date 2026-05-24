@@ -4,6 +4,7 @@
 #include <functional>
 
 #include "MatrixException.h"
+
 #pragma once
 using namespace std;
 

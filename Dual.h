@@ -164,10 +164,10 @@ Dual<T, U> cos(Dual<T, U> dual) {
 // Functions to allow Dual functionality with Matrix<Dual> objects
 template <typename T, typename U>
 Matrix<T> getValue(Matrix<Dual<T, U>> mat) {
-    Matrix<T> valMat = Matrix<T>(mat.getRowSize(), mat.getColSize());
+    Matrix<T> valMat = Matrix<T>(mat.getNumRows(), mat.getNumCols());
 
-    for (int r = 0; r < valMat.getRowSize(); r++) {
-        for (int c = 0; c < valMat.getColSize(); c++) {
+    for (int r = 0; r < valMat.getNumRows(); r++) {
+        for (int c = 0; c < valMat.getNumCols(); c++) {
             valMat.get(r, c) = mat.get(r, c).getValue();
         }
     }
@@ -177,10 +177,10 @@ Matrix<T> getValue(Matrix<Dual<T, U>> mat) {
 
 template <typename T, typename U>
 Matrix<U> getDerivative(Matrix<Dual<T, U>> mat) {
-    Matrix<U> derMat = Matrix<U>(mat.getRowSize(), mat.getColSize());
+    Matrix<U> derMat = Matrix<U>(mat.getNumRows(), mat.getNumCols());
 
-    for (int r = 0; r < derMat.getRowSize(); r++) {
-        for (int c = 0; c < derMat.getColSize(); c++) {
+    for (int r = 0; r < derMat.getNumRows(); r++) {
+        for (int c = 0; c < derMat.getNumCols(); c++) {
             derMat.get(r, c) = mat.get(r, c).getDerivative();
         }
     }

@@ -42,6 +42,8 @@ public:
         }
         readFile.close();
 
+
+
         // Reopen file to read data
         readFile.open(filePath);
         getline(readFile, line);
@@ -58,7 +60,14 @@ public:
         for (char c : line) {
             fieldLength++;
 
+            // Handles quotes in the header
             if (c == '"') {
+                // Remove quotes from the string
+                if (!quotes) {  // Start of the quote
+                    startIndex += 1;
+                }
+                fieldLength -= 1;
+
                 quotes = !quotes;
             }
 
@@ -85,7 +94,6 @@ public:
             }
         }
 
-
         // Iterate through data entries and store in the appropriate arrays
         data = Matrix<T>(numEntries, numFields);
         dependent = Matrix<T>(numEntries, 1);
@@ -104,13 +112,9 @@ public:
             for (char c : line) {
                 fieldLength++;
 
-                if (c == '"') {
-                    quotes = !quotes;
-                }
-
                 int tokenStringLength = line.length();
 
-                if (c == ',' || (isspace(c) && !quotes)) {
+                if (c == ',' || isspace(c)) {
                     //TODO--define custom casting function for more data types instead of just using stod()?
 
                     if (fieldIndex == depInd and depFound == false) {
@@ -120,9 +124,12 @@ public:
                         fieldLength = 0;
                         depFound = true;
                     }
-                    data.get(lineNum, fieldIndex) = stod(line.substr(startIndex, fieldLength - 1));
+                    else {
+                        data.get(lineNum, fieldIndex) = stod(line.substr(startIndex, fieldLength - 1));
 
-                    fieldIndex++;
+                        fieldIndex++;
+                    }
+
                     startIndex += fieldLength;
                     fieldLength = 0;
                 } else if (startIndex + fieldLength == tokenStringLength) {
@@ -145,10 +152,13 @@ public:
         delete [] header;
     }
 
+    // Returns the number of data points (lines in the CSV)
     int getNumEntries() {
         return numEntries;
     }
 
+    // Returns the number of independent variables recorded for each data point (the number of columns in the CSV,
+    // minus one to account for the dependent variable column)
     int getNumFields() {
         return numFields;
     }
@@ -169,17 +179,21 @@ public:
         return dependent;
     }
 
-    double getEntry(string field, int entryIndex) {
+    double getValue(string field, int entryIndex) {
         int fieldIndex = getFieldIndex(field);
         return data.get(entryIndex, fieldIndex);
     }
 
-    Matrix<T> getRow(int entryIndex) {
+    double getDependentValue(int entryIndex) {
+        return dependent.get(entryIndex, 0);
+    }
+
+    Matrix<T> getEntry(int entryIndex) {
         return data.getRow(entryIndex);
     }
 
     Matrix<T> getColumn(int fieldIndex) {
-        return data.getColumn(fieldIndex);
+        return data.getCol(fieldIndex);
     }
 
     Matrix<T> getColumn(string field) {

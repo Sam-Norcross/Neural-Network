@@ -46,26 +46,26 @@ public:
     }
 
     Matrix getRow(int row) {
-        Matrix mat(1, getColSize());
-        for (int c = 0; c < getColSize(); c++) {
+        Matrix mat(1, getNumCols());
+        for (int c = 0; c < getNumCols(); c++) {
             mat.get(0, c) = get(row, c);
         }
         return mat;
     }
 
     Matrix getCol(int col) {
-        Matrix mat(getRowSize(), 1);
-        for (int r = 0; r < getRowSize(); r++) {
+        Matrix mat(getNumRows(), 1);
+        for (int r = 0; r < getNumRows(); r++) {
             mat.get(r, 0) = get(r, col);
         }
         return mat;
     }
 
-    int getRowSize() {
+    int getNumRows() {
         return rows;
     }
 
-    int getColSize() {
+    int getNumCols() {
         return cols;
     }
 
@@ -107,11 +107,11 @@ public:
     }
 
     bool operator==(Matrix mat2) {
-        if (getRowSize() != mat2.getRowSize() || getColSize() != mat2.getColSize()) {
+        if (getNumRows() != mat2.getNumRows() || getNumCols() != mat2.getNumCols()) {
             return false;
         }
-        for (int r = 0; r < getRowSize(); r++) {
-            for (int c = 0; c < getColSize(); c++) {
+        for (int r = 0; r < getNumRows(); r++) {
+            for (int c = 0; c < getNumCols(); c++) {
                 if (get(r, c) != mat2.get(r, c)) {
                     return false;
                 }
@@ -121,12 +121,12 @@ public:
     }
 
     bool operator<(Matrix mat2) {
-        if (getRowSize() != mat2.getRowSize() || getColSize() != mat2.getColSize()) {
+        if (getNumRows() != mat2.getNumRows() || getNumCols() != mat2.getNumCols()) {
             throw MatrixException("Matrices of different dimensions cannot be compared with the < operator.");
         }
 
-        for (int r = 0; r < getRowSize(); r++) {
-            for (int c = 0; c < getColSize(); c++) {
+        for (int r = 0; r < getNumRows(); r++) {
+            for (int c = 0; c < getNumCols(); c++) {
                 if (get(r, c) >= mat2.get(r, c)) {
                     return false;
                 }
@@ -137,12 +137,12 @@ public:
     }
 
     bool operator>(Matrix mat2) {
-        if (getRowSize() != mat2.getRowSize() || getColSize() != mat2.getColSize()) {
+        if (getNumRows() != mat2.getNumRows() || getNumCols() != mat2.getNumCols()) {
             throw MatrixException("Matrices of different dimensions cannot be compared with the > operator.");
         }
 
-        for (int r = 0; r < getRowSize(); r++) {
-            for (int c = 0; c < getColSize(); c++) {
+        for (int r = 0; r < getNumRows(); r++) {
+            for (int c = 0; c < getNumCols(); c++) {
                 if (get(r, c) <= mat2.get(r, c)) {
                     return false;
                 }
@@ -153,12 +153,12 @@ public:
     }
 
     bool operator<=(Matrix mat2) {
-        if (getRowSize() != mat2.getRowSize() || getColSize() != mat2.getColSize()) {
+        if (getNumRows() != mat2.getNumRows() || getNumCols() != mat2.getNumCols()) {
             throw MatrixException("Matrices of different dimensions cannot be compared with the <= operator.");
         }
 
-        for (int r = 0; r < getRowSize(); r++) {
-            for (int c = 0; c < getColSize(); c++) {
+        for (int r = 0; r < getNumRows(); r++) {
+            for (int c = 0; c < getNumCols(); c++) {
                 if (get(r, c) > mat2.get(r, c)) {
                     return false;
                 }
@@ -169,12 +169,12 @@ public:
     }
 
     bool operator>=(Matrix mat2) {
-        if (getRowSize() != mat2.getRowSize() || getColSize() != mat2.getColSize()) {
+        if (getNumRows() != mat2.getNumRows() || getNumCols() != mat2.getNumCols()) {
             throw MatrixException("Matrices of different dimensions cannot be compared with the >= operator.");
         }
 
-        for (int r = 0; r < getRowSize(); r++) {
-            for (int c = 0; c < getColSize(); c++) {
+        for (int r = 0; r < getNumRows(); r++) {
+            for (int c = 0; c < getNumCols(); c++) {
                 if (get(r, c) < mat2.get(r, c)) {
                     return false;
                 }
@@ -186,16 +186,16 @@ public:
 
 
     Matrix operator+(Matrix mat2) {
-        if (getRowSize() != mat2.getRowSize() || getColSize() != mat2.getColSize()) {
+        if (getNumRows() != mat2.getNumRows() || getNumCols() != mat2.getNumCols()) {
             string errMsg1 = "Incorrect dimensions: can't add matrices with dimensions ";
             string errMsg2 = " and ";
             throw MatrixException( errMsg1 + dims() + errMsg2 + mat2.dims());
         }
 
-        Matrix newMat = Matrix(getRowSize(), getColSize());
+        Matrix newMat = Matrix(getNumRows(), getNumCols());
 
-        for (int r = 0; r < getRowSize(); r++) {
-            for (int c = 0; c < getColSize(); c++) {
+        for (int r = 0; r < getNumRows(); r++) {
+            for (int c = 0; c < getNumCols(); c++) {
                 newMat.get(r, c) = get(r, c) + mat2.get(r, c);
             }
         }
@@ -204,16 +204,16 @@ public:
     }
 
     Matrix operator-(Matrix mat2) {
-        if (getRowSize() != mat2.getRowSize() || getColSize() != mat2.getColSize()) {
+        if (getNumRows() != mat2.getNumRows() || getNumCols() != mat2.getNumCols()) {
             string errMsg1 = "Incorrect dimensions: can't subtract matrices with dimensions ";
             string errMsg2 = " and ";
             throw MatrixException( errMsg1 + dims() + errMsg2 + mat2.dims());
         }
 
-        Matrix newMat = Matrix(getRowSize(), getColSize());
+        Matrix newMat = Matrix(getNumRows(), getNumCols());
 
-        for (int r = 0; r < getRowSize(); r++) {
-            for (int c = 0; c < getColSize(); c++) {
+        for (int r = 0; r < getNumRows(); r++) {
+            for (int c = 0; c < getNumCols(); c++) {
                 newMat.get(r, c) = get(r, c) - mat2.get(r, c);
             }
         }
@@ -222,16 +222,16 @@ public:
     }
 
     Matrix operator*(Matrix mat2) {
-        if (getRowSize() != mat2.getRowSize() || getColSize() != mat2.getColSize()) {
+        if (getNumRows() != mat2.getNumRows() || getNumCols() != mat2.getNumCols()) {
             string errMsg1 = "Incorrect dimensions: can't perform element-wise multiplication on matrices with dimensions ";
             string errMsg2 = " and ";
             throw MatrixException( errMsg1 + dims() + errMsg2 + mat2.dims());
         }
 
-        Matrix newMat = Matrix(getRowSize(), getColSize());
+        Matrix newMat = Matrix(getNumRows(), getNumCols());
 
-        for (int r = 0; r < getRowSize(); r++) {
-            for (int c = 0; c < getColSize(); c++) {
+        for (int r = 0; r < getNumRows(); r++) {
+            for (int c = 0; c < getNumCols(); c++) {
                 newMat.get(r, c) = get(r, c) * mat2.get(r, c);
             }
         }
@@ -240,16 +240,16 @@ public:
     }
 
     Matrix operator/(Matrix mat2) {
-        if (getRowSize() != mat2.getRowSize() || getColSize() != mat2.getColSize()) {
+        if (getNumRows() != mat2.getNumRows() || getNumCols() != mat2.getNumCols()) {
             string errMsg1 = "Incorrect dimensions: can't perform element-wise division on matrices with dimensions ";
             string errMsg2 = " and ";
             throw MatrixException( errMsg1 + dims() + errMsg2 + mat2.dims());
         }
 
-        Matrix newMat = Matrix(getRowSize(), getColSize());
+        Matrix newMat = Matrix(getNumRows(), getNumCols());
 
-        for (int r = 0; r < getRowSize(); r++) {
-            for (int c = 0; c < getColSize(); c++) {
+        for (int r = 0; r < getNumRows(); r++) {
+            for (int c = 0; c < getNumCols(); c++) {
                 newMat.get(r, c) = get(r, c) / mat2.get(r, c);
             }
         }
@@ -261,8 +261,8 @@ public:
     void updateAll(function<T(T, U)> f, U val) {
         // f(T, T) takes in the value in the original matrix and a new value and performs some operation
 
-        for (int r = 0; r < getRowSize(); r++) {
-            for (int c = 0; c < getColSize(); c++) {
+        for (int r = 0; r < getNumRows(); r++) {
+            for (int c = 0; c < getNumCols(); c++) {
                 get(r, c) = f(get(r, c), val);
             }
         }
@@ -301,18 +301,18 @@ public:
     }
 
     Matrix matMul(Matrix mat2) {
-        if (getColSize() != mat2.getRowSize()) {
+        if (getNumCols() != mat2.getNumRows()) {
             string errMsg1 = "Incorrect dimensions: can't multiply matrices with dimensions ";
             string errMsg2 = " and ";
             throw MatrixException( errMsg1 + dims() + errMsg2 + mat2.dims());
         }
 
-        Matrix newMat = Matrix(getRowSize(), mat2.getColSize());
+        Matrix newMat = Matrix(getNumRows(), mat2.getNumCols());
 
         double dotProduct = 0;
-        for (int r1 = 0; r1 < getRowSize(); r1++) {     // Iterate over the rows of mat1
-            for (int c2 = 0; c2 < mat2.getColSize(); c2++) {    // Iterate over the cols of mat2
-                for (int c1 = 0; c1 < getColSize(); c1 ++) {    // Iterate over the cols of mat1/the rows of mat2
+        for (int r1 = 0; r1 < getNumRows(); r1++) {     // Iterate over the rows of mat1
+            for (int c2 = 0; c2 < mat2.getNumCols(); c2++) {    // Iterate over the cols of mat2
+                for (int c1 = 0; c1 < getNumCols(); c1 ++) {    // Iterate over the cols of mat1/the rows of mat2
                     dotProduct += get(r1, c1) * mat2.get(c1, c2);
                 }
                 newMat.get(r1, c2) = dotProduct;
@@ -324,10 +324,10 @@ public:
     }
 
     Matrix transpose() {
-        Matrix newMat = Matrix(getColSize(), getRowSize());
+        Matrix newMat = Matrix(getNumCols(), getNumRows());
 
-        for (int r = 0; r < getRowSize(); r++) {
-            for (int c = 0; c < getColSize(); c++) {
+        for (int r = 0; r < getNumRows(); r++) {
+            for (int c = 0; c < getNumCols(); c++) {
                 newMat.get(c, r) = get(r, c);
             }
         }
@@ -339,12 +339,12 @@ public:
 
     string toString() {
         string matString = "[";
-        for (int r = 0; r < getRowSize(); r++) {
-            for (int c = 0; c < getColSize(); c++) {
+        for (int r = 0; r < getNumRows(); r++) {
+            for (int c = 0; c < getNumCols(); c++) {
                 matString += to_string(get(r, c));
-                if (c < getColSize() - 1) {
+                if (c < getNumCols() - 1) {
                     matString += ", ";
-                } else if (r < getRowSize() - 1) {
+                } else if (r < getNumRows() - 1) {
                     matString += "\n";
                 }
             }
@@ -429,8 +429,8 @@ Matrix<T> pow(Matrix<T> mat, U val) {
 // Matrix<T> pow(Matrix<T> mat, U val) {
 //     Matrix newMat = mat;
 //
-//     for (int r = 0; r < newMat.getRowSize(); r++) {
-//         for (int c = 0; c < newMat.getColSize(); c++) {
+//     for (int r = 0; r < newMat.getNumRows(); r++) {
+//         for (int c = 0; c < newMat.getNumCols(); c++) {
 //             newMat.get(r, c) = pow(newMat.get(r, c), val);
 //         }
 //     }

@@ -2,6 +2,7 @@
 
 #include "Layer.h"
 
-TEST_CASE("TEST CASE OF A TEST CASE! (Layer version)", "[Layer]") {
-    CHECK(1 == 1);
+TEST_CASE("Layer initialization and minimization", "[Layer]") {
+    Layer<double> layer(2, 2, relu);
+
 }

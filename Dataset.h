@@ -1,5 +1,3 @@
-// TODO--add a variable to store the dependent variable of the dataset and update constructors accordingly
-
 #include <iostream>
 #include <string>
 #include <fstream>
@@ -90,7 +88,13 @@ public:
                 }
 
             } else if (startIndex + fieldLength == tokenStringLength) {  // If the end of the string is reached, add the rest to tokens
-                header[fieldIndex] = line.substr(startIndex, fieldLength);
+
+                if (fieldIndex < numFields) {
+                    header[fieldIndex] = line.substr(startIndex, fieldLength);
+                } else {
+                    depInd = fieldIndex;
+                }
+
             }
         }
 

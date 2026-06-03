@@ -11,23 +11,12 @@ template <typename T, typename U>
 class Dual {
 public:
     Dual(T value, U derivative) : val(value), der(derivative) {}
-    // Dual(T value, T derivative) {
-    //     val = value;
-    //     der = Matrix(1, 1, {derivative});
-    // }
-
-    // Dual(T value, T derivative[], int rows, int cols) {
-    //     val = value;
-    //     der = Matrix(rows, cols, {derivative});
-    // }
 
     // Default constructor for use in Matrix() declaration
     Dual() : val(0.0), der(1.0) {}
-    // Dual() : val(0.0), der(Matrix<T>(1, 1, {1.0})) {}
 
     // For use with static_cast<>
     Dual(T val) : val(val), der(1.0) {}
-    // Dual(T val) : val(val), der(Matrix<T>(1, 1, {1.0})){}
 
     T getValue() {
         return val;
@@ -47,6 +36,11 @@ public:
 
     bool operator!=(Dual dual2) {
         return !operator==(dual2);
+    }
+
+    // TODO--TEST
+    bool operator>(Dual dual2) {
+        return getValue() > dual2.getValue();
     }
 
     Dual operator+(Dual dual2) {

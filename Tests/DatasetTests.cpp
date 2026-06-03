@@ -75,11 +75,10 @@ TEST_CASE("Dataset accessors", "[Dataset]") {
     CHECK(dataset.getColumn("Ones").get(2, 0) == 1.0);
 }
 
-TEST_CASE("Boston housing dataset read", "[Dataset]") { // TODO--last test to fix
+TEST_CASE("Boston housing dataset read", "[Dataset]") {
     string fileName = "Datasets/BostonHousing.csv";
     Dataset<double> dataset(fileName, "medv");
 
     CHECK(dataset.getNumEntries() == 506);
     CHECK(dataset.getNumFields() == 12);
 }
-

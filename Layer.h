@@ -46,18 +46,22 @@ private:
 //
 // }
 
-// template <typename T>
-// T relu(T x) {
-//     if (x > 0) return x;
-//     return 0;
-// }
 
-// TEST
-// TODO--activation functions either need to be applied to each matrix element individually or more vectorized
-// TODO--operators need to be defined for both Matrix and Dual classes
-Matrix<Dual<double, double>> relu(Matrix<Dual<double, double>> x) {
-    if (x > 0) return x;
+// TODO--comparison operators need to be defined for both Matrix and Dual classes
+// TODO--Matrix.h may need better vectorization to correctly handle multiple data points at once
+template <typename T>
+T relu(T x) {
+    if (x > 0) {
+        return x;
+    }
+
     return 0;
+}
+
+template <typename T>
+Matrix<T> relu(Matrix<T> mat) {
+    mat.map([](T x) {return relu(x);});
+    return mat;
 }
 
 template <typename T>
@@ -65,8 +69,14 @@ T sigmoid(T x) {
     return 1 / (1 + exp(-x));
 }
 
-// // TEST
-// template <typename T>
-// Matrix<Dual<T, T>> sigmoid(Matrix<Dual<T, T>> x) {
-//     return 1 / (1 + exp(-x));
-// }
+// TODO--this maybe allows for the templates to capture Matrix<Dual<T, T>> objects?
+// TODO--there might be a better way to do it
+template <typename T>
+using dualMatrix = Matrix<Dual<T, T>>;
+
+
+template <typename T>
+Matrix<T> sigmoid(Matrix<T> mat) {
+    mat.map([](T x) {return sigmoid(x);});
+    return mat;
+}

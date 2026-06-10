@@ -184,6 +184,58 @@ public:
         return true;
     }
 
+    template <typename U>
+    bool operator<(U val) {
+        for (int r = 0; r < getNumRows(); r++) {
+            for (int c = 0; c < getNumCols(); c++) {
+                if (get(r, c) >= val) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
+    template <typename U>
+    bool operator>(U val) {
+        for (int r = 0; r < getNumRows(); r++) {
+            for (int c = 0; c < getNumCols(); c++) {
+                if (get(r, c) <= val) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
+    template <typename U>
+    bool operator<=(U val) {
+        for (int r = 0; r < getNumRows(); r++) {
+            for (int c = 0; c < getNumCols(); c++) {
+                if (get(r, c) > val) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
+    template <typename U>
+    bool operator>=(U val) {
+        for (int r = 0; r < getNumRows(); r++) {
+            for (int c = 0; c < getNumCols(); c++) {
+                if (get(r, c) < val) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
 
     Matrix operator+(Matrix mat2) {
         if (getNumRows() != mat2.getNumRows() || getNumCols() != mat2.getNumCols()) {
@@ -258,12 +310,21 @@ public:
     }
 
     template <typename U>
-    void updateAll(function<T(T, U)> f, U val) {
-        // f(T, T) takes in the value in the original matrix and a new value and performs some operation
+    void updateAll(function<T(T, U)> func, U val) {
+        // func(T, U) takes in the value in the original matrix and a new value and performs some operation
 
         for (int r = 0; r < getNumRows(); r++) {
             for (int c = 0; c < getNumCols(); c++) {
-                get(r, c) = f(get(r, c), val);
+                get(r, c) = func(get(r, c), val);
+            }
+        }
+    }
+
+    // Applies a function with one argument to all elements of the matrix
+    void map(function<T(T)> func) {
+        for (int r = 0; r < getNumRows(); r++) {
+            for (int c = 0; c < getNumCols(); c++) {
+                get(r, c) = func(get(r, c));
             }
         }
     }

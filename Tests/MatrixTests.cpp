@@ -150,6 +150,11 @@ TEST_CASE("Matrix comparison operators", "[Matrix]") {
 
     CHECK(mat1 <= mat1);
     CHECK(mat2 >= mat2);
+
+    CHECK(mat1 > 0);
+    CHECK(mat1 >= 1);
+    CHECK(mat1 < 5);
+    CHECK(mat1 <= 4);
 }
 
 TEST_CASE("Matrix copy()", "[Matrix]") {
@@ -382,4 +387,17 @@ TEST_CASE("Matrix getValue() and getDerivative()", "[Matrix]") {
 
     CHECK(getValue(mat) == valMat);
     CHECK(getDerivative(mat) == derMat);
+}
+
+TEST_CASE("Matrix map()", "[Matrix]") {
+    int arr[4] = {1, 2, 3, 4};
+    Matrix mat(2, 2, arr);
+
+    int arrResult[4] = {2, 3, 4, 5};
+    Matrix result(2, 2, arrResult);
+
+    function func = [](int val){return val + 1;};
+    mat.map(func);
+
+    CHECK(mat == result);
 }

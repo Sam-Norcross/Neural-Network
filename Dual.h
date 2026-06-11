@@ -47,7 +47,8 @@ public:
         return Dual(getValue() + dual2.getValue(), getDerivative() + dual2.getDerivative());
     }
 
-    Dual operator+(T val) {
+    template <typename V>
+    Dual operator+(V val) {
         return Dual(getValue() + val, getDerivative());
     }
 
@@ -55,15 +56,22 @@ public:
         return Dual(getValue() - dual2.getValue(), getDerivative() - dual2.getDerivative());
     }
 
-    Dual operator-(T val) {
+    template <typename V>
+    Dual operator-(V val) {
         return Dual(getValue() - val, getDerivative());
+    }
+
+    // Used to negate a variable
+    Dual operator-() {
+        return Dual(-getValue(), -getDerivative());
     }
 
     Dual operator*(Dual dual2) {
         return Dual(getValue() * dual2.getValue(), getValue() * dual2.getDerivative() + dual2.getValue() * getDerivative());
     }
 
-    Dual operator*(T val) {
+    template <typename V>
+    Dual operator*(V val) {
         return Dual(getValue() * val, getDerivative() * val);
     }
 
@@ -71,19 +79,17 @@ public:
         return Dual(getValue() / dual2.getValue(), getDerivative() / dual2.getValue() - (getValue() * dual2.getDerivative()) / pow(dual2.getValue(), 2));
     }
 
-    Dual operator/(T val) {
+    template <typename V>
+    Dual operator/(V val) {
         return Dual(getValue() / val, getDerivative() / val);
     }
 
 private:
     T val;  // value
     U der;  // derivative
-    // Matrix<T> der;  // derivative
 };
 
-// Deduction guides--TODO--can this remove the need for <double, double> in test case "Dual cast to double"?
-// template <typename  T, typename U>
-// Dual(T, U) -> Dual<T, U>;
+
 
 template <typename T, typename U>
 string to_string(Dual<T, U> dual) {
@@ -92,23 +98,23 @@ string to_string(Dual<T, U> dual) {
 
 
 // Overloaded operators for Dual() objects
-template <typename T, typename U>
-Dual<T, U> operator+(T val, Dual<T, U> dual) {
+template <typename T, typename U, typename V>
+Dual<T, U> operator+(V val, Dual<T, U> dual) {
     return dual + val;
 }
 
-template <typename T, typename U>
-Dual<T, U> operator-(T val, Dual<T, U> dual) {
+template <typename T, typename U, typename V>
+Dual<T, U> operator-(V val, Dual<T, U> dual) {
     return Dual(val - dual.getValue(), dual.getDerivative());;
 }
 
-template <typename T, typename U>
-Dual<T, U> operator*(T val, Dual<T, U> dual) {
+template <typename T, typename U, typename V>
+Dual<T, U> operator*(V val, Dual<T, U> dual) {
     return dual * val;
 }
 
-template <typename T, typename U>
-Dual<T, U> operator/(T val, Dual<T, U> dual) {
+template <typename T, typename U, typename V>
+Dual<T, U> operator/(V val, Dual<T, U> dual) {
     return Dual(val / dual.getValue(), -val * dual.getDerivative() / pow(dual.getValue(), 2));
 }
 

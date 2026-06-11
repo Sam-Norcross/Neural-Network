@@ -64,16 +64,16 @@ Matrix<T> relu(Matrix<T> mat) {
     return mat;
 }
 
-template <typename T>
-T sigmoid(T x) {
-    return 1 / (1 + exp(-x));
-}
 
 // TODO--this maybe allows for the templates to capture Matrix<Dual<T, T>> objects?
 // TODO--there might be a better way to do it
 template <typename T>
 using dualMatrix = Matrix<Dual<T, T>>;
 
+template <typename T>
+T sigmoid(T x) {
+    return 1 / (1 + exp(-x));
+}
 
 template <typename T>
 Matrix<T> sigmoid(Matrix<T> mat) {

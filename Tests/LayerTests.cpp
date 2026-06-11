@@ -1,4 +1,6 @@
 #include <catch2/catch_test_macros.hpp>
+#include <iostream>
+using namespace std;
 
 #include "Layer.h"
 
@@ -8,16 +10,27 @@
 
 TEST_CASE("Layer initialization and minimization", "[Layer]") {
 
-    Matrix<Dual<int, int>> mat(2, 2);
+    Dual<int, int> arr[4] = {Dual<int, int>(0), Dual<int, int>(-1), Dual<int, int>(-2), Dual<int, int>(3)};
+    Matrix mat(2, 2, arr);
+
     // Matrix<double> mat(2, 2);
-    mat.randomize();
+    // mat.randomize();
 
     mat.display();
-    mat = sigmoid(mat);
+    mat = relu(mat);
 
     mat.display();
 
+    mat.get(0, 0).display();    // TODO--this needs to be (0, 0), not (0, 1)
 
     // Layer<double> layer(2, 2, relu);
+
+    mat = sigmoid(mat); // TODO--change Dual to only have one template type? (ex: Dual<T, T> instead of Dual<T, U>)
+
+    Dual<double, double> arr2[4] = {Dual<double, double>(0), Dual<double, double>(-1), Dual<double, double>(-2), Dual<double, double>(3)};
+    Matrix mat2(2, 2, arr2);
+
+    mat2 = sigmoid(mat2);
+    mat2.display();
 
 }

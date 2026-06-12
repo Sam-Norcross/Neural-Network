@@ -16,21 +16,21 @@ TEST_CASE("Layer initialization and minimization", "[Layer]") {
     // Matrix<double> mat(2, 2);
     // mat.randomize();
 
-    mat.display();
-    mat = relu(mat);
+    // mat.display();
+    // mat = relu(mat);
+    //
+    // mat.display();
+    //
+    // mat.get(0, 0).display();    // TODO--this needs to be (0, 0), not (0, 1)
 
-    mat.display();
+    Layer<double, double> layer(2, 2, relu);
 
-    mat.get(0, 0).display();    // TODO--this needs to be (0, 0), not (0, 1)
-
-    // Layer<double> layer(2, 2, relu);
-
-    mat = sigmoid(mat); // TODO--change Dual to only have one template type? (ex: Dual<T, T> instead of Dual<T, U>)
-
-    Dual<double, double> arr2[4] = {Dual<double, double>(0), Dual<double, double>(-1), Dual<double, double>(-2), Dual<double, double>(3)};
-    Matrix mat2(2, 2, arr2);
-
-    mat2 = sigmoid(mat2);
-    mat2.display();
+    // mat = sigmoid(mat);
+    //
+    // Dual<double, double> arr2[4] = {Dual<double, double>(0), Dual<double, double>(-1), Dual<double, double>(-2), Dual<double, double>(3)};
+    // Matrix mat2(2, 2, arr2);
+    //
+    // mat2 = sigmoid(mat2);
+    // mat2.display();
 
 }

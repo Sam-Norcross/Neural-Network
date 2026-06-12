@@ -7,7 +7,7 @@
 #pragma once
 using namespace std;
 
-template <typename T, typename U>
+template <typename T, typename U>   // Needs two template types so that the second can be a matrix (for use in gradients)
 class Dual {
 public:
     Dual(T value, U derivative) : val(value), der(derivative) {}

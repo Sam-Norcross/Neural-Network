@@ -98,9 +98,9 @@ Dual<T, U> reluSingle(Dual<T, U> x) {
 // }
 
 // Works
-// function relu = [] (Matrix<Dual<double, double>> x) {return x;};
+function relu = [] (Matrix<Dual<double, double>> x) {return x;};
 
-auto relu = [] (Matrix<Dual<double, double>> x) {return x.map(reluSingle);};
+// auto relu = [] (Matrix<Dual<double, double>> x) {return x.map(reluSingle);};
 // TODO--maybe have Layer() accept a function with signature <Dual<T, U>(Dual<T, U>)> and then apply map() when it is called?
 // TODO--map() might need to be adjusted to return a new matrix instead of modifying the matrix in place
 

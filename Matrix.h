@@ -475,6 +475,14 @@ Matrix<T> operator*(U scalar, Matrix<T> mat) {
     return mat * scalar;
 }
 
+template <typename T, typename U>
+Matrix<T> operator/(U scalar, Matrix<T> mat) {
+    function customDiv = [=](T x) {return scalar / x;};
+
+    mat.map(customDiv);
+    return mat;
+}
+
 // Overloaded mathematical functions for Matrix() objects
 template <typename T, typename U>
 Matrix<T> pow(Matrix<T> mat, U val) {
@@ -484,6 +492,13 @@ Matrix<T> pow(Matrix<T> mat, U val) {
     function customPow = [](T x, U y) {return pow(x, y);};
     newMat.updateAll(customPow, val);
     return newMat;
+}
+
+template <typename T>
+Matrix<T> exp(Matrix<T> mat) {
+    function expFunc = [](T x) {return exp(x);};
+    mat.map(expFunc);
+    return mat;
 }
 
 // template <typename T, typename U>

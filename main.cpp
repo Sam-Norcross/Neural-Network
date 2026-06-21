@@ -5,8 +5,8 @@
 using namespace std;
 
 int main() {
-    int arr1[4] = {1, 2, 3, 4};
-    Matrix mat1(2, 2, arr1);
+    // int arr1[4] = {1, 2, 3, 4};
+    // Matrix mat1(2, 2, arr1);
     // Matrix mat2(2, 2, arr1);
     // cout << (mat1 == mat2) << endl;
     //
@@ -31,9 +31,46 @@ int main() {
     // Dataset dataset(fileName);
     // cout << dataset.getNumEntries() << endl;
 
-    Matrix<double> mat2(2, 2);
-    mat2.randomize();
-    mat2.display();
+    // Matrix<double> mat2(2, 2);
+    // mat2.randomize();
+    // mat2.display();
+
+
+
+    // PROOF OF CONCEPT:
+    // Simple neural network: 2 hidden layers, each with 5 nodes and a sigmoid activation function
+    // RMSE cost function
+    // Data are the x and y values for the function y = x //can use other functions like sin(x)
+
+    int nPts = 10;   // Number of data points
+    int nodes = 5;  // Number of nodes in each hidden layer
+
+    Matrix<double> data(nPts, 2);  // N x 2 (1st col is x, 2nd is y)
+
+    for (int i = 0; i < nPts; i++) {
+        // Could scale the x values so it samples a smaller range more densely
+        data.get(i, 0) = i; // x val
+        data.get(i, 1) = i; // y val
+    }
+
+    Matrix<double> input = data.getCol(0);
+    Matrix<double> output = data.getCol(1);
+
+    Matrix<double> layer1(nodes, nPts);
+
+
+
+
 
     return 0;
+}
+
+
+
+Matrix<double> feedForward(Matrix<double> input, Matrix<double> weight, Matrix<double> bias) {
+    return weight.matMul(input) + bias;
+}
+
+Matrix<double> activation(Matrix<double> input) {
+    return 1.0 / (1.0 + -1.0 * exp(input));
 }

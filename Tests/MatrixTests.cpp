@@ -401,3 +401,23 @@ TEST_CASE("Matrix map()", "[Matrix]") {
 
     CHECK(mat == result);
 }
+
+TEST_CASE("Matrix exp()", "[Matrix]") {
+    double arr[4] = {1.0, 2.0, 3.0, 4.0};
+    Matrix mat(2, 2, arr);
+
+    double arrResult[4] = {exp(1.0), exp(2.0), exp(3.0), exp(4.0)};
+    Matrix result(2, 2, arrResult);
+
+    CHECK(exp(mat) == result);
+}
+
+TEST_CASE("Scalar / matrix ", "[Matrix]") {
+    double arr[4] = {1.0, 2.0, 3.0, 4.0};
+    Matrix mat(2, 2, arr);
+
+    double arrResult[4] = {5.0 / 1.0, 5.0 / 2.0, 5.0 / 3.0, 5.0 / 4.0};
+    Matrix result(2, 2, arrResult);
+
+    CHECK(5.0 / mat == result);
+}

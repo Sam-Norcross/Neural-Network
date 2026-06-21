@@ -56,7 +56,15 @@ int main() {
     Matrix<double> input = data.getCol(0);
     Matrix<double> output = data.getCol(1);
 
-    Matrix<double> layer1(nodes, nPts);
+    Matrix<double> weight1(nodes, 1);    // 5x1 * 1x1 + 5x1    --input is a column vector
+    Matrix<double> bias1(nodes, 1);
+    weight1.randomize();
+    bias1.randomize();
+
+    Matrix<double> weight2(nodes, nodes);
+    Matrix<double> bias2(nodes, 1);
+    weight2.randomize();
+    bias2.randomize();
 
 
 
@@ -73,4 +81,8 @@ Matrix<double> feedForward(Matrix<double> input, Matrix<double> weight, Matrix<d
 
 Matrix<double> activation(Matrix<double> input) {
     return 1.0 / (1.0 + -1.0 * exp(input));
+}
+
+double cost(Matrix<double> input) {
+
 }

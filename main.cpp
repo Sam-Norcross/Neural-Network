@@ -4,6 +4,10 @@
 #include "Dataset.h"
 using namespace std;
 
+Matrix<double> feedForward(Matrix<double> input, Matrix<double> weight, Matrix<double> bias);
+Matrix<double> activation(Matrix<double> input);
+double cost(Matrix<double> actual, Matrix<double> expected);
+
 int main() {
     // int arr1[4] = {1, 2, 3, 4};
     // Matrix mat1(2, 2, arr1);
@@ -56,19 +60,36 @@ int main() {
     Matrix<double> input = data.getCol(0);
     Matrix<double> output = data.getCol(1);
 
+    // TEMP--use single input and output data points
+    const int numPtsSmaller = 1;
+    int dataPtIndex = 1;
+    double inputArr[numPtsSmaller] = {input.get(dataPtIndex, 0)};
+    Matrix<double> inputSmaller(numPtsSmaller, 1, inputArr);
+
+    double outputArr[numPtsSmaller] = {input.get(dataPtIndex, 0)};
+    Matrix<double> outputSmaller(numPtsSmaller, 1, outputArr);
+
+
+
+
     Matrix<double> weight1(nodes, 1);    // 5x1 * 1x1 + 5x1    --input is a column vector
     Matrix<double> bias1(nodes, 1);
     weight1.randomize();
     bias1.randomize();
 
-    Matrix<double> weight2(nodes, nodes);
-    Matrix<double> bias2(nodes, 1);
+    Matrix<double> weight2(numPtsSmaller, nodes);   // 5x5 * 5x1 + 5x1 = 5x1
+    Matrix<double> bias2(numPtsSmaller, 1);
     weight2.randomize();
     bias2.randomize();
 
+    // Run feed forward
+    Matrix<double> intermediate = feedForward(inputSmaller, weight1, bias1);
+    Matrix<double> result = feedForward(intermediate, weight2, bias2);
+    double finalCost = cost(result, outputSmaller);
 
+    cout << "COST: " << finalCost << endl;
 
-
+    result.display();
 
     return 0;
 }
@@ -83,6 +104,15 @@ Matrix<double> activation(Matrix<double> input) {
     return 1.0 / (1.0 + -1.0 * exp(input));
 }
 
-double cost(Matrix<double> input) {
+double cost(Matrix<double> actual, Matrix<double> expected) {
+    double numDataPts = expected.getNumRows();
 
+    double sum = 0;
+    for (int i = 0; i < numDataPts; i++) {
+        sum += pow(actual.get(i, 0) - expected.get(i, 0), 2);
+    }
+
+    sum /= numDataPts;
+
+    return sqrt(sum);
 }

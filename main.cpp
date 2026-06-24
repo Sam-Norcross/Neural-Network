@@ -5,8 +5,9 @@
 using namespace std;
 
 Matrix<double> feedForward(Matrix<double> input, Matrix<double> weight, Matrix<double> bias);
-Matrix<double> activation(Matrix<double> input);
-double cost(Matrix<double> actual, Matrix<double> expected);
+Matrix<double> sigmoid(Matrix<double> input);
+double rmse(Matrix<double> actual, Matrix<double> expected);
+double rmseDerivative(Matrix<double> actual, Matrix<double> expected);
 
 int main() {
     // int arr1[4] = {1, 2, 3, 4};
@@ -77,19 +78,31 @@ int main() {
     weight1.randomize();
     bias1.randomize();
 
-    Matrix<double> weight2(numPtsSmaller, nodes);   // 5x5 * 5x1 + 5x1 = 5x1
-    Matrix<double> bias2(numPtsSmaller, 1);
+    Matrix<double> weight2(nodes, nodes);   // 5x5 * 5x1 + 5x1 = 5x1
+    Matrix<double> bias2(nodes, numPtsSmaller);
     weight2.randomize();
     bias2.randomize();
 
+    Matrix<double> weight3(numPtsSmaller, nodes);   // 1x5 * 5x1 + 1x1 = 1x1
+    Matrix<double> bias3(numPtsSmaller, numPtsSmaller);
+    weight3.randomize();
+    bias3.randomize();
+
     // Run feed forward
-    Matrix<double> intermediate = feedForward(inputSmaller, weight1, bias1);
-    Matrix<double> result = feedForward(intermediate, weight2, bias2);
-    double finalCost = cost(result, outputSmaller);
+    Matrix<double> z1 = feedForward(inputSmaller, weight1, bias1);
+    Matrix<double> a1 = sigmoid(z1);
+
+    Matrix<double> z2 = feedForward(a1, weight2, bias2);
+    Matrix<double> a2 = sigmoid(z2);
+
+    Matrix<double> z3 = feedForward(a2, weight3, bias3);
+    Matrix<double> a3 = sigmoid(z3);
+
+    double finalCost = rmse(a3, outputSmaller);
 
     cout << "COST: " << finalCost << endl;
 
-    result.display();
+    a3.display();
 
     return 0;
 }
@@ -100,11 +113,17 @@ Matrix<double> feedForward(Matrix<double> input, Matrix<double> weight, Matrix<d
     return weight.matMul(input) + bias;
 }
 
-Matrix<double> activation(Matrix<double> input) {
+//Sigmoid
+Matrix<double> sigmoid(Matrix<double> input) {
     return 1.0 / (1.0 + -1.0 * exp(input));
 }
 
-double cost(Matrix<double> actual, Matrix<double> expected) {
+Matrix<double> sigmoidDerivative(Matrix<double> input) {
+    return sigmoid(input) * (1.0 - sigmoid(input));
+}
+
+// RMSE
+double rmse(Matrix<double> actual, Matrix<double> expected) {
     double numDataPts = expected.getNumRows();
 
     double sum = 0;
@@ -115,4 +134,17 @@ double cost(Matrix<double> actual, Matrix<double> expected) {
     sum /= numDataPts;
 
     return sqrt(sum);
+}
+
+double rmseDerivative(Matrix<double> actual, Matrix<double> expected) {
+    double numDataPts = expected.getNumRows();
+
+    double sum = 0;
+    for (int i = 0; i < numDataPts; i++) {
+        sum += actual.get(i, 0) - expected.get(i, 0);
+    }
+
+    sum /= numDataPts;
+
+    return sum / rmse(actual, expected);
 }

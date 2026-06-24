@@ -297,6 +297,11 @@ TEST_CASE("Scalar Subtraction", "[Matrix]") {
     Matrix mat3(2, 2, arr3);
 
     CHECK(mat1 - subVal == mat3);
+
+    int arr4[4] = {4, 3, 2, 1};
+    Matrix mat4(2, 2, arr4);
+
+    CHECK(subVal - mat1 == mat4);
 }
 
 TEST_CASE("Scalar Multiplication", "[Matrix]") {

@@ -471,6 +471,15 @@ Matrix<T> operator+(T scalar, Matrix<U> mat) {
 }
 
 template <typename T, typename U>
+Matrix<T> operator-(T scalar, Matrix<U> mat) {
+    Matrix newMat = mat;
+
+    function customSubtract = [](T x, T y) {return y - x;};
+    newMat.updateAll(customSubtract, scalar);
+    return newMat;
+}
+
+template <typename T, typename U>
 Matrix<T> operator*(U scalar, Matrix<T> mat) {
     return mat * scalar;
 }

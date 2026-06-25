@@ -6,6 +6,7 @@ using namespace std;
 
 Matrix<double> feedForward(Matrix<double> input, Matrix<double> weight, Matrix<double> bias);
 Matrix<double> sigmoid(Matrix<double> input);
+Matrix<double> sigmoidDerivative(Matrix<double> input);
 double rmse(Matrix<double> actual, Matrix<double> expected);
 double rmseDerivative(Matrix<double> actual, Matrix<double> expected);
 
@@ -46,6 +47,8 @@ int main() {
     // Simple neural network: 2 hidden layers, each with 5 nodes and a sigmoid activation function
     // RMSE cost function
     // Data are the x and y values for the function y = x //can use other functions like sin(x)
+
+    double learningRate = 0.1;
 
     int nPts = 10;   // Number of data points
     int nodes = 5;  // Number of nodes in each hidden layer
@@ -99,6 +102,47 @@ int main() {
     Matrix<double> a3 = sigmoid(z3);
 
     double finalCost = rmse(a3, outputSmaller);
+
+
+    double rmseDerArr[1] = {rmseDerivative(a3, outputSmaller)};
+
+    Matrix<double> dCda3 = Matrix(1, 1, rmseDerArr); //rmseDerivative(a3, outputSmaller);// * sigmoidDerivative(a3);
+    Matrix<double> dCdW3 = dCda3.matMul(sigmoidDerivative(a3).matMul(a2.transpose())); //dCdz3.matMul(a2.transpose());
+    Matrix<double> dCdb3 =  dCda3.matMul(sigmoidDerivative(a3)); //dCdz3;
+
+    // cout << "dCdz3: " << dCdz3.dims() << ", " << z3.dims() << endl;
+    cout << "dCda3: " << dCda3.dims() << ", " << a3.dims() << endl;
+    cout << "dCdW3: " << dCdW3.dims() << ", " << weight3.dims() << endl;
+    cout << "dCdb3: " << dCdb3.dims() << ", " << bias3.dims() << endl << endl;
+
+    Matrix<double> dCda2 = (weight3.transpose()).matMul(rmseDerivative(a3, outputSmaller) * sigmoidDerivative(a3));
+    Matrix<double> dCdW2 = (dCda2 * sigmoidDerivative(a2).get(0, 0)).matMul(a1.transpose());
+    Matrix<double> dCdb2 = dCda2 * sigmoidDerivative(a2).get(0, 0);
+
+    cout << "dCda2: " << dCda2.dims() << ", " << a2.dims() << endl;
+    cout << "dCdW2: " << dCdW2.dims() << ", " << weight2.dims() << endl;
+    cout << "dCdb2: " << dCdb2.dims() << ", " << bias2.dims() << endl << endl;
+
+    cout << (weight2.transpose()).dims() << " * "  << dCda2.dims() << " * " << sigmoidDerivative(a2).dims() << endl;
+
+    Matrix<double> dCda1 = (weight2.transpose()).matMul(dCda2.matMul(sigmoidDerivative(a2)));
+    Matrix<double> dCdW1 = (dCda1 * sigmoidDerivative(a1).get(0, 0)).matMul(inputSmaller.transpose());
+    Matrix<double> dCdb1 = dCda1 * sigmoidDerivative(a1).get(0, 0);
+
+    cout << "dCda1: " << dCda1.dims() << ", " << a1.dims() << endl;
+    cout << "dCdW1: " << dCdW1.dims() << ", " << weight1.dims() << endl;
+    cout << "dCdb1: " << dCdb1.dims() << ", " << bias1.dims() << endl << endl;
+
+    cout << dCda1.dims() << endl;
+
+
+
+
+
+
+
+
+
 
     cout << "COST: " << finalCost << endl;
 

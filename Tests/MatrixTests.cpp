@@ -426,3 +426,43 @@ TEST_CASE("Scalar / matrix ", "[Matrix]") {
 
     CHECK(5.0 / mat == result);
 }
+
+TEST_CASE("Matrix colAdd()", "[Matrix]") {
+    int arr1[4] = {1, 2, 3, 4};
+    Matrix mat1(2, 2, arr1);
+
+    int arr2[2] = {5, 1};
+    Matrix colVec(2, 1, arr2);
+
+    int resArr[4] = {6, 7, 4, 5};
+    Matrix result(2, 2, resArr);
+
+    CHECK(mat1.colAdd(colVec) == result);
+}
+
+TEST_CASE("Matrix colMul()", "[Matrix]") {
+    int arr1[4] = {1, 0, 0, 1};
+    Matrix mat1(2, 2, arr1);
+
+    int arrVec1[6] = {1, 2, 3, 1, 2, 3};
+    Matrix colVec1(2, 3, arrVec1);
+
+    int resArr1[6] = {1, 2, 3, 1, 2, 3};
+    Matrix result1(3, 3, resArr1);
+
+    CHECK(mat1.colMul(colVec1) == result1);
+
+
+
+    int arr2[4] = {1, 2, 3, 4};
+    Matrix mat2(2, 2, arr2);
+
+    int arrVec2[6] = {1, 2, 3, 4, 5, 6};
+    Matrix colVec2(2, 3, arrVec2);
+
+    int resArr2[6] = {1, 2, 3, 1, 2, 3};
+    Matrix result2(3, 3, resArr2);
+
+    CHECK(mat1.colMul(colVec1) == result2);
+
+}

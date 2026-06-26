@@ -129,7 +129,7 @@ int main() {
     Matrix<double> dCdW1 = (dCda1 * sigmoidDerivative(a1).get(0, 0)).matMul(inputSmaller.transpose());
     Matrix<double> dCdb1 = dCda1 * sigmoidDerivative(a1).get(0, 0);
 
-    cout << "dCda1: " << dCda1.dims() << ", " << a1.dims() << endl;
+    // cout << "dCda1: " << dCda1.dims() << ", " << a1.dims() << endl;
     cout << "dCdW1: " << dCdW1.dims() << ", " << weight1.dims() << endl;
     cout << "dCdb1: " << dCdb1.dims() << ", " << bias1.dims() << endl << endl;
 

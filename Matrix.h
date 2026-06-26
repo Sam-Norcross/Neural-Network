@@ -384,6 +384,48 @@ public:
         return newMat;
     }
 
+    // Adds each column of the matrix to colVec (a column vector), returns a matrix of the same size
+    Matrix colAdd(Matrix colVec) {
+        if (getNumRows() != colVec.getNumRows()) {
+            string errMsg1 = "Incorrect dimensions: can't add columns of matrices with dimensions ";
+            string errMsg2 = " and ";
+            throw MatrixException(errMsg1 + dims() + errMsg2 + colVec.dims());
+        }
+
+        Matrix newMat = Matrix(getNumRows(), getNumCols());
+
+        for (int c = 0; c < getNumCols(); c++) {
+            Matrix newCol = getCol(c) + colVec;
+
+            for (int r = 0; r < getNumCols(); r++) {
+                newMat.get(r, c) = newCol.get(r, 0);
+            }
+        }
+
+        return newMat;
+    }
+
+    // Multiplies the matrix with each column of colVecMat (a matrix) and returns a matrix containing each resulting column vector
+    Matrix colMul(Matrix colVecMat) {
+        if (getNumCols() != colVecMat.getNumRows()) {
+            string errMsg1 = "Incorrect dimensions: can't multiply matrices with dimensions ";
+            string errMsg2 = " and ";
+            throw MatrixException( errMsg1 + dims() + errMsg2 + colVecMat.dims());
+        }
+
+        Matrix newMat = Matrix(getNumRows(), colVecMat.getNumCols());
+
+        for (int c = 0; c < colVecMat.getNumCols(); c++) {
+            Matrix newCol = matMul(colVecMat.getCol(c));
+
+            for (int r = 0; r < getNumRows(); r++) {
+                newMat.get(r, c) = newCol.get(r, 0);
+            }
+        }
+
+        return newMat;
+    }
+
     Matrix transpose() {
         Matrix newMat = Matrix(getNumCols(), getNumRows());
 

@@ -65,13 +65,13 @@ int main() {
     Matrix<double> output = data.getCol(1);
 
     // TEMP--use single input and output data points
-    const int numPtsSmaller = 1;
+    const int numPtsSmaller = 10;
     int dataPtIndex = 1;
     double inputArr[numPtsSmaller] = {input.get(dataPtIndex, 0)};
-    Matrix<double> inputSmaller(numPtsSmaller, 1, inputArr);
+    Matrix<double> inputSmaller(1, numPtsSmaller, inputArr);
 
     double outputArr[numPtsSmaller] = {input.get(dataPtIndex, 0)};
-    Matrix<double> outputSmaller(numPtsSmaller, 1, outputArr);
+    Matrix<double> outputSmaller(1, numPtsSmaller, outputArr);
 
 
 
@@ -82,12 +82,12 @@ int main() {
     bias1.randomize();
 
     Matrix<double> weight2(nodes, nodes);   // 5x5 * 5x1 + 5x1 = 5x1
-    Matrix<double> bias2(nodes, numPtsSmaller);
+    Matrix<double> bias2(nodes, 1);
     weight2.randomize();
     bias2.randomize();
 
-    Matrix<double> weight3(numPtsSmaller, nodes);   // 1x5 * 5x1 + 1x1 = 1x1
-    Matrix<double> bias3(numPtsSmaller, numPtsSmaller);
+    Matrix<double> weight3(1, nodes);   // 1x5 * 5x1 + 1x1 = 1x1
+    Matrix<double> bias3(1, 1);
     weight3.randomize();
     bias3.randomize();
 
@@ -104,49 +104,29 @@ int main() {
     double finalCost = rmse(a3, outputSmaller);
 
 
+
+    // Run backpropagation
     double rmseDerArr[1] = {rmseDerivative(a3, outputSmaller)};
 
     Matrix<double> dCda3 = Matrix(1, 1, rmseDerArr); //rmseDerivative(a3, outputSmaller);// * sigmoidDerivative(a3);
-    Matrix<double> dCdW3 = dCda3.matMul(sigmoidDerivative(a3).matMul(a2.transpose())); //dCdz3.matMul(a2.transpose());
-    Matrix<double> dCdb3 =  dCda3.matMul(sigmoidDerivative(a3)); //dCdz3;
+    // TODO--dCda3 should have dimensions of a3--rmseDerivative should return a vector
 
-    // cout << "dCdz3: " << dCdz3.dims() << ", " << z3.dims() << endl;
-    cout << "dCda3: " << dCda3.dims() << ", " << a3.dims() << endl;
-    cout << "dCdW3: " << dCdW3.dims() << ", " << weight3.dims() << endl;
-    cout << "dCdb3: " << dCdb3.dims() << ", " << bias3.dims() << endl << endl;
+    cout << dCda3.dims() << " x " << a3.dims() << " x " << a2.transpose().dims() << endl;
+    Matrix<double> dCdW3 = dCda3.matMul(sigmoidDerivative(a3).matMul(a2.transpose())); //dCdz3.matMul(a2.transpose());
+    // Matrix<double> dCdW3 = (dCda3 * sigmoidDerivative(a3)).matMul(a2.transpose()); //TODO--NEW--this should be better--other derivatives will also need to be adjusted
+
+
+    Matrix<double> dCdb3 =  dCda3.matMul(sigmoidDerivative(a3));
 
     Matrix<double> dCda2 = (weight3.transpose()).matMul(rmseDerivative(a3, outputSmaller) * sigmoidDerivative(a3));
     Matrix<double> dCdW2 = (dCda2 * sigmoidDerivative(a2).get(0, 0)).matMul(a1.transpose());
     Matrix<double> dCdb2 = dCda2 * sigmoidDerivative(a2).get(0, 0);
 
-    cout << "dCda2: " << dCda2.dims() << ", " << a2.dims() << endl;
-    cout << "dCdW2: " << dCdW2.dims() << ", " << weight2.dims() << endl;
-    cout << "dCdb2: " << dCdb2.dims() << ", " << bias2.dims() << endl << endl;
-
-    cout << (weight2.transpose()).dims() << " * "  << dCda2.dims() << " * " << sigmoidDerivative(a2).dims() << endl;
-
-    Matrix<double> dCda1 = (weight2.transpose()).matMul(dCda2.matMul(sigmoidDerivative(a2)));
+    Matrix<double> dCda1 = (weight2.transpose()).matMul(dCda2 * sigmoidDerivative(a2));
     Matrix<double> dCdW1 = (dCda1 * sigmoidDerivative(a1).get(0, 0)).matMul(inputSmaller.transpose());
     Matrix<double> dCdb1 = dCda1 * sigmoidDerivative(a1).get(0, 0);
 
-    // cout << "dCda1: " << dCda1.dims() << ", " << a1.dims() << endl;
-    cout << "dCdW1: " << dCdW1.dims() << ", " << weight1.dims() << endl;
-    cout << "dCdb1: " << dCdb1.dims() << ", " << bias1.dims() << endl << endl;
-
-    cout << dCda1.dims() << endl;
-
-
-
-
-
-
-
-
-
-
     cout << "COST: " << finalCost << endl;
-
-    a3.display();
 
     return 0;
 }
@@ -154,10 +134,12 @@ int main() {
 
 
 Matrix<double> feedForward(Matrix<double> input, Matrix<double> weight, Matrix<double> bias) {
-    return weight.matMul(input) + bias;
+    return weight.matMul(input).colAdd(bias);
+
+    // return weight.matMul(input) + bias;
 }
 
-//Sigmoid
+// Sigmoid
 Matrix<double> sigmoid(Matrix<double> input) {
     return 1.0 / (1.0 + -1.0 * exp(input));
 }
@@ -190,5 +172,5 @@ double rmseDerivative(Matrix<double> actual, Matrix<double> expected) {
 
     sum /= numDataPts;
 
-    return sum / rmse(actual, expected);
+    return sum / rmse(actual, expected);    // TODO--should this return a vector?
 }

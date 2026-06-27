@@ -440,29 +440,15 @@ TEST_CASE("Matrix colAdd()", "[Matrix]") {
     CHECK(mat1.colAdd(colVec) == result);
 }
 
-TEST_CASE("Matrix colMul()", "[Matrix]") {
-    int arr1[4] = {1, 0, 0, 1};
-    Matrix mat1(2, 2, arr1);
+TEST_CASE("Matrix colAdd() 5x1 + 5x1", "[Matrix]") {
+    int arr1[5] = {1, 2, 3, 4, 5};
+    Matrix mat1(5, 1, arr1);
 
-    int arrVec1[6] = {1, 2, 3, 1, 2, 3};
-    Matrix colVec1(2, 3, arrVec1);
+    int arr2[5] = {3, 6, 9, 12, 15};
+    Matrix colVec(5, 1, arr2);
 
-    int resArr1[6] = {1, 2, 3, 1, 2, 3};
-    Matrix result1(3, 3, resArr1);
+    int resArr[5] = {4, 8, 12, 16, 20};
+    Matrix result(5, 1, resArr);
 
-    CHECK(mat1.colMul(colVec1) == result1);
-
-
-
-    int arr2[4] = {1, 2, 3, 4};
-    Matrix mat2(2, 2, arr2);
-
-    int arrVec2[6] = {1, 2, 3, 4, 5, 6};
-    Matrix colVec2(2, 3, arrVec2);
-
-    int resArr2[6] = {1, 2, 3, 1, 2, 3};
-    Matrix result2(3, 3, resArr2);
-
-    CHECK(mat1.colMul(colVec1) == result2);
-
+    CHECK(mat1.colAdd(colVec) == result);
 }

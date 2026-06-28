@@ -452,3 +452,54 @@ TEST_CASE("Matrix colAdd() 5x1 + 5x1", "[Matrix]") {
 
     CHECK(mat1.colAdd(colVec) == result);
 }
+
+TEST_CASE("Matrix sumToColVec()", "[Matrix]") {
+    int arr1[9] = {1, 2, 3, 4, 5, 6, 7, 8, 9};
+    Matrix mat1(3, 3, arr1);
+
+    int arr2[3] = {6, 15, 24};
+    Matrix result(3, 1, arr2);
+
+    CHECK(mat1.sumToColVec() == result);
+}
+
+TEST_CASE("Matrix/matrix +=, -=, *=, and /=", "[Matrix]") {
+    int arrMat[4] = {1, 2, 3, 4};
+    Matrix originalMat(2, 2, arrMat);
+    Matrix mat1(2, 2, arrMat);
+
+    int arrFac[4] = {1, 3, 5, 7};
+    Matrix fac(2, 2, arrFac);
+
+    mat1 += fac;
+    CHECK(mat1 == originalMat + fac);
+
+    mat1 -= fac;
+    CHECK(mat1 == originalMat);
+
+    mat1 *= fac;
+    CHECK(mat1 == originalMat * fac);
+
+    mat1 /= fac;
+    CHECK(mat1 == originalMat);
+}
+
+TEST_CASE("Matrix/scalar +=, -=, *=, and /=", "[Matrix]") {
+    int arrMat[4] = {1, 2, 3, 4};
+    Matrix originalMat(2, 2, arrMat);
+    Matrix mat1(2, 2, arrMat);
+
+    int fac = 5;
+
+    mat1 += fac;
+    CHECK(mat1 == originalMat + fac);
+
+    mat1 -= fac;
+    CHECK(mat1 == originalMat);
+
+    mat1 *= fac;
+    CHECK(mat1 == originalMat * fac);
+
+    mat1 /= fac;
+    CHECK(mat1 == originalMat);
+}

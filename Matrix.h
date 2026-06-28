@@ -236,6 +236,43 @@ public:
         return true;
     }
 
+    Matrix& operator+=(Matrix mat2) {
+        *this = *this + mat2;
+        return *this;
+    }
+
+    Matrix& operator-=(Matrix mat2) {
+        *this = *this - mat2;
+        return *this;
+    }
+
+    Matrix& operator*=(Matrix mat2) {
+        *this = *this * mat2;
+        return *this;
+    }
+
+    Matrix& operator/=(Matrix mat2) {
+        *this = *this / mat2;
+        return *this;
+    }
+
+    Matrix& operator+=(T val) {
+        *this = *this + val;
+        return *this;
+    }
+
+    Matrix& operator-=(T val) {
+        *this = *this - val;
+        return *this;
+    }
+    Matrix& operator*=(T val) {
+        *this = *this * val;
+        return *this;
+    }
+    Matrix& operator/=(T val) {
+        *this = *this / val;
+        return *this;
+    }
 
     Matrix operator+(Matrix mat2) {
         if (getNumRows() != mat2.getNumRows() || getNumCols() != mat2.getNumCols()) {
@@ -405,6 +442,22 @@ public:
         return newMat;
     }
 
+    // Sum rows, producing a column vector
+    Matrix sumToColVec() {
+        Matrix newMat = Matrix(getNumRows(), 1);
+
+        int rowSum = 0;
+        for (int r = 0; r < getNumRows(); r++) {
+            for (int c = 0; c < getNumCols(); c++) {
+                rowSum += get(r, c);
+            }
+            newMat.get(r, 0) = rowSum;
+            rowSum = 0;
+        }
+
+        return newMat;
+    }
+
     Matrix transpose() {
         Matrix newMat = Matrix(getNumCols(), getNumRows());
 
@@ -467,16 +520,16 @@ private:
         }
     }
 
-protected:
-
-    void setSize(int rowNum, int colNum) {
-        rows = rowNum;
-        cols = colNum;
-        matSize = rows * cols;
-
-        delete [] mat;
-        mat = new T[rows * cols];
-    }
+// protected:
+//
+//     void setSize(int rowNum, int colNum) {
+//         rows = rowNum;
+//         cols = colNum;
+//         matSize = rows * cols;
+//
+//         delete [] mat;
+//         mat = new T[rows * cols];
+//     }
 
 };
 

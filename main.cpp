@@ -87,7 +87,7 @@ int main() {
 
         // Partial derivatives
         Matrix<double> dCda3 = rmseDerivative(a3, output);
-        Matrix<double> dCdW3 = (dCda3 * sigmoidDerivative(a3)).matMul(a2.transpose());
+        Matrix<double> dCdW3 = (dCda3 * sigmoidDerivative(a3)).matMul(a2.transpose());  // TODO--this is a problem
         Matrix<double> dCdb3 =  (dCda3 * sigmoidDerivative(a3)).sumToColVec();  // TODO--why is the sumToColVec() necessary/justified?
 
         Matrix<double> dCda2 = (weight3.transpose()).matMul(rmseDerivative(a3, output) * sigmoidDerivative(a3));
@@ -108,7 +108,7 @@ int main() {
         dCda3.display();
 
 
-        
+
         // cout << "\nW1\n";
         // weight1.display();
         // cout << "\ndCdW1\n";

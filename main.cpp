@@ -4,11 +4,17 @@
 #include "Dataset.h"
 using namespace std;
 
+
+
 Matrix<double> feedForward(Matrix<double> input, Matrix<double> weight, Matrix<double> bias);
+
 Matrix<double> sigmoid(Matrix<double> input);
 Matrix<double> sigmoidDerivative(Matrix<double> input);
+
 double rmse(Matrix<double> actual, Matrix<double> expected);
 Matrix<double> rmseDerivative(Matrix<double> actual, Matrix<double> expected);
+
+double relTol(double current, double previous);
 
 int main() {
     // PROOF OF CONCEPT:
@@ -16,7 +22,7 @@ int main() {
     // RMSE cost function
     // Data are the x and y values for the function y = x //can use other functions like sin(x)
 
-    double learningRate = 0.1;
+    double learningRate = 0.05;
 
     int nodes = 5;  // Number of nodes in each hidden layer
 
@@ -66,8 +72,14 @@ int main() {
     weight3.randomize();
     bias3.randomize();
 
-    int epochs = 10;
-    for (int i = 0; i < epochs; i++) {
+    int epochs = 100;
+    double prevCost = 100000000;
+    double cost = 1;
+
+
+    // for (int i = 0; i < epochs; i++) {
+    while (abs(relTol(prevCost, cost)) > 1e-8) {
+        prevCost = cost;
 
         // Run feed forward
         Matrix<double> z1 = feedForward(input, weight1, bias1);
@@ -79,7 +91,7 @@ int main() {
         Matrix<double> z3 = feedForward(a2, weight3, bias3);
         Matrix<double> a3 = sigmoid(z3);
 
-        double finalCost = rmse(a3, output);
+        cost = rmse(a3, output);
 
 
 
@@ -87,7 +99,7 @@ int main() {
 
         // Partial derivatives
         Matrix<double> dCda3 = rmseDerivative(a3, output);
-        Matrix<double> dCdW3 = (dCda3 * sigmoidDerivative(a3)).matMul(a2.transpose());  // TODO--this is a problem
+        Matrix<double> dCdW3 = (dCda3 * sigmoidDerivative(a3)).matMul(a2.transpose());
         Matrix<double> dCdb3 =  (dCda3 * sigmoidDerivative(a3)).sumToColVec();  // TODO--why is the sumToColVec() necessary/justified?
 
         Matrix<double> dCda2 = (weight3.transpose()).matMul(rmseDerivative(a3, output) * sigmoidDerivative(a3));
@@ -97,26 +109,6 @@ int main() {
         Matrix<double> dCda1 = (weight2.transpose()).matMul(dCda2 * sigmoidDerivative(a2));
         Matrix<double> dCdW1 = (dCda1 * sigmoidDerivative(a1)).matMul(input.transpose());
         Matrix<double> dCdb1 = (dCda1 * sigmoidDerivative(a1)).sumToColVec();
-
-
-        cout << "\nW3\n";
-        weight3.display();
-        cout << "\ndCdW3\n";
-        dCdW3.display();
-
-        cout << "\ndCda3\n";
-        dCda3.display();
-
-
-
-        // cout << "\nW1\n";
-        // weight1.display();
-        // cout << "\ndCdW1\n";
-        // dCdW1.display();
-        //
-        // cout << "\ndCda1\n";
-        // dCda1.display();
-
 
         // Gradient descent
         weight1 -= learningRate * dCdW1;
@@ -128,49 +120,18 @@ int main() {
         weight3 -= learningRate * dCdW3;
         bias3 -= learningRate * dCdb3;
 
-        // cout << "\nW1\n";
-        // weight1.display();
 
-        // cout << "\nB1\n";
-        // bias1.display();
-        // cout << "\ndCdB1\n";
-        // dCdb1.display();
+        cout << "cost: " << cost << endl;
+        cout << "prevCost: " << prevCost << endl;
+        cout << "relTol(cost): " << abs(relTol(prevCost, cost)) << endl << endl;
 
-        // cout << "\nA1\n";
-        // a1.display();
-        //
-        // cout << "\nA2\n";
-        // a2.display();
-        //
-        // cout << "\nA3\n";
-        // a3.display();
-
-
-        // weight1 -= learningRate;// * dCdW1;
-        // bias1 -= learningRate;// * dCdb1;
-        //
-        // weight2 -= learningRate;// * dCdW2;
-        // bias2 -= learningRate;// * dCdb2;
-        //
-        // weight3 -= learningRate;// * dCdW3;
-        // bias3 -= learningRate;// * dCdb3;
-
-
-
-        // cout << "dCda3: " << dCda3.dims() << ", " << a3.dims() << endl;
-        // cout << "dCdW3: " << dCdW3.dims() << ", " << weight3.dims() << endl;
-        // cout << "dCdb3: " << dCdb3.dims() << ", " << bias3.dims() << endl << endl;
-        //
-        // cout << "dCda2: " << dCda2.dims() << ", " << a2.dims() << endl;
-        // cout << "dCdW2: " << dCdW2.dims() << ", " << weight2.dims() << endl;
-        // cout << "dCdb2: " << dCdb2.dims() << ", " << bias2.dims() << endl << endl;
-        //
-        // cout << "dCda1: " << dCda1.dims() << ", " << a1.dims() << endl;
-        // cout << "dCdW1: " << dCdW1.dims() << ", " << weight1.dims() << endl;
-        // cout << "dCdb1: " << dCdb1.dims() << ", " << bias1.dims() << endl << endl;
-
-        cout << "COST: " << finalCost << endl;
     }
+
+    // cout << "\n\ncost: " << cost << endl;
+    // cout << "prevCost: " << prevCost << endl;
+    // cout << "relTol(cost): " << abs(relTol(prevCost, cost)) << endl << endl;
+
+
     return 0;
 }
 
@@ -182,7 +143,7 @@ Matrix<double> feedForward(Matrix<double> input, Matrix<double> weight, Matrix<d
 
 // Sigmoid
 Matrix<double> sigmoid(Matrix<double> input) {
-    return 1.0 / (1.0 + -1.0 * exp(input));// + 0.001; // TODO--added 0.001 to deal with NaN values from everything being mapped to 0
+    return 1.0 / (1.0 + exp(-input));
 }
 
 Matrix<double> sigmoidDerivative(Matrix<double> input) {
@@ -208,4 +169,8 @@ Matrix<double> rmseDerivative(Matrix<double> actual, Matrix<double> expected) {
     Matrix<double> diffVec = actual - expected;
 
     return  diffVec / (numDataPts * rmse(actual, expected));
+}
+
+double relTol(double current, double previous) {
+    return (previous - current) / previous;
 }

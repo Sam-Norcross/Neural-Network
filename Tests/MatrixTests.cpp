@@ -503,3 +503,19 @@ TEST_CASE("Matrix/scalar +=, -=, *=, and /=", "[Matrix]") {
     mat1 /= fac;
     CHECK(mat1 == originalMat);
 }
+
+TEST_CASE("Matrix negation", "[Matrix]") {
+    int arr1[9] = {1, 2, 3, 4, 5, 6, 7, 8, 9};
+    Matrix mat1(3, 3, arr1);
+
+    int arr2[9] = {-1, -2, -3, -4, -5, -6, -7, -8, -9};
+    Matrix result(3, 3, arr2);
+
+    Matrix mat2 = -mat1;
+
+    CHECK(-mat1 == result);
+    CHECK(mat2 == result);
+
+    mat2.get(0, 0) = 100;
+    CHECK(mat2 != -mat1);   // Check that a new matrix is created, not just a copy
+}

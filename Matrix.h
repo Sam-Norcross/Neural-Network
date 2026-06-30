@@ -274,6 +274,10 @@ public:
         return *this;
     }
 
+    Matrix operator-() {    // Returns a new matrix that is equivalent to the original matrix * -1
+        return -1 * Matrix(*this);
+    }
+
     Matrix operator+(Matrix mat2) {
         if (getNumRows() != mat2.getNumRows() || getNumCols() != mat2.getNumCols()) {
             string errMsg1 = "Incorrect dimensions: can't add matrices with dimensions ";

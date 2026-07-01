@@ -11,6 +11,9 @@ Matrix<double> feedForward(Matrix<double> input, Matrix<double> weight, Matrix<d
 Matrix<double> sigmoid(Matrix<double> input);
 Matrix<double> sigmoidDerivative(Matrix<double> input);
 
+Matrix<double> relu(Matrix<double> input);
+Matrix<double> reluDerivative(Matrix<double> input);
+
 double rmse(Matrix<double> actual, Matrix<double> expected);
 Matrix<double> rmseDerivative(Matrix<double> actual, Matrix<double> expected);
 
@@ -50,8 +53,8 @@ int main() {
     // input = input.getCol(0);
     // output = output.getCol(0);
 
-    // cout << input.dims() << endl;
-    // cout << output.dims() << endl;
+    cout << "Input: " << input.dims() << endl;
+    cout << "Output: " << output.dims() << endl << endl;
 
     int numVars = input.getNumRows();
 
@@ -81,34 +84,63 @@ int main() {
     while (abs(relTol(prevCost, cost)) > 1e-8) {
         prevCost = cost;
 
-        // Run feed forward
+        // Run feed forward //TODO--declare the variables outside the loop and just update them each time
         Matrix<double> z1 = feedForward(input, weight1, bias1);
-        Matrix<double> a1 = sigmoid(z1);
+        // Matrix<double> a1 = sigmoid(z1);
+        Matrix<double> a1 = relu(z1);
 
         Matrix<double> z2 = feedForward(a1, weight2, bias2);
-        Matrix<double> a2 = sigmoid(z2);
+        // Matrix<double> a2 = sigmoid(z2);
+        Matrix<double> a2 = relu(z2);
 
         Matrix<double> z3 = feedForward(a2, weight3, bias3);
-        Matrix<double> a3 = sigmoid(z3);
+        // Matrix<double> a3 = sigmoid(z3);
+        Matrix<double> a3 = relu(z3);
 
-        cost = rmse(a3, output);
+        cost = rmse(a3, output);    // TODO--why is the cost always 23-24 and not closer to 0?
 
 
 
         // Run backpropagation
 
         // Partial derivatives
+
+        // Sigmoid activation functions
+        // Matrix<double> dCda3 = rmseDerivative(a3, output);
+        // Matrix<double> dCdW3 = (dCda3 * sigmoidDerivative(a3)).matMul(a2.transpose());
+        // Matrix<double> dCdb3 =  (dCda3 * sigmoidDerivative(a3)).sumToColVec();  // TODO--why is the sumToColVec() necessary/justified?
+        //
+        // Matrix<double> dCda2 = (weight3.transpose()).matMul(rmseDerivative(a3, output) * sigmoidDerivative(a3));
+        // Matrix<double> dCdW2 = (dCda2 * sigmoidDerivative(a2)).matMul(a1.transpose());
+        // Matrix<double> dCdb2 = (dCda2 * sigmoidDerivative(a2)).sumToColVec();
+        //
+        // Matrix<double> dCda1 = (weight2.transpose()).matMul(dCda2 * sigmoidDerivative(a2));
+        // Matrix<double> dCdW1 = (dCda1 * sigmoidDerivative(a1)).matMul(input.transpose());
+        // Matrix<double> dCdb1 = (dCda1 * sigmoidDerivative(a1)).sumToColVec();
+
+
+        
+        // RELU activation functions
         Matrix<double> dCda3 = rmseDerivative(a3, output);
-        Matrix<double> dCdW3 = (dCda3 * sigmoidDerivative(a3)).matMul(a2.transpose());
-        Matrix<double> dCdb3 =  (dCda3 * sigmoidDerivative(a3)).sumToColVec();  // TODO--why is the sumToColVec() necessary/justified?
+        Matrix<double> dCdW3 = (dCda3 * reluDerivative(a3)).matMul(a2.transpose());
+        Matrix<double> dCdb3 =  (dCda3 * reluDerivative(a3)).sumToColVec();  // TODO--why is the sumToColVec() necessary/justified?
+        // Matrix<double> dCdb3 =  (dCda3 * reluDerivative(a3)).getCol(0);
 
-        Matrix<double> dCda2 = (weight3.transpose()).matMul(rmseDerivative(a3, output) * sigmoidDerivative(a3));
-        Matrix<double> dCdW2 = (dCda2 * sigmoidDerivative(a2)).matMul(a1.transpose());
-        Matrix<double> dCdb2 = (dCda2 * sigmoidDerivative(a2)).sumToColVec();
+        Matrix<double> dCda2 = (weight3.transpose()).matMul(rmseDerivative(a3, output) * reluDerivative(a3));
+        Matrix<double> dCdW2 = (dCda2 * reluDerivative(a2)).matMul(a1.transpose());
+        Matrix<double> dCdb2 = (dCda2 * reluDerivative(a2)).sumToColVec();
+        // Matrix<double> dCdb2 = (dCda2 * reluDerivative(a2)).getCol(0);
 
-        Matrix<double> dCda1 = (weight2.transpose()).matMul(dCda2 * sigmoidDerivative(a2));
-        Matrix<double> dCdW1 = (dCda1 * sigmoidDerivative(a1)).matMul(input.transpose());
-        Matrix<double> dCdb1 = (dCda1 * sigmoidDerivative(a1)).sumToColVec();
+        Matrix<double> dCda1 = (weight2.transpose()).matMul(dCda2 * reluDerivative(a2));
+        Matrix<double> dCdW1 = (dCda1 * reluDerivative(a1)).matMul(input.transpose());
+        Matrix<double> dCdb1 = (dCda1 * reluDerivative(a1)).sumToColVec();
+        // Matrix<double> dCdb1 = (dCda1 * reluDerivative(a1)).getCol(0);
+
+
+        dCdW3.display();
+
+
+
 
         // Gradient descent
         weight1 -= learningRate * dCdW1;
@@ -150,13 +182,24 @@ Matrix<double> sigmoidDerivative(Matrix<double> input) {
     return sigmoid(input) * (1.0 - sigmoid(input));
 }
 
+
+
 // RMSE
 double rmse(Matrix<double> actual, Matrix<double> expected) {
-    double numDataPts = expected.getNumRows();
+    if (actual.getNumRows() != expected.getNumRows() || actual.getNumCols() != expected.getNumCols()) {
+        throw MatrixException("Invalid matrix dimensions in rmse()");
+    }
+
+    double numDataPts = expected.getNumCols();
+
+    // Matrix diff = actual - expected;
+    // Matrix diff2 = pow(diff, 2);
 
     double sum = 0;
     for (int i = 0; i < numDataPts; i++) {
-        sum += pow(actual.get(i, 0) - expected.get(i, 0), 2);
+        sum += pow(actual.get(0, i) - expected.get(0, i), 2);
+
+        // sum += diff.get(0, i);
     }
 
     sum /= numDataPts;
@@ -170,6 +213,44 @@ Matrix<double> rmseDerivative(Matrix<double> actual, Matrix<double> expected) {
 
     return  diffVec / (numDataPts * rmse(actual, expected));
 }
+
+
+
+Matrix<double> relu(Matrix<double> input) {
+    Matrix<double> newMat = input;
+
+    for (int r = 0; r < input.getNumRows(); r++) {
+        for (int c = 0; c < input.getNumCols(); c++) {
+
+            if (newMat.get(r, c) < 0) {
+                newMat.get(r, c) = 0;
+            }
+
+        }
+    }
+
+    return newMat;
+}
+
+Matrix<double> reluDerivative(Matrix<double> input) {
+    Matrix<double> newMat = input;
+
+    for (int r = 0; r < input.getNumRows(); r++) {
+        for (int c = 0; c < input.getNumCols(); c++) {
+
+            if (newMat.get(r, c) < 0) {
+                newMat.get(r, c) = 0.0;
+            } else {
+                newMat.get(r, c) = 1.0;
+            }
+
+        }
+    }
+
+    return newMat;
+}
+
+
 
 double relTol(double current, double previous) {
     return (previous - current) / previous;

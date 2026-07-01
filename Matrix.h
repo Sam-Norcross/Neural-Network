@@ -572,7 +572,7 @@ Matrix<T> operator/(U scalar, Matrix<T> mat) {
 
 // Overloaded mathematical functions for Matrix() objects
 template <typename T, typename U>
-Matrix<T> pow(Matrix<T> mat, U val) {
+Matrix<T> pow(Matrix<T> mat, U val) {   // TODO--test this!
     Matrix newMat = mat;
 
     // function add = [](T x, T y) {return x + y;};

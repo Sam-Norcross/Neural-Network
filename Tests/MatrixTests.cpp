@@ -519,3 +519,5 @@ TEST_CASE("Matrix negation", "[Matrix]") {
     mat2.get(0, 0) = 100;
     CHECK(mat2 != -mat1);   // Check that a new matrix is created, not just a copy
 }
+
+// TODO--Matrix pow() test case

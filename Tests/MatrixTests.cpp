@@ -520,4 +520,22 @@ TEST_CASE("Matrix negation", "[Matrix]") {
     CHECK(mat2 != -mat1);   // Check that a new matrix is created, not just a copy
 }
 
+TEST_CASE("Matrix getSlice", "[Matrix]") {
+    int arr1[9] = {1, 2, 3, 4, 5, 6, 7, 8, 9};
+    Matrix mat1(3, 3, arr1);
+
+    int arr2[4] = {1, 2, 4, 5};
+    Matrix mat2(2, 2, arr2);
+
+    int arr3[4] = {5, 6, 8, 9};
+    Matrix mat3(2, 2, arr3);
+
+    int arr4[3] = {7, 8, 9};
+    Matrix mat4(1, 3, arr4);
+
+    CHECK(mat1.getSlice(0, 2, 0, 2) == mat2);
+    CHECK(mat1.getSlice(1, mat1.getNumRows(), 1, mat1.getNumCols()) == mat3);
+    CHECK(mat1.getSlice(2, 3, 0, 3) == mat4);
+}
+
 // TODO--Matrix pow() test case

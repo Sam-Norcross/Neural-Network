@@ -25,25 +25,30 @@ int main() {
     // RMSE cost function
     // Data are the x and y values for the function y = x //can use other functions like sin(x)
 
-    double learningRate = 0.05;
+    double learningRate = 0.001;
 
-    int nodes = 5;  // Number of nodes in each hidden layer
+    int nodes = 50;  // Number of nodes in each hidden layer
 
-    // int nPts = 1;   // Number of data points
-    // int numVars = 1;
+
+
+    // // TEST DATASET
+    // int nPts = 50;   // Number of data points
+    // int numVars = 1; // Number of input variables for each data point
     //
     // Matrix<double> data(nPts, 2);  // N x 2 (1st col is x, 2nd is y)
     //
     // for (int i = 0; i < nPts; i++) {
     //     // Could scale the x values so it samples a smaller range more densely
-    //     data.get(i, 0) = i; // x val
-    //     data.get(i, 1) = i; // y val
+    //     data.get(i, 0) = i + 1; // x val
+    //     data.get(i, 1) = i + 1; // y val
     // }
     //
-    // Matrix<double> input = data.getCol(0);
-    // Matrix<double> output = data.getCol(1);
+    // Matrix<double> input = data.getCol(0).transpose();
+    // Matrix<double> output = data.getCol(1).transpose();
 
 
+
+    // Boston Housing dataset
     string fileName = "Datasets/BostonHousing.csv";
     Dataset<double> dataset(fileName, "medv");
 
@@ -53,51 +58,80 @@ int main() {
     // input = input.getCol(0);
     // output = output.getCol(0);
 
-    cout << "Input: " << input.dims() << endl;
-    cout << "Output: " << output.dims() << endl << endl;
-
     int numVars = input.getNumRows();
 
 
 
+
+    // Split data into training and validation data
+    int numTrainSamples = 400;
+
+    Matrix inputTrain = input.getSlice(0, input.getNumRows(), 0, numTrainSamples);
+    Matrix inputValidate = input.getSlice(0, input.getNumRows(), numTrainSamples, input.getNumCols());
+
+    Matrix outputTrain = output.getSlice(0, output.getNumRows(), 0, numTrainSamples);
+    Matrix outputValidate = output.getSlice(0, output.getNumRows(), numTrainSamples, output.getNumCols());
+
+
+
+    cout << "Input (training): " << inputTrain.dims() << endl;  // (12, 506)
+    cout << "Output (training): " << outputTrain.dims() << endl << endl; // (1, 506)
+
+    cout << "Input (validation): " << inputValidate.dims() << endl;  // (12, 506)
+    cout << "Output (validation): " << outputValidate.dims() << endl << endl; // (1, 506)
+
+
+    double initVal = 0.1; // Bounds for weight and bias randomization
+
     Matrix<double> weight1(nodes, numVars);    // 5x1 * 1x1 + 5x1    --input is a column vector
     Matrix<double> bias1(nodes, 1);
-    weight1.randomize();
-    bias1.randomize();
+    weight1.randomize(-initVal, initVal);
+    bias1.randomize(-initVal, initVal);
 
     Matrix<double> weight2(nodes, nodes);   // 5x5 * 5x1 + 5x1 = 5x1
     Matrix<double> bias2(nodes, 1);
-    weight2.randomize();
-    bias2.randomize();
+    weight2.randomize(-initVal, initVal);
+    bias2.randomize(-initVal, initVal);
 
     Matrix<double> weight3(1, nodes);   // 1x5 * 5x1 + 1x1 = 1x1
     Matrix<double> bias3(1, 1);
-    weight3.randomize();
-    bias3.randomize();
+    weight3.randomize(-initVal, initVal);
+    bias3.randomize(-initVal, initVal);
+
+    Matrix<double> z1;
+    Matrix<double> a1;
+
+    Matrix<double> z2;
+    Matrix<double> a2;
+
+    Matrix<double> z3;
+    Matrix<double> a3;
+
+
 
     int epochs = 100;
-    double prevCost = 100000000;
+    double prevCost = 100;
     double cost = 1;
 
 
     // for (int i = 0; i < epochs; i++) {
-    while (abs(relTol(prevCost, cost)) > 1e-8) {
+    while (abs(relTol(cost, prevCost)) > 1e-8) {
         prevCost = cost;
 
         // Run feed forward //TODO--declare the variables outside the loop and just update them each time
-        Matrix<double> z1 = feedForward(input, weight1, bias1);
-        // Matrix<double> a1 = sigmoid(z1);
-        Matrix<double> a1 = relu(z1);
+        z1 = feedForward(inputTrain, weight1, bias1);
+        // a1 = sigmoid(z1);
+        a1 = relu(z1);
 
-        Matrix<double> z2 = feedForward(a1, weight2, bias2);
-        // Matrix<double> a2 = sigmoid(z2);
-        Matrix<double> a2 = relu(z2);
+        z2 = feedForward(a1, weight2, bias2);
+        // a2 = sigmoid(z2);
+        a2 = relu(z2);
 
-        Matrix<double> z3 = feedForward(a2, weight3, bias3);
-        // Matrix<double> a3 = sigmoid(z3);
-        Matrix<double> a3 = relu(z3);
+        z3 = feedForward(a2, weight3, bias3);
+        // a3 = sigmoid(z3);
+        a3 = relu(z3);
 
-        cost = rmse(a3, output);    // TODO--why is the cost always 23-24 and not closer to 0?
+        cost = rmse(a3, outputTrain);    // TODO--why is the cost always 23-24 and not closer to 0?
 
 
 
@@ -105,39 +139,67 @@ int main() {
 
         // Partial derivatives
 
-        // Sigmoid activation functions
-        // Matrix<double> dCda3 = rmseDerivative(a3, output);
+        // // Sigmoid activation functions
+        // Matrix<double> dCda3 = rmseDerivative(a3, outputTrain);
         // Matrix<double> dCdW3 = (dCda3 * sigmoidDerivative(a3)).matMul(a2.transpose());
         // Matrix<double> dCdb3 =  (dCda3 * sigmoidDerivative(a3)).sumToColVec();  // TODO--why is the sumToColVec() necessary/justified?
         //
-        // Matrix<double> dCda2 = (weight3.transpose()).matMul(rmseDerivative(a3, output) * sigmoidDerivative(a3));
+        // Matrix<double> dCda2 = (weight3.transpose()).matMul(rmseDerivative(a3, outputTrain) * sigmoidDerivative(a3));
         // Matrix<double> dCdW2 = (dCda2 * sigmoidDerivative(a2)).matMul(a1.transpose());
         // Matrix<double> dCdb2 = (dCda2 * sigmoidDerivative(a2)).sumToColVec();
         //
         // Matrix<double> dCda1 = (weight2.transpose()).matMul(dCda2 * sigmoidDerivative(a2));
-        // Matrix<double> dCdW1 = (dCda1 * sigmoidDerivative(a1)).matMul(input.transpose());
+        // Matrix<double> dCdW1 = (dCda1 * sigmoidDerivative(a1)).matMul(inputTrain.transpose());
         // Matrix<double> dCdb1 = (dCda1 * sigmoidDerivative(a1)).sumToColVec();
 
 
-        
+
         // RELU activation functions
-        Matrix<double> dCda3 = rmseDerivative(a3, output);
+        Matrix<double> dCda3 = rmseDerivative(a3, outputTrain);
         Matrix<double> dCdW3 = (dCda3 * reluDerivative(a3)).matMul(a2.transpose());
-        Matrix<double> dCdb3 =  (dCda3 * reluDerivative(a3)).sumToColVec();  // TODO--why is the sumToColVec() necessary/justified?
+        Matrix<double> dCdb3 =  (dCda3 * reluDerivative(a3)).sumToColVec();  // TODO--why is the sumToColVec() necessary/justified?--should it be an average instead of a sum?
         // Matrix<double> dCdb3 =  (dCda3 * reluDerivative(a3)).getCol(0);
 
-        Matrix<double> dCda2 = (weight3.transpose()).matMul(rmseDerivative(a3, output) * reluDerivative(a3));
+        Matrix<double> dCda2 = (weight3.transpose()).matMul(rmseDerivative(a3, outputTrain) * reluDerivative(a3));
         Matrix<double> dCdW2 = (dCda2 * reluDerivative(a2)).matMul(a1.transpose());
         Matrix<double> dCdb2 = (dCda2 * reluDerivative(a2)).sumToColVec();
         // Matrix<double> dCdb2 = (dCda2 * reluDerivative(a2)).getCol(0);
 
         Matrix<double> dCda1 = (weight2.transpose()).matMul(dCda2 * reluDerivative(a2));
-        Matrix<double> dCdW1 = (dCda1 * reluDerivative(a1)).matMul(input.transpose());
+        Matrix<double> dCdW1 = (dCda1 * reluDerivative(a1)).matMul(inputTrain.transpose());
         Matrix<double> dCdb1 = (dCda1 * reluDerivative(a1)).sumToColVec();
         // Matrix<double> dCdb1 = (dCda1 * reluDerivative(a1)).getCol(0);
 
 
-        dCdW3.display();
+        // dCdW3 = (dCda3 * reluDerivative(a3)).matMul(a2.transpose());
+
+        // cout << "dCdW3: ";
+        // dCdW3.display();
+        //
+        // cout << "dCda3: ";
+        // dCda3.display();
+        //
+        // cout << "reluDerivative(a3): ";
+        // reluDerivative(a3).display();
+        //
+        // cout << "a2: ";
+        // a2.display();
+
+
+
+        // cout << "inputTrain:\n";
+        // inputTrain.display();
+        //
+        // cout << "z1:\n";
+        // z1.display();
+        //
+        // cout << "z2:\n";
+        // z2.display();
+        //
+        // cout << "z3:\n";
+        // z3.display();
+
+
 
 
 
@@ -155,13 +217,37 @@ int main() {
 
         cout << "cost: " << cost << endl;
         cout << "prevCost: " << prevCost << endl;
-        cout << "relTol(cost): " << abs(relTol(prevCost, cost)) << endl << endl;
+        cout << "relTol(cost): " << abs(relTol(cost, prevCost)) << endl << endl;
 
     }
 
-    // cout << "\n\ncost: " << cost << endl;
-    // cout << "prevCost: " << prevCost << endl;
-    // cout << "relTol(cost): " << abs(relTol(prevCost, cost)) << endl << endl;
+    // Validate data
+    Matrix<double> z1Final = feedForward(inputValidate, weight1, bias1);
+    // Matrix<double> a1Final = sigmoid(z1Final);
+    Matrix<double> a1Final = relu(z1Final);
+
+    Matrix<double> z2Final = feedForward(a1Final, weight2, bias2);
+    // Matrix<double> a2Final = sigmoid(z2Final);
+    Matrix<double> a2Final = relu(z2Final);
+
+    Matrix<double> z3Final = feedForward(a2Final, weight3, bias3);
+    // Matrix<double> a3Final = sigmoid(z3Final);
+    Matrix<double> a3Final = relu(z3Final);
+
+    int costValidate = rmse(a3Final, outputValidate);
+
+    cout << "\n\nTraining prediction:\n";
+    a3.display();
+    cout << "Actual:\n";
+    outputTrain.display();
+
+    cout << "\nValidation cost: " << costValidate << endl;
+    cout << "Predictions:\n";
+    a3Final.display();
+    cout << "Actual:\n";
+    outputValidate.display();
+
+
 
 
     return 0;
@@ -222,8 +308,8 @@ Matrix<double> relu(Matrix<double> input) {
     for (int r = 0; r < input.getNumRows(); r++) {
         for (int c = 0; c < input.getNumCols(); c++) {
 
-            if (newMat.get(r, c) < 0) {
-                newMat.get(r, c) = 0;
+            if (newMat.get(r, c) < 0.0) {
+                newMat.get(r, c) = 0.0;
             }
 
         }

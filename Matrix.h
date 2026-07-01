@@ -61,6 +61,20 @@ public:
         return mat;
     }
 
+    // Return a region of the matrix as a new matrix
+    Matrix getSlice(int startRow, int endRow, int startCol, int endCol) {
+        // Ranges do not include the final index (similar to the convention used in Python)
+
+        Matrix newMat(endRow - startRow, endCol - startCol);
+        for (int r = startRow; r < endRow; r++) {
+            for (int c = startCol; c < endCol; c++) {
+                newMat.get(r - startRow, c - startCol) = get(r, c);
+            }
+        }
+
+        return newMat;
+    }
+
     int getNumRows() {
         return rows;
     }
@@ -78,7 +92,7 @@ public:
     }
 
     // Assigns random values to all matrix elements
-    void randomize(int lowBound, int highBound) {
+    void randomize(T lowBound, T highBound) {
         mt19937 rng(random_device{}());
         uniform_real_distribution<double> dist(lowBound, highBound);
         for (int i = 0; i < matSize; i++) {

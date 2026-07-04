@@ -105,16 +105,12 @@ public:
         bool depFound = false; // Records when the dependent variable is found
 
         for (int lineNum = 0; lineNum < numEntries; lineNum++) {
-
-            cout << "\nDATA:\n";
-            data.display();
-            cout << "\nDEPENDENT:\n";
-            dependent.display();
-
-
             getline(readFile, line);
 
-            cout << line << endl;
+            // Remove new line character so that files are read in the same way on both Mac and Windows
+            if (!line.empty() && line.back() == '\r') {
+                line.pop_back();
+            }
 
             fieldIndex = 0;
             startIndex = 0;
@@ -123,16 +119,10 @@ public:
             depFound = false;
 
             for (char c : line) {
-
-                cout << "char = " << c << endl;;
-
                 fieldLength++;
-
                 int tokenStringLength = line.length();
 
                 if (c == ',' || isspace(c)) {
-
-                    cout << "AAA\n";
 
                     //TODO--define custom casting function for more data types instead of just using stod()?
 

@@ -88,7 +88,7 @@ public:
     }
 
     void randomize() {
-        randomize(-10, 10);
+        randomize(-10.0, 10.0);
     }
 
     // Assigns random values to all matrix elements

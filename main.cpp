@@ -27,7 +27,7 @@ int main() {
 
     double learningRate = 0.001;
 
-    int nodes = 50;  // Number of nodes in each hidden layer
+    int nodes = 64;  // Number of nodes in each hidden layer
 
 
 
@@ -48,9 +48,23 @@ int main() {
 
 
 
-    // Boston Housing dataset
-    string fileName = "Datasets/BostonHousing.csv";
-    Dataset<double> dataset(fileName, "medv");
+    // // Boston Housing dataset
+    // string fileName = "Datasets/BostonHousing.csv";
+    // Dataset<double> dataset(fileName, "medv");
+    //
+    // Matrix<double> input = dataset.getData().transpose();
+    // Matrix<double> output = dataset.getDependent().transpose();
+    //
+    // // input = input.getCol(0);
+    // // output = output.getCol(0);
+    //
+    // int numVars = input.getNumRows();
+
+
+
+    // Car MPG dataset
+    string fileName = "Datasets/auto-mpg.csv";
+    Dataset<double> dataset(fileName, "mpg");
 
     Matrix<double> input = dataset.getData().transpose();
     Matrix<double> output = dataset.getDependent().transpose();
@@ -64,7 +78,7 @@ int main() {
 
 
     // Split data into training and validation data
-    int numTrainSamples = 400;
+    int numTrainSamples = 300;
 
     Matrix inputTrain = input.getSlice(0, input.getNumRows(), 0, numTrainSamples);
     Matrix inputValidate = input.getSlice(0, input.getNumRows(), numTrainSamples, input.getNumCols());
@@ -81,7 +95,7 @@ int main() {
     cout << "Output (validation): " << outputValidate.dims() << endl << endl; // (1, 506)
 
 
-    double initVal = 0.1; // Bounds for weight and bias randomization
+    double initVal = 0.01; // Bounds for weight and bias randomization
 
     Matrix<double> weight1(nodes, numVars);    // 5x1 * 1x1 + 5x1    --input is a column vector
     Matrix<double> bias1(nodes, 1);
@@ -310,6 +324,7 @@ Matrix<double> relu(Matrix<double> input) {
 
             if (newMat.get(r, c) < 0.0) {
                 newMat.get(r, c) = 0.0;
+                // newMat.get(r, c) = 0.1 * input.get(r, c);   // Leaky ReLU
             }
 
         }
@@ -326,6 +341,7 @@ Matrix<double> reluDerivative(Matrix<double> input) {
 
             if (newMat.get(r, c) < 0) {
                 newMat.get(r, c) = 0.0;
+                // newMat.get(r, c) = 0.1; // Leaky ReLU
             } else {
                 newMat.get(r, c) = 1.0;
             }

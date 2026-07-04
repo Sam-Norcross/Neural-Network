@@ -23,7 +23,7 @@ TEST_CASE("Layer initialization and minimization", "[Layer]") {
     //
     // mat.get(0, 0).display();    // TODO--this needs to be (0, 0), not (0, 1)
 
-    Layer<double, double> layer(2, 2, relu);
+    // Layer<double, double> layer(2, 2, relu);
 
     // mat = sigmoid(mat);
     //

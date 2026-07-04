@@ -8,10 +8,20 @@
 #pragma once
 using namespace std;
 
+double castString(string str);
+
+template <typename T>
+T stdDev(Matrix<T> data);
+
+template <typename T>
+T mean(Matrix<T> data);
+
+
+
 template <typename T>   // TODO--the template is currently meaningless, as all values are cast to double
 class Dataset {
 public:
-    Dataset(string filePath, string depName) : numFields(0), numEntries(0), dependentVar(depName) {
+    Dataset(string filePath, string depName) : numFields(0), numEntries(0), dependentVar(depName), dependentMean(0), dependentStdDev(0) {
         // Num fields starts at 0 so it doesn't count the dependent variable column
 
         // Open file
@@ -127,14 +137,14 @@ public:
                     //TODO--define custom casting function for more data types instead of just using stod()?
 
                     if (fieldIndex == depInd and depFound == false) {
-                        dependent.get(lineNum, 0) = stod(line.substr(startIndex, fieldLength - 1));
+                        dependent.get(lineNum, 0) = castString(line.substr(startIndex, fieldLength - 1));
 
                         startIndex += fieldLength;
                         fieldLength = 0;
                         depFound = true;
                     }
                     else {
-                        data.get(lineNum, fieldIndex) = stod(line.substr(startIndex, fieldLength - 1)); // TODO--here
+                        data.get(lineNum, fieldIndex) = castString(line.substr(startIndex, fieldLength - 1)); // TODO--here
 
                         fieldIndex++;
                     }
@@ -145,9 +155,9 @@ public:
                     // If the end of the string is reached, add the rest to tokens
 
                     if (depFound == false) {
-                        dependent.get(lineNum, 0) = stod(line.substr(startIndex, fieldLength));
+                        dependent.get(lineNum, 0) = castString(line.substr(startIndex, fieldLength));
                     } else {
-                        data.get(lineNum, fieldIndex) = stod(line.substr(startIndex, fieldLength));
+                        data.get(lineNum, fieldIndex) = castString(line.substr(startIndex, fieldLength));
                     }
                 }
 
@@ -159,6 +169,48 @@ public:
 
     ~Dataset() {
         delete [] header;
+    }
+
+    // Copy constructor
+    Dataset(const Dataset& other) {
+        dependentVar = other.dependentVar;
+        data = other.data;
+        dependent = other.dependent;
+        numEntries = other.numEntries;
+        numFields = other.numFields;
+
+        dependentMean = other.dependentMean;
+        dependentStdDev = other.dependentStdDev;
+
+        header = new string[numFields];
+        for (int i = 0; i < numFields; i++) {
+            header[i] = other.header[i];
+        }
+    }
+
+    // Copy assignment operator
+    Dataset& operator=(const Dataset& other) {
+        if (this == &other) {
+            return *this;
+        }
+
+        delete [] header;
+
+        dependentVar = other.dependentVar;
+        data = other.data;
+        dependent = other.dependent;
+        numEntries = other.numEntries;
+        numFields = other.numFields;
+
+        dependentMean = other.dependentMean;
+        dependentStdDev = other.dependentStdDev;
+
+        header = new string[numFields];
+        for (int i = 0; i < numFields; i++) {
+            header[i] = other.header[i];
+        }
+
+        return *this;
     }
 
     // Returns the number of data points (lines in the CSV)
@@ -180,11 +232,11 @@ public:
         return dependentVar;
     }
 
-    Matrix<T> getData() {
+    Matrix<T>& getData() {
         return data;
     }
 
-    Matrix<T> getDependent() {
+    Matrix<T>& getDependent() {
         return dependent;
     }
 
@@ -210,15 +262,56 @@ public:
         return getColumn(fieldIndex);
     }
 
+    // Normalize each variable to have mean 0 and standard deviation 1 (Z-scores)
+    Dataset normalize() {
+        Dataset newDataset = *this;
+
+        Matrix<T> col;
+        for (int i = 0; i < newDataset.getData().getNumCols(); i++) {
+            col = newDataset.getData().getCol(i);
+            double colStdDev = stdDev(col);
+
+            if (colStdDev != 0) {
+                newDataset.getData().setCol(i, (col - mean(col)) / colStdDev);
+            }
+            else {
+                newDataset.getData().setCol(i, col - mean(col));  // Set column variable to all be 0s
+            }
+        }
+
+        T depMean = mean(dependent);
+        T depStdDev = stdDev(dependent);
+
+        newDataset.setDependentMean(depMean);
+        newDataset.setDependentStdDev(depStdDev);
+
+        if (depStdDev != 0) {
+            newDataset.getDependent() = (newDataset.getDependent() - depMean) / depStdDev;
+        }
+        else {
+            newDataset.getDependent() = newDataset.getDependent() - depMean;  // Set dependent variable to all be 0s
+        }
+
+        return newDataset;
+    }
+
+    // Reverses the normalization applied to the dependent variable to allow for meaningful NN predictions
+    Matrix<T> rescaleDependent(Matrix<T> dep) {
+        return dep * dependentStdDev + dependentMean;
+    }
+
 
 
 private:
     string* header;     // Array with the names of each column
-    string dependentVar;    // Name of the independent variable
+    string dependentVar;    // Name of the dependent variable
     Matrix<T> data;     // Contains the independent variables
     Matrix<T> dependent;   // Dependent variable in the dataset
     int numEntries;     // Number of data points (rows in the CSV)
     int numFields;      // Number of fields (columns in the CSV)
+
+    T dependentMean;
+    T dependentStdDev;
 
     int getFieldIndex(string fieldName) {
         for (int fieldIndex = 0; fieldIndex < numFields; fieldIndex++) {
@@ -229,171 +322,34 @@ private:
         throw DatasetException("Field " + fieldName + " not found");
     }
 
+    void setDependentMean(T depMean) {
+        dependentMean = depMean;
+    }
+
+    void setDependentStdDev(T depStdDev) {
+        dependentStdDev = depStdDev;
+    }
+
 };
 
+// TODO--could be overloaded to accept/return different variable types in the future?
+double castString(string str) {
+    try {
+        return stod(str);
+    }
+    catch (invalid_argument& excep) {
+        string errMsg1 = "The string \"";
+        string errMsg2 = "\" can't be converted to double and stored in the dataset.";
+        throw DatasetException(errMsg1 + str + errMsg2);
+    }
+}
 
+template <typename T>
+T mean(Matrix<T> data) {
+    return data.sum() / data.getSize();
+}
 
-
-
-
-// class Dataset : public Matrix<double> {
-// public:
-//     Dataset(string filePath) : numFields(1), numEntries(0) {
-//         // Open file
-//         ifstream readFile(filePath);
-//         string line;
-//
-//         // Check if the file is found
-//         if (!readFile.is_open()) {
-//             throw DatasetException("Error opening file");
-//         }
-//
-//         // Count the number of fields in the dataset
-//         getline(readFile, line); // Read header line
-//         for (char c: line) {
-//             if (c == ',') {
-//                 numFields++;
-//             }
-//         }
-//
-//         // Count how many data points (lines) the csv file contains
-//         while (!readFile.eof()) {
-//             getline(readFile, line);
-//             if (line != "" && line != "\n") {
-//                 numEntries++;
-//             }
-//         }
-//         readFile.close();
-//
-//         // Reopen file to read data
-//         readFile.open(filePath);
-//         getline(readFile, line);
-//
-//         // Save header line
-//         header = new string[numFields];
-//         int fieldIndex = 0;
-//         int startIndex = 0;
-//         int fieldLength = 0;
-//         bool quotes = false; // Keeps track of when quotes open and close
-//
-//         for (char c : line) {
-//             fieldLength++;
-//
-//             if (c == '"') {
-//                 quotes = !quotes;
-//             }
-//
-//             int tokenStringLength = line.length();
-//
-//             if (c == ',' || (isspace(c) && !quotes)) {
-//                 header[fieldIndex] = line.substr(startIndex, fieldLength - 1);
-//
-//                 fieldIndex++;
-//                 startIndex += fieldLength;
-//                 fieldLength = 0;
-//             } else if (startIndex + fieldLength == tokenStringLength) {  // If the end of the string is reached, add the rest to tokens
-//                 header[fieldIndex] = line.substr(startIndex, fieldLength);
-//             }
-//         }
-//
-//
-//         // Iterate through data entries and store in the appropriate arrays
-//         setSize(numEntries, numFields);
-//
-//         for (int lineNum = 0; lineNum < numEntries; lineNum++) {
-//             getline(readFile, line);
-//
-//             fieldIndex = 0;
-//             startIndex = 0;
-//             fieldLength = 0;
-//
-//             for (char c : line) {
-//                 fieldLength++;
-//
-//                 if (c == '"') {
-//                     quotes = !quotes;
-//                 }
-//
-//                 int tokenStringLength = line.length();
-//
-//                 if (c == ',' || (isspace(c) && !quotes)) {
-//                     get(lineNum, fieldIndex) = stod(line.substr(startIndex, fieldLength - 1));
-//
-//                     fieldIndex++;
-//                     startIndex += fieldLength;
-//                     fieldLength = 0;
-//                 } else if (startIndex + fieldLength == tokenStringLength) {  // If the end of the string is reached, add the rest to tokens
-//                     get(lineNum, fieldIndex) = stod(line.substr(startIndex, fieldLength));
-//                 }
-//
-//             }
-//         }
-//
-//         readFile.close();
-//     }
-//
-//     ~Dataset() {
-//         delete [] header;
-//         // header = nullptr;
-//     }
-//
-//     int getNumEntries() {
-//         return numEntries;
-//     }
-//
-//     int getNumFields() {
-//         return numFields;
-//     }
-//
-//     string* getHeader() {
-//         return header;
-//     }
-//
-//     // Return underlying Matrix object
-//     Matrix& getData() {
-//         return *this;
-//     }
-//
-//     double getEntry(string field, int entryIndex) {
-//         int fieldIndex = getFieldIndex(field);
-//         return get(entryIndex, fieldIndex);
-//     }
-//
-//     double* getRow(int entryIndex) {
-//         double* data = new double[numEntries];
-//         for (int fieldIndex = 0; fieldIndex < numFields; fieldIndex++) {
-//             data[fieldIndex] = get(entryIndex, fieldIndex);
-//         }
-//
-//         return data;
-//     }
-//
-//     double* getColumn(string field) {
-//         int fieldIndex = getFieldIndex(field);
-//         double* data = new double[numEntries];
-//
-//         for (int entryIndex = 0; entryIndex < numEntries; entryIndex++) {
-//             data[entryIndex] =  get(entryIndex, fieldIndex);
-//         }
-//
-//         return data;
-//     }
-//
-//
-//
-// private:
-//     string* header;     // Array with the names of each column
-//     int numEntries;     // Number of data points (rows in the CSV)
-//     int numFields;      // Number of fields (columns in the CSV
-//     Matrix<double> dependent;   // Dependent variable in the dataset
-//
-//     int getFieldIndex(string fieldName) {
-//         for (int fieldIndex = 0; fieldIndex < numFields; fieldIndex++) {
-//             if (header[fieldIndex] == fieldName) {
-//                 return fieldIndex; //entries.get(fieldIndex, fieldName);
-//             }
-//         }
-//         throw DatasetException("Field " + fieldName + " not found");
-//     }
-//
-// };
+template <typename T>
+T stdDev(Matrix<T> data) {
+    return sqrt(pow(data - mean(data), 2).sum() / (data.getSize() - 1));   // Returns sample standard deviation
+}

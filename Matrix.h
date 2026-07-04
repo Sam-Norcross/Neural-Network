@@ -61,6 +61,26 @@ public:
         return mat;
     }
 
+    void setRow(int row, Matrix rowMat) {
+        if (rowMat.getNumRows() != 1 || rowMat.getNumCols() != getNumCols()) {
+            throw MatrixException("Matrix of dimensions" + rowMat.dims() + " cannot be used as a row in a matrix of dimensions " + dims());
+        }
+
+        for (int c = 0; c < getNumCols(); c++) {
+            get(row, c) = rowMat.get(0, c);
+        }
+    }
+
+    void setCol(int col, Matrix colMat) {
+        if (colMat.getNumCols() != 1 || colMat.getNumRows() != getNumRows()) {
+            throw MatrixException("Matrix of dimensions" + colMat.dims() + " cannot be used as a column in a matrix of dimensions " + dims());
+        }
+
+        for (int r = 0; r < getNumRows(); r++) {
+            get(r, col) = colMat.get(r, 0);
+        }
+    }
+
     // Return a region of the matrix as a new matrix
     Matrix getSlice(int startRow, int endRow, int startCol, int endCol) {
         // Ranges do not include the final index (similar to the convention used in Python)
@@ -460,7 +480,18 @@ public:
         return newMat;
     }
 
-    // Sum rows, producing a column vector
+    T sum() {
+        T sumVal = 0;
+        for (int r = 0; r < getNumRows(); r++) {
+            for (int c = 0; c < getNumCols(); c++) {
+                sumVal += get(r, c);
+            }
+        }
+
+        return sumVal;
+    }
+
+    // Sum rows, producing a column vector TODO--replace with sum() with an axis argument?
     Matrix sumToColVec() {
         Matrix newMat = Matrix(getNumRows(), 1);
 
@@ -586,12 +617,11 @@ Matrix<T> operator/(U scalar, Matrix<T> mat) {
 
 // Overloaded mathematical functions for Matrix() objects
 template <typename T, typename U>
-Matrix<T> pow(Matrix<T> mat, U val) {   // TODO--test this!
+Matrix<T> pow(Matrix<T> mat, U exponent) {
     Matrix newMat = mat;
 
-    // function add = [](T x, T y) {return x + y;};
-    function customPow = [](T x, U y) {return pow(x, y);};
-    newMat.updateAll(customPow, val);
+    function customPow = [=](T x) {return pow(x, exponent);};
+    newMat.map(customPow);
     return newMat;
 }
 

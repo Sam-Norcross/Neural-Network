@@ -25,9 +25,11 @@ int main() {
     // RMSE cost function
     // Data are the x and y values for the function y = x //can use other functions like sin(x)
 
-    double learningRate = 0.001;
+    double learningRate = 0.05;
 
-    int nodes = 64;  // Number of nodes in each hidden layer
+    // Number of nodes in each hidden layer
+    int nodes1 = 64;
+    int nodes2 = 32;
 
 
 
@@ -48,23 +50,17 @@ int main() {
 
 
 
-    // // Boston Housing dataset
-    // string fileName = "Datasets/BostonHousing.csv";
-    // Dataset<double> dataset(fileName, "medv");
-    //
-    // Matrix<double> input = dataset.getData().transpose();
-    // Matrix<double> output = dataset.getDependent().transpose();
-    //
-    // // input = input.getCol(0);
-    // // output = output.getCol(0);
-    //
-    // int numVars = input.getNumRows();
+    // Boston Housing dataset
+    string fileName = "Datasets/BostonHousing.csv";
+    Dataset<double> datasetOriginal(fileName, "medv");
+
+    // // Car MPG dataset
+    // string fileName = "Datasets/auto-mpg.csv";
+    // Dataset<double> datasetOriginal(fileName, "mpg");
 
 
 
-    // Car MPG dataset
-    string fileName = "Datasets/auto-mpg.csv";
-    Dataset<double> dataset(fileName, "mpg");
+    Dataset dataset = datasetOriginal.normalize();
 
     Matrix<double> input = dataset.getData().transpose();
     Matrix<double> output = dataset.getDependent().transpose();
@@ -77,8 +73,9 @@ int main() {
 
 
 
+
     // Split data into training and validation data
-    int numTrainSamples = 300;
+    int numTrainSamples = 450;
 
     Matrix inputTrain = input.getSlice(0, input.getNumRows(), 0, numTrainSamples);
     Matrix inputValidate = input.getSlice(0, input.getNumRows(), numTrainSamples, input.getNumCols());
@@ -97,21 +94,23 @@ int main() {
 
     double initVal = 0.01; // Bounds for weight and bias randomization
 
-    Matrix<double> weight1(nodes, numVars);    // 5x1 * 1x1 + 5x1    --input is a column vector
-    Matrix<double> bias1(nodes, 1);
+    Matrix<double> weight1(nodes1, numVars);    // 5x1 * 1x1 + 5x1    --input is a column vector
+    Matrix<double> bias1(nodes1, 1);
     weight1.randomize(-initVal, initVal);
     bias1.randomize(-initVal, initVal);
 
-    Matrix<double> weight2(nodes, nodes);   // 5x5 * 5x1 + 5x1 = 5x1
-    Matrix<double> bias2(nodes, 1);
+    Matrix<double> weight2(nodes2, nodes1);   // 5x5 * 5x1 + 5x1 = 5x1
+    Matrix<double> bias2(nodes2, 1);
     weight2.randomize(-initVal, initVal);
     bias2.randomize(-initVal, initVal);
 
-    Matrix<double> weight3(1, nodes);   // 1x5 * 5x1 + 1x1 = 1x1
+    Matrix<double> weight3(1, nodes2);   // 1x5 * 5x1 + 1x1 = 1x1
     Matrix<double> bias3(1, 1);
     weight3.randomize(-initVal, initVal);
     bias3.randomize(-initVal, initVal);
 
+
+    // Initialize variables for feed forward
     Matrix<double> z1;
     Matrix<double> a1;
 
@@ -121,18 +120,31 @@ int main() {
     Matrix<double> z3;
     Matrix<double> a3;
 
+    Matrix<double> dCda3;
+    Matrix<double> dCdW3;
+    Matrix<double> dCdb3;
+
+    Matrix<double> dCda2;
+    Matrix<double> dCdW2;
+    Matrix<double> dCdb2;
+
+    Matrix<double> dCda1;
+    Matrix<double> dCdW1;
+    Matrix<double> dCdb1;
 
 
-    int epochs = 100;
+
+    int epochs = 200;
     double prevCost = 100;
     double cost = 1;
 
+    // TODO--try a linear activation function for the last layer
 
     // for (int i = 0; i < epochs; i++) {
-    while (abs(relTol(cost, prevCost)) > 1e-8) {
+    while (abs(relTol(cost, prevCost)) > 1e-5) {
         prevCost = cost;
 
-        // Run feed forward //TODO--declare the variables outside the loop and just update them each time
+        // Run feed forward
         z1 = feedForward(inputTrain, weight1, bias1);
         // a1 = sigmoid(z1);
         a1 = relu(z1);
@@ -169,20 +181,20 @@ int main() {
 
 
         // RELU activation functions
-        Matrix<double> dCda3 = rmseDerivative(a3, outputTrain);
-        Matrix<double> dCdW3 = (dCda3 * reluDerivative(a3)).matMul(a2.transpose());
-        Matrix<double> dCdb3 =  (dCda3 * reluDerivative(a3)).sumToColVec();  // TODO--why is the sumToColVec() necessary/justified?--should it be an average instead of a sum?
-        // Matrix<double> dCdb3 =  (dCda3 * reluDerivative(a3)).getCol(0);
+        dCda3 = rmseDerivative(a3, outputTrain);
+        dCdW3 = (dCda3 * reluDerivative(a3)).matMul(a2.transpose());
+        dCdb3 =  (dCda3 * reluDerivative(a3)).sumToColVec();  // TODO--why is the sumToColVec() necessary/justified?--should it be an average instead of a sum?
+        // dCdb3 =  (dCda3 * reluDerivative(a3)).getCol(0);
 
-        Matrix<double> dCda2 = (weight3.transpose()).matMul(rmseDerivative(a3, outputTrain) * reluDerivative(a3));
-        Matrix<double> dCdW2 = (dCda2 * reluDerivative(a2)).matMul(a1.transpose());
-        Matrix<double> dCdb2 = (dCda2 * reluDerivative(a2)).sumToColVec();
-        // Matrix<double> dCdb2 = (dCda2 * reluDerivative(a2)).getCol(0);
+        dCda2 = (weight3.transpose()).matMul(rmseDerivative(a3, outputTrain) * reluDerivative(a3));
+        dCdW2 = (dCda2 * reluDerivative(a2)).matMul(a1.transpose());
+        dCdb2 = (dCda2 * reluDerivative(a2)).sumToColVec();
+        // dCdb2 = (dCda2 * reluDerivative(a2)).getCol(0);
 
-        Matrix<double> dCda1 = (weight2.transpose()).matMul(dCda2 * reluDerivative(a2));
-        Matrix<double> dCdW1 = (dCda1 * reluDerivative(a1)).matMul(inputTrain.transpose());
-        Matrix<double> dCdb1 = (dCda1 * reluDerivative(a1)).sumToColVec();
-        // Matrix<double> dCdb1 = (dCda1 * reluDerivative(a1)).getCol(0);
+        dCda1 = (weight2.transpose()).matMul(dCda2 * reluDerivative(a2));
+        dCdW1 = (dCda1 * reluDerivative(a1)).matMul(inputTrain.transpose());
+        dCdb1 = (dCda1 * reluDerivative(a1)).sumToColVec();
+        // dCdb1 = (dCda1 * reluDerivative(a1)).getCol(0);
 
 
         // dCdW3 = (dCda3 * reluDerivative(a3)).matMul(a2.transpose());
@@ -292,26 +304,19 @@ double rmse(Matrix<double> actual, Matrix<double> expected) {
 
     double numDataPts = expected.getNumCols();
 
-    // Matrix diff = actual - expected;
-    // Matrix diff2 = pow(diff, 2);
-
-    double sum = 0;
-    for (int i = 0; i < numDataPts; i++) {
-        sum += pow(actual.get(0, i) - expected.get(0, i), 2);
-
-        // sum += diff.get(0, i);
-    }
-
-    sum /= numDataPts;
-
-    return sqrt(sum);
+    // return sqrt(pow(actual - expected, 2).sum() / numDataPts); // RMSE
+    return pow(actual - expected, 2).sum() / numDataPts; // MSE
 }
 
 Matrix<double> rmseDerivative(Matrix<double> actual, Matrix<double> expected) {
-    double numDataPts = expected.getNumRows();
-    Matrix<double> diffVec = actual - expected;
+    if (actual.getNumRows() != expected.getNumRows() || actual.getNumCols() != expected.getNumCols()) {
+        throw MatrixException("Invalid matrix dimensions in rmseDerivative()");
+    }
 
-    return  diffVec / (numDataPts * rmse(actual, expected));
+    double numDataPts = expected.getNumCols();
+
+    // return  (actual - expected) / (numDataPts * rmse(actual, expected)); // RMSE
+    return (actual - expected) * 2 / numDataPts; // MSE
 }
 
 

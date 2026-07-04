@@ -82,3 +82,77 @@ TEST_CASE("Boston housing dataset read", "[Dataset]") {
     CHECK(dataset.getNumEntries() == 506);
     CHECK(dataset.getNumFields() == 12);
 }
+
+TEST_CASE("Dataset mean and stdDev helper functions", "[Dataset]") {
+    double arr1[11] = {-5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5};
+    Matrix mat1(11, 1, arr1);
+
+    CHECK(mean(mat1) == 0);
+    CHECK(stdDev(mat1) == 3.3166247903554);
+}
+
+TEST_CASE("Dataset copy asignment operator", "[Dataset]") {
+    string fileName = "Tests/TestDatasets/TestData1.csv";
+    Dataset<double> dataset1(fileName, "Ones");
+
+    Dataset dataset2 = dataset1;
+
+    CHECK(dataset1.getData() == dataset2.getData());
+    CHECK(dataset1.getDependent() == dataset2.getDependent());
+
+    dataset1.getData().get(0, 0) = -1;
+    dataset1.getDependent().get(0, 0) = -1;
+
+    CHECK(dataset1.getData() != dataset2.getData());
+    CHECK(dataset1.getDependent() != dataset2.getDependent());
+
+}
+
+TEST_CASE("Dataset normalization with TestData1", "[Dataset]") {
+    string fileName = "Tests/TestDatasets/TestData1.csv";
+    Dataset<double> dataset(fileName, "Ones");
+
+    double arr1[3] = {0, 0, 0};
+    Matrix zeros(3, 1, arr1);
+
+    double arr2[3] = {1, 1, 1};
+    Matrix ones(3, 1, arr2);
+
+    Dataset newDataset = dataset.normalize();
+
+
+
+    CHECK(newDataset.getColumn("Twos") == zeros);
+    CHECK(newDataset.getColumn("Threes") == zeros);
+    CHECK(newDataset.rescaleDependent(dataset.getDependent()) == ones);
+}
+
+TEST_CASE("Dataset normalization with TestData3", "[Dataset]") {
+    string fileName = "Tests/TestDatasets/TestData3.csv";
+    Dataset<double> dataset(fileName, "Ones");
+
+    Matrix dataDep = dataset.getDependent();
+    Matrix dataCol1 = dataset.getColumn("Twos");
+    Matrix dataCol2 = dataset.getColumn("Threes");
+
+    Dataset dataset2 = dataset.normalize();
+
+    CHECK(abs(mean(dataset2.getDependent())) < 1e-16);  // Allows for roundoff error
+    CHECK(abs(mean(dataset2.getColumn("Twos"))) < 1e-16);
+    CHECK(abs(mean(dataset2.getColumn("Threes"))) < 1e-16);
+
+    CHECK(abs(1 - stdDev(dataset2.getDependent())) < 1e-16);  // Allows for roundoff error
+    CHECK(abs(1 - stdDev(dataset2.getColumn("Twos"))) < 1e-16);
+    CHECK(stdDev(dataset2.getColumn("Threes")) == 0);
+
+    Matrix rescaledDep = dataset2.rescaleDependent(dataset2.getDependent());
+
+    CHECK(rescaledDep == dataDep);
+
+
+
+    double arr1[11] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+    Matrix zeros(11, 1, arr1);
+
+    CHECK(dataset2.getColumn("Threes") == zeros);
+}

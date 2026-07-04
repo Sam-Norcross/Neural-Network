@@ -157,13 +157,13 @@ TEST_CASE("Matrix comparison operators", "[Matrix]") {
     CHECK(mat1 <= 4);
 }
 
-TEST_CASE("Matrix copy()", "[Matrix]") {
+TEST_CASE("Matrix copy", "[Matrix]") {
 
     // Check assigning a new matrix (mat2) to an existing matrix (mat1)
     int arr1[4] = {1, 2, 3, 4};
     Matrix mat1(2, 2, arr1);
 
-    Matrix mat2 = mat1;//.copy();
+    Matrix mat2 = mat1;
 
     CHECK(mat1 == mat2);
 
@@ -538,4 +538,52 @@ TEST_CASE("Matrix getSlice", "[Matrix]") {
     CHECK(mat1.getSlice(2, 3, 0, 3) == mat4);
 }
 
-// TODO--Matrix pow() test case
+TEST_CASE("Matrix sum", "[Matrix]") {
+    int arr1[9] = {1, 2, 3, 4, 5, 6, 7, 8, 9};
+    Matrix mat1(3, 3, arr1);
+
+    Matrix mat2(1, 9, arr1);
+    Matrix mat3(9, 1, arr1);
+
+    CHECK(mat1.sum() == 45);
+    CHECK(mat2.sum() == 45);
+    CHECK(mat3.sum() == 45);
+
+    int arr2[4] = {12, 11, 10, 9};
+    Matrix mat4(2, 2, arr2);
+
+    CHECK(mat4.sum() == 42);
+}
+
+TEST_CASE("Matrix setRow and setCol", "[Matrix]") {
+    int arr1[9] = {1, 2, 3, 4, 5, 6, 7, 8, 9};
+    int arr2[3] = {0, 0, 0};
+
+    Matrix mat1(3, 3, arr1);
+    Matrix rowMat(1, 3, arr2);
+    int resArr1[9] = {1, 2, 3, 0, 0, 0, 7, 8, 9};
+    Matrix resMat1(3, 3, resArr1);
+
+    mat1.setRow(1, rowMat);
+    CHECK(mat1 == resMat1);
+
+
+
+    Matrix mat2(3, 3, arr1);
+    Matrix colMat(3, 1, arr2);
+    int resArr2[9] = {1, 0, 3, 4, 0, 6, 7, 0, 9};
+    Matrix resMat2(3, 3, resArr2);
+
+    mat2.setCol(1, colMat);
+    CHECK(mat2 == resMat2);
+}
+
+TEST_CASE("Matrix pow()", "[Matrix]") {
+    int arr1[4] = {1, 2, 3, 4};
+    Matrix mat1(2, 2, arr1);
+
+    int resArr1[4] = {1, 4, 9, 16};
+    Matrix resMat1(2, 2, resArr1);
+
+    CHECK(pow(mat1, 2) == resMat1);
+}

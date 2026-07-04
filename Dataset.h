@@ -105,7 +105,16 @@ public:
         bool depFound = false; // Records when the dependent variable is found
 
         for (int lineNum = 0; lineNum < numEntries; lineNum++) {
+
+            cout << "\nDATA:\n";
+            data.display();
+            cout << "\nDEPENDENT:\n";
+            dependent.display();
+
+
             getline(readFile, line);
+
+            cout << line << endl;
 
             fieldIndex = 0;
             startIndex = 0;
@@ -114,11 +123,17 @@ public:
             depFound = false;
 
             for (char c : line) {
+
+                cout << "char = " << c << endl;;
+
                 fieldLength++;
 
                 int tokenStringLength = line.length();
 
                 if (c == ',' || isspace(c)) {
+
+                    cout << "AAA\n";
+
                     //TODO--define custom casting function for more data types instead of just using stod()?
 
                     if (fieldIndex == depInd and depFound == false) {
@@ -129,7 +144,7 @@ public:
                         depFound = true;
                     }
                     else {
-                        data.get(lineNum, fieldIndex) = stod(line.substr(startIndex, fieldLength - 1));
+                        data.get(lineNum, fieldIndex) = stod(line.substr(startIndex, fieldLength - 1)); // TODO--here
 
                         fieldIndex++;
                     }

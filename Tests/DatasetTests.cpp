@@ -116,7 +116,7 @@ TEST_CASE("Dataset normalization with TestData1", "[Dataset]") {
     Matrix zeros(3, 1, arr1);
 
     double arr2[3] = {1, 1, 1};
-    Matrix ones(3, 1, arr2);
+    Matrix onesMat(3, 1, arr2);
 
     Dataset newDataset = dataset.normalize();
 
@@ -124,7 +124,7 @@ TEST_CASE("Dataset normalization with TestData1", "[Dataset]") {
 
     CHECK(newDataset.getColumn("Twos") == zeros);
     CHECK(newDataset.getColumn("Threes") == zeros);
-    CHECK(newDataset.rescaleDependent(dataset.getDependent()) == ones);
+    CHECK(newDataset.rescaleDependent(dataset.getDependent()) == onesMat);
 }
 
 TEST_CASE("Dataset normalization with TestData3", "[Dataset]") {

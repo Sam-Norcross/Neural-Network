@@ -587,3 +587,17 @@ TEST_CASE("Matrix pow()", "[Matrix]") {
 
     CHECK(pow(mat1, 2) == resMat1);
 }
+
+TEST_CASE("Matrix ones(), zeros(), and fill()", "[Matrix]") {
+    int onesArr[5] = {1, 1, 1, 1, 1};
+    double zerosArr[6] = {0, 0, 0, 0, 0, 0};
+    double fivesArr[4] = {5, 5, 5, 5};
+
+    Matrix onesMat(5, 1, onesArr);
+    Matrix zerosMat(3, 2, zerosArr);
+    Matrix fivesMat(2, 2, fivesArr);
+
+    CHECK(onesMat == ones<int>(5, 1));
+    CHECK(zerosMat == zeros<double>(3, 2));
+    CHECK(fivesMat == fill<double>(2, 2, 5.0));
+}

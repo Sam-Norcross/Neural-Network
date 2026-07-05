@@ -583,6 +583,28 @@ private:
 };
 
 template <typename T>
+Matrix<T> fill(int rows, int cols, T val) {
+    Matrix<T> newMat = Matrix<T>(rows, cols);
+    for (int r = 0; r < newMat.getNumRows(); r++) {
+        for (int c = 0; c < newMat.getNumCols(); c++) {
+            newMat.get(r, c) = val;
+        }
+    }
+
+    return newMat;
+}
+
+template <typename T>
+Matrix<T> zeros(int rows, int cols) {
+    return fill(rows, cols, static_cast<T>(0));
+}
+
+template <typename T>
+Matrix<T> ones(int rows, int cols) {
+    return fill(rows, cols, static_cast<T>(1));
+}
+
+template <typename T>
 string to_string(Matrix<T> mat) {
     return mat.toString();
 }
@@ -631,19 +653,6 @@ Matrix<T> exp(Matrix<T> mat) {
     mat.map(expFunc);
     return mat;
 }
-
-// template <typename T, typename U>
-// Matrix<T> pow(Matrix<T> mat, U val) {
-//     Matrix newMat = mat;
-//
-//     for (int r = 0; r < newMat.getNumRows(); r++) {
-//         for (int c = 0; c < newMat.getNumCols(); c++) {
-//             newMat.get(r, c) = pow(newMat.get(r, c), val);
-//         }
-//     }
-//
-//     return newMat;
-// }
 
 // TODO--implement log, log10, log2, exp, sin, cos
 // TODO--change updateAll() to map() that applies the function directly to each value without needing an extra argument?

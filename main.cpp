@@ -14,6 +14,9 @@ Matrix<double> sigmoidDerivative(Matrix<double> input);
 Matrix<double> relu(Matrix<double> input);
 Matrix<double> reluDerivative(Matrix<double> input);
 
+Matrix<double> linearAct(Matrix<double> input);
+Matrix<double> linearActDerivative(Matrix<double> input);
+
 double rmse(Matrix<double> actual, Matrix<double> expected);
 Matrix<double> rmseDerivative(Matrix<double> actual, Matrix<double> expected);
 
@@ -60,7 +63,7 @@ int main() {
 
 
 
-    Dataset dataset = datasetOriginal.normalize();
+    Dataset dataset = datasetOriginal;//.normalize();
 
     Matrix<double> input = dataset.getData().transpose();
     Matrix<double> output = dataset.getDependent().transpose();
@@ -82,6 +85,13 @@ int main() {
 
     Matrix outputTrain = output.getSlice(0, output.getNumRows(), 0, numTrainSamples);
     Matrix outputValidate = output.getSlice(0, output.getNumRows(), numTrainSamples, output.getNumCols());
+
+    // If using a single data point for testing
+    // Matrix inputTrain = input;
+    // Matrix inputValidate = input;
+    // Matrix outputTrain = output;
+    // Matrix outputValidate = output;
+
 
 
 
@@ -140,8 +150,8 @@ int main() {
 
     // TODO--try a linear activation function for the last layer
 
-    // for (int i = 0; i < epochs; i++) {
-    while (abs(relTol(cost, prevCost)) > 1e-5) {
+    for (int i = 0; i < epochs; i++) {
+    // while (abs(relTol(cost, prevCost)) > 1e-5) {
         prevCost = cost;
 
         // Run feed forward
@@ -156,6 +166,7 @@ int main() {
         z3 = feedForward(a2, weight3, bias3);
         // a3 = sigmoid(z3);
         a3 = relu(z3);
+        a3 = linearAct(z3);
 
         cost = rmse(a3, outputTrain);    // TODO--why is the cost always 23-24 and not closer to 0?
 
@@ -182,9 +193,14 @@ int main() {
 
         // RELU activation functions
         dCda3 = rmseDerivative(a3, outputTrain);
-        dCdW3 = (dCda3 * reluDerivative(a3)).matMul(a2.transpose());
-        dCdb3 =  (dCda3 * reluDerivative(a3)).sumToColVec();  // TODO--why is the sumToColVec() necessary/justified?--should it be an average instead of a sum?
+        // dCdW3 = (dCda3 * reluDerivative(a3)).matMul(a2.transpose());
+        // dCdb3 =  (dCda3 * reluDerivative(a3)).sumToColVec();  // TODO--why is the sumToColVec() necessary/justified?--should it be an average instead of a sum?
         // dCdb3 =  (dCda3 * reluDerivative(a3)).getCol(0);
+
+        dCdW3 = (dCda3 * linearActDerivative(a3)).matMul(a2.transpose());
+        dCdb3 =  (dCda3 * linearActDerivative(a3)).sumToColVec();
+        // dCdW3 = linearActDerivative(a3).matMul(a2.transpose());
+        // dCdb3 = linearActDerivative(a3).sumToColVec();
 
         dCda2 = (weight3.transpose()).matMul(rmseDerivative(a3, outputTrain) * reluDerivative(a3));
         dCdW2 = (dCda2 * reluDerivative(a2)).matMul(a1.transpose());
@@ -258,9 +274,10 @@ int main() {
 
     Matrix<double> z3Final = feedForward(a2Final, weight3, bias3);
     // Matrix<double> a3Final = sigmoid(z3Final);
-    Matrix<double> a3Final = relu(z3Final);
+    // Matrix<double> a3Final = relu(z3Final);
+    Matrix<double> a3Final = linearAct(z3Final);
 
-    int costValidate = rmse(a3Final, outputValidate);
+    double costValidate = rmse(a3Final, outputValidate);
 
     cout << "\n\nTraining prediction:\n";
     a3.display();
@@ -355,6 +372,15 @@ Matrix<double> reluDerivative(Matrix<double> input) {
     }
 
     return newMat;
+}
+
+// Linear activation function
+Matrix<double> linearAct(Matrix<double> input) {
+    return input;
+}
+
+Matrix<double> linearActDerivative(Matrix<double> input) {
+    return ones<double>(input.getNumRows(), input.getNumCols());
 }
 
 

@@ -28,7 +28,7 @@ int main() {
     // RMSE cost function
     // Data are the x and y values for the function y = x //can use other functions like sin(x)
 
-    double learningRate = 0.05;
+    double learningRate = 0.001;
 
     // Number of nodes in each hidden layer
     int nodes1 = 64;
@@ -53,17 +53,17 @@ int main() {
 
 
 
-    // Boston Housing dataset
-    string fileName = "Datasets/BostonHousing.csv";
-    Dataset<double> datasetOriginal(fileName, "medv");
+    // // Boston Housing dataset
+    // string fileName = "Datasets/BostonHousing.csv";
+    // Dataset<double> datasetOriginal(fileName, "medv");
 
-    // // Car MPG dataset
-    // string fileName = "Datasets/auto-mpg.csv";
-    // Dataset<double> datasetOriginal(fileName, "mpg");
+    // Car MPG dataset
+    string fileName = "Datasets/auto-mpg.csv";
+    Dataset<double> datasetOriginal(fileName, "mpg");
 
 
 
-    Dataset dataset = datasetOriginal;//.normalize();
+    Dataset dataset = datasetOriginal.normalize();
 
     Matrix<double> input = dataset.getData().transpose();
     Matrix<double> output = dataset.getDependent().transpose();
@@ -78,7 +78,7 @@ int main() {
 
 
     // Split data into training and validation data
-    int numTrainSamples = 450;
+    int numTrainSamples = 300;// 450;
 
     Matrix inputTrain = input.getSlice(0, input.getNumRows(), 0, numTrainSamples);
     Matrix inputValidate = input.getSlice(0, input.getNumRows(), numTrainSamples, input.getNumCols());
@@ -102,7 +102,7 @@ int main() {
     cout << "Output (validation): " << outputValidate.dims() << endl << endl; // (1, 506)
 
 
-    double initVal = 0.01; // Bounds for weight and bias randomization
+    double initVal = 1; // Bounds for weight and bias randomization
 
     Matrix<double> weight1(nodes1, numVars);    // 5x1 * 1x1 + 5x1    --input is a column vector
     Matrix<double> bias1(nodes1, 1);
@@ -118,6 +118,7 @@ int main() {
     Matrix<double> bias3(1, 1);
     weight3.randomize(-initVal, initVal);
     bias3.randomize(-initVal, initVal);
+
 
 
     // Initialize variables for feed forward
@@ -191,26 +192,57 @@ int main() {
 
 
 
-        // RELU activation functions
+        // // RELU activation functions
+        // dCda3 = rmseDerivative(a3, outputTrain);
+        // // dCdW3 = (dCda3 * reluDerivative(a3)).matMul(a2.transpose());
+        // // dCdb3 =  (dCda3 * reluDerivative(a3)).sumToColVec();  // TODO--why is the sumToColVec() necessary/justified?--should it be an average instead of a sum?
+        // // dCdb3 =  (dCda3 * reluDerivative(a3)).getCol(0);
+        //
+        // dCdW3 = (dCda3 * linearActDerivative(a3)).matMul(a2.transpose());
+        // dCdb3 =  (dCda3 * linearActDerivative(a3)).sumToColVec();
+        // // dCdW3 = linearActDerivative(a3).matMul(a2.transpose());
+        // // dCdb3 = linearActDerivative(a3).sumToColVec();
+        //
+        // dCda2 = (weight3.transpose()).matMul(rmseDerivative(a3, outputTrain) * reluDerivative(a3));
+        // dCdW2 = (dCda2 * reluDerivative(a2)).matMul(a1.transpose());
+        // dCdb2 = (dCda2 * reluDerivative(a2)).sumToColVec();
+        // // dCdb2 = (dCda2 * reluDerivative(a2)).getCol(0);
+        //
+        // dCda1 = (weight2.transpose()).matMul(dCda2 * reluDerivative(a2));
+        // dCdW1 = (dCda1 * reluDerivative(a1)).matMul(inputTrain.transpose());
+        // dCdb1 = (dCda1 * reluDerivative(a1)).sumToColVec();
+        // // dCdb1 = (dCda1 * reluDerivative(a1)).getCol(0);
+
+
+        // TODO--TEST
         dCda3 = rmseDerivative(a3, outputTrain);
-        // dCdW3 = (dCda3 * reluDerivative(a3)).matMul(a2.transpose());
-        // dCdb3 =  (dCda3 * reluDerivative(a3)).sumToColVec();  // TODO--why is the sumToColVec() necessary/justified?--should it be an average instead of a sum?
-        // dCdb3 =  (dCda3 * reluDerivative(a3)).getCol(0);
+        Matrix delta3 = dCda3 * linearActDerivative(z3);
+        dCdW3 = delta3.matMul(a2.transpose());
+        dCdb3 =  delta3.sumToColVec();
 
-        dCdW3 = (dCda3 * linearActDerivative(a3)).matMul(a2.transpose());
-        dCdb3 =  (dCda3 * linearActDerivative(a3)).sumToColVec();
-        // dCdW3 = linearActDerivative(a3).matMul(a2.transpose());
-        // dCdb3 = linearActDerivative(a3).sumToColVec();
+        dCda2 = (weight3.transpose()).matMul(delta3);
+        Matrix delta2 = dCda2 * reluDerivative(z2);
+        dCdW2 = delta2.matMul(a1.transpose());
+        dCdb2 = delta2.sumToColVec();
 
-        dCda2 = (weight3.transpose()).matMul(rmseDerivative(a3, outputTrain) * reluDerivative(a3));
-        dCdW2 = (dCda2 * reluDerivative(a2)).matMul(a1.transpose());
-        dCdb2 = (dCda2 * reluDerivative(a2)).sumToColVec();
-        // dCdb2 = (dCda2 * reluDerivative(a2)).getCol(0);
+        dCda1 = (weight2.transpose()).matMul(delta2);
+        Matrix delta1 = dCda1 * reluDerivative(z1);
+        dCdW1 = delta1.matMul(inputTrain.transpose());
+        dCdb1 = delta1.sumToColVec();
 
-        dCda1 = (weight2.transpose()).matMul(dCda2 * reluDerivative(a2));
-        dCdW1 = (dCda1 * reluDerivative(a1)).matMul(inputTrain.transpose());
-        dCdb1 = (dCda1 * reluDerivative(a1)).sumToColVec();
-        // dCdb1 = (dCda1 * reluDerivative(a1)).getCol(0);
+
+        cout << "|dCdW1|: " << sqrt(pow(dCdW1, 2).sum()) << endl;
+        cout << "|dCdb1|: " << sqrt(pow(dCdb1, 2).sum()) << endl;
+
+        cout << "|dCdW2|: " << sqrt(pow(dCdW2, 2).sum()) << endl;
+        cout << "|dCdb2|: " << sqrt(pow(dCdb2, 2).sum()) << endl;
+
+        cout << "|dCdW3|: " << sqrt(pow(dCdW3, 2).sum()) << endl;
+        cout << "|dCdb3|: " << sqrt(pow(dCdb3, 2).sum()) << endl;
+
+        cout << "|delta1|: " << sqrt(pow(delta1, 2).sum()) << endl;
+        cout << "|delta2|: " << sqrt(pow(delta2, 2).sum()) << endl;
+        cout << "|delta3|: " << sqrt(pow(delta3, 2).sum()) << endl;
 
 
         // dCdW3 = (dCda3 * reluDerivative(a3)).matMul(a2.transpose());
@@ -345,8 +377,8 @@ Matrix<double> relu(Matrix<double> input) {
         for (int c = 0; c < input.getNumCols(); c++) {
 
             if (newMat.get(r, c) < 0.0) {
-                newMat.get(r, c) = 0.0;
-                // newMat.get(r, c) = 0.1 * input.get(r, c);   // Leaky ReLU
+                // newMat.get(r, c) = 0.0;
+                newMat.get(r, c) = 0.1 * input.get(r, c);   // Leaky ReLU
             }
 
         }
@@ -362,8 +394,8 @@ Matrix<double> reluDerivative(Matrix<double> input) {
         for (int c = 0; c < input.getNumCols(); c++) {
 
             if (newMat.get(r, c) < 0) {
-                newMat.get(r, c) = 0.0;
-                // newMat.get(r, c) = 0.1; // Leaky ReLU
+                // newMat.get(r, c) = 0.0;
+                newMat.get(r, c) = 0.1; // Leaky ReLU
             } else {
                 newMat.get(r, c) = 1.0;
             }

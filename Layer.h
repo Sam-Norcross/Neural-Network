@@ -2,42 +2,43 @@
 #include <functional>
 
 #include "Matrix.h"
-#include "Dual.h"
 
 #pragma once
 using namespace std;
 
-template <typename T, typename U>
+template <typename T>
 class Layer {
 public:
-    Layer (int numNodes, int previousNodes, function<Matrix<Dual<T, U>>(Matrix<Dual<T, U>>)> actFunc) {
+    Layer (int numNodes, int previousNodes, function<Matrix<T>(Matrix<T>)> actFunc) {
         // numNodes is the number of nodes in this layer, previousNodes is the number of nodes in the previous layer,
         // actFunc is the activation function
 
-        nodes = Matrix<Dual<T, U>>(numNodes, previousNodes);
-        nodes.randomize();
+        weights = Matrix<T>(numNodes, previousNodes);
+        weights.randomize();
 
-        bias = Matrix<Dual<T, U>>(numNodes, 1);
+        bias = Matrix<T>(numNodes, 1);
         bias.randomize();
 
         activation = actFunc;
     }
 
-    Matrix<Dual<T, U>> feedForward(Matrix<T> input) {    // TODO--may need to create better vectorized operators so that this process can be done on the entire dataset at once
-        Matrix z = matmul(nodes, input) + bias;
+    Matrix<T> feedForward(Matrix<T> input) {    // TODO--may need to create better vectorized operators so that this process can be done on the entire dataset at once
+        // Matrix z = matmul(weights, input) + bias;
+
+        Matrix z = weights.matMul(input).colAdd(bias);
         return activation(z);
     }
 
     // nodeUpdate and biasUpdate should be the gradient of the matrices
-    void update(Matrix<Dual<T, U>> nodeUpdate, Matrix<Dual<T, U>> biasUpdate) {
-        nodes -= nodeUpdate;
+    void backpropagate(Matrix<T> nodeUpdate, Matrix<T> biasUpdate) {
+        weights -= nodeUpdate;
         bias -= biasUpdate;
     }
 
 private:
-    Matrix<Dual<T, U>> nodes;
-    Matrix<Dual<T, U>> bias;
-    function<Matrix<Dual<T, U>>(Matrix<Dual<T, U>>)> activation;
+    Matrix<T> weights;
+    Matrix<T> bias;
+    function<Matrix<T>(Matrix<T>)> activation;
 };
 
 // Activation functions

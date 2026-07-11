@@ -7,7 +7,8 @@
 #include <iostream>
 
 #include "Matrix.h"
-#include "Dual.h"
+#include "Layer.h"
+#include "Dataset.h"
 
 #pragma once
 using namespace std;
@@ -16,8 +17,14 @@ using namespace std;
 template <typename T>
 class NeuralNetwork {
 public:
-    NeuralNetwork();
+    NeuralNetwork(string fileName, string depName) : data(Dataset<T>(fileName, depName)), outputLayer(nullptr), inputLayer(nullptr) {
+
+    }
 
 private:
+    Dataset<T> data;
+
+    Layer<T> *outputLayer;
+    Layer<T> *inputLayer;
 
 };

@@ -10,6 +10,7 @@ add_executable(NeuralNetwork main.cpp
         Dataset.h
         DatasetException.h
         NeuralNetwork.h
-        Layer.h)
+        Layer.h
+        NeuralNetworkException.h)
 
 add_subdirectory(Tests)

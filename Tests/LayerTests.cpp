@@ -19,6 +19,6 @@ TEST_CASE("Layer initialization and minimization", "[Layer]") {
     // Layer<double> layer(5, 5, sigmoidTEST<double>, sigmoidDerivative);
 
     layer.feedForward(input);
-    layer.backpropagate();
+    layer.backpropagate(input, 0.0);
 
 }

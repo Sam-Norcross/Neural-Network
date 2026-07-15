@@ -12,9 +12,9 @@ using namespace std;
 
 
 double rmse(Matrix<double> actual, Matrix<double> expected);
-double rmseDerivative(Matrix<double> actual, Matrix<double> expected);
+Matrix<double> rmseDerivative(Matrix<double> actual, Matrix<double> expected);
 double mse(Matrix<double> actual, Matrix<double> expected);
-double mseDerivative(Matrix<double> actual, Matrix<double> expected);
+Matrix<double> mseDerivative(Matrix<double> actual, Matrix<double> expected);
 
 
 
@@ -22,7 +22,8 @@ template <typename T>
 class NeuralNetwork {
 public:
     NeuralNetwork(string fileName, string depName, double learningRate, string cost) :
-            dataset(Dataset<T>(fileName, depName)), outputLayer(nullptr), inputLayer(nullptr), learningRate(learningRate) {
+            dataset(Dataset<T>(fileName, depName)), outputLayer(nullptr), inputLayer(nullptr),
+            learningRate(learningRate), dataPartitioned(false) {
 
         dataset = Dataset<T>(fileName, depName);
 
@@ -32,32 +33,42 @@ public:
         }
         else if (cost == "MSE") {
             costFunction = mse;
-            costFunction = mseDerivative;
+            costFunctionDerivative = mseDerivative;
         }
 
     }
 
     ~NeuralNetwork() {
-        delete inputLayer;
-        delete outputLayer;
+        // delete inputLayer;
+        // delete outputLayer;
     }
 
     void addLayer(int numNodes, string activationType) {
-        Layer<T> newLayer;
+        Layer<T> *newLayer;
+
+        int prevNodes;
+        if (outputLayer == nullptr) {
+            prevNodes = dataset.getNumFields();
+        } else {
+            prevNodes = outputLayer->getNumNodes();
+        }
+
+
 
         // Set activation functions
         if (activationType == "Linear") {
-            newLayer = new Layer<T>(numNodes, linearAct, linearActDerivative, learningRate);
+            newLayer = new Layer<T>(numNodes, prevNodes, linearAct, linearActDerivative, learningRate);
         }
         else if (activationType == "ReLU") {
-            newLayer = new Layer<T>(numNodes, relu, reluDerivative, learningRate);
+            newLayer = new Layer<T>(numNodes, prevNodes, relu, reluDerivative, learningRate);
         }
         else if (activationType == "Sigmoid") {
-            newLayer = new Layer<T>(numNodes, sigmoid, sigmoidDerivative, learningRate);
+            newLayer = new Layer<T>(numNodes, prevNodes, sigmoid, sigmoidDerivative, learningRate);
         } // TODO--add more here
         else {
             throw NeuralNetworkException("Activation function type '" + activationType + "' is unknown.");
         }
+
 
 
         // Reset layer pointers
@@ -68,10 +79,23 @@ public:
         if (outputLayer == nullptr) {
             outputLayer = newLayer;
         } else {
+
             outputLayer->setNextLayer(newLayer);
+            newLayer->setPreviousLayer(outputLayer);
             outputLayer = newLayer;
         }
+    }
 
+    Matrix<T> feedForwardFull(Matrix<T> input) {
+        Layer<T> *current = inputLayer;
+        Matrix<T> currentOutput = input;
+
+        while (current != nullptr) {
+            currentOutput = current->feedForward(currentOutput);
+            current = current->getNextLayer();
+        }
+
+        return currentOutput;
     }
 
     void trainNetwork(int epochs) {    // TODO--add functionality for relTol stopping condition in addition to epoch number
@@ -79,20 +103,23 @@ public:
             throw NeuralNetworkException("Network has no layers.");
         }
 
-        // Feed forward--TODO--needs to be inside the loop
-        Layer* current = inputLayer;
-        Matrix<T> layerOutput = inputTrain;
+        checkDataPartitioned();    // Throw an error if the dataset is not partitioned into training and validation data.
 
-        while (current != nullptr) {
-            layerOutput = current->feedForward(layerOutput);
-            current = current->getNextLayer();
-        }
 
-        // Backpropagation
-        if (inputLayer == outputLayer) {    // If the network has only one layer
-            for (int i = 0; i < epochs; i++) {
+        Matrix<T> output;
+        double cost;
 
-            }
+        // Training loop
+        for (int epoch = 0; epoch < epochs; epoch++) {
+
+            // Feed forward
+            output = feedForwardFull(inputTrain);
+            cost = costFunction(output, outputTrain);
+            cout << cost << endl;
+
+            // TODO--backpropagation here
+
+
         }
 
 
@@ -114,23 +141,59 @@ public:
 
         outputTrain = output.getSlice(0, output.getNumRows(), 0, partitionIndex);
         outputValidate = output.getSlice(0, output.getNumRows(), partitionIndex, output.getNumCols());
+
+        dataPartitioned = true;
+    }
+
+    Matrix<T> getTrainingInput() {
+        checkDataPartitioned();
+
+        return inputTrain;
+    }
+
+    Matrix<T> getTrainingOutput() {
+        checkDataPartitioned();
+
+        return outputTrain;
+    }
+
+    Matrix<T> getValidationInput() {
+        checkDataPartitioned();
+
+        return inputValidate;
+    }
+
+    Matrix<T> getValidationOutput() {
+        checkDataPartitioned();
+
+        return outputValidate;
     }
 
 private:
     Dataset<T> dataset;
 
+    bool dataPartitioned;
+    // Keeps track of whether the dataset has been partitioned or not (if inputTrain, outputTrain, etc. have been declared)
     Matrix<T> inputTrain;
     Matrix<T> outputTrain;
     Matrix<T> inputValidate;
     Matrix<T> outputValidate;
 
-    Matrix<T> (*costFunction)(Matrix<T>);
-    Matrix<T> (*costFunctionDerivative)(Matrix<T>);
+    T (*costFunction)(Matrix<T>, Matrix<T>);
+    Matrix<T> (*costFunctionDerivative)(Matrix<T>, Matrix<T>);
 
     Layer<T> *inputLayer;
     Layer<T> *outputLayer;
 
     double learningRate;
+
+
+
+    void checkDataPartitioned() {
+        if (!dataPartitioned) {
+            throw NeuralNetworkException("Training and validation data are not properly partitioned. Be sure to call 'partitionDataset' before training network.");
+        }
+    }
 };
 
 

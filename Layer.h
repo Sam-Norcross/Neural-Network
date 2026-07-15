@@ -10,7 +10,7 @@ template <typename T>
 class Layer {
 public:
     Layer (int numNodes, int previousNodes, Matrix<T> (*actFunc)(Matrix<T>), Matrix<T> (*actDer)(Matrix<T>), double learningRate) :
-            nextLayer(nullptr), previousLayer(nullptr), activation(actFunc), activationDerivative(actDer), learningRate(learningRate) {
+            numNodes(numNodes), nextLayer(nullptr), previousLayer(nullptr), activation(actFunc), activationDerivative(actDer) {
     // Layer (int numNodes, int previousNodes, function<Matrix<T>(Matrix<T>)> actFunc, function<Matrix<T>(Matrix<T>)> actDer) :
     //         nextLayer(nullptr), previousLayer(nullptr), activation(actFunc), activationDerivative(actDer) {
         // numNodes is the number of nodes in this layer, previousNodes is the number of nodes in the previous layer,
@@ -23,16 +23,61 @@ public:
         bias.randomize();
     }
 
+    Layer() : numNodes(0), nextLayer(nullptr), previousLayer(nullptr), activation(nullptr), activationDerivative(nullptr) {}
+
+    // Copy constructor
+    Layer(const Layer& other) {
+        numNodes = other.getNumNodes();
+        weights = other.getWeights();
+        bias = other.getBias();
+
+        activation = other.getActivation();
+        activationDerivative = other.getActivationDerivative();
+
+        nextLayer = other.getNextLayer();
+        previousLayer = other.getPreviousLayer();
+
+        aCurrent = other.getA();
+        zCurrent = other.getZ();
+        deltaCurrent = other.getDelta();
+    }
+
     ~Layer() {
         delete previousLayer;
         delete nextLayer;
     }
 
-    Layer getNextLayer() {
+    Layer& operator=(const Layer& other) {
+        if (this == &other) {
+            return *this;
+        }
+
+        numNodes = other.getNumNodes();
+        weights = other.getWeights();
+        bias = other.getBias();
+
+        activation = other.getActivation();
+        activationDerivative = other.getActivationDerivative();
+
+        nextLayer = other.getNextLayer();
+        previousLayer = other.getPreviousLayer();
+
+        aCurrent = other.getA();
+        zCurrent = other.getZ();
+        deltaCurrent = other.getDelta();
+
+        return *this;
+    }
+
+    // bool operator==(const Layer& other) {    // TODO--probably needed for the copy assignment operator (operator=())
+    //
+    // }
+
+    Layer* getNextLayer() {
         return nextLayer;
     }
 
-    Layer getPreviousLayer() {
+    Layer* getPreviousLayer() {
         return previousLayer;
     }
 
@@ -43,6 +88,12 @@ public:
     void setPreviousLayer(Layer *previous) {
         previousLayer = previous;
     }
+
+    int getNumNodes() {
+        return numNodes;
+    }
+
+
 
     Matrix<T> feedForward(Matrix<T> input) {
         zCurrent = weights.matMul(input).colAdd(bias);
@@ -55,20 +106,20 @@ public:
     // Ex: backpropagate(), backpropagateInput(Matrix<T> input), backpropagateOutput(Matrix<T> output)
 
     // nodeUpdate and biasUpdate should be the gradient of the matrices
-    void backpropagate(double costDerivative) { // Called before backpropagate() for the last layer in the network
+    void backpropagate(double costDerivative, double learningRate) { // Called before backpropagate() for the last layer in the network
         Matrix<T> delta = costDerivative * activationDerivative(zCurrent);
         weights -= learningRate * deltaCurrent.matMul((nextLayer->getA()).transpose());
         bias -= learningRate * deltaCurrent.sumToColVec();
     }
 
-    void backpropagate(Matrix<T> input) {   // Called after backpropagate() for the first layer in the network
+    void backpropagate(Matrix<T> input, double learningRate) {   // Called after backpropagate() for the first layer in the network
         Matrix<T> dCda = (nextLayer->getWeights()).transpose().matMul(nextLayer->getDelta());
         deltaCurrent = dCda * activationDerivative(zCurrent);
         weights -= learningRate * deltaCurrent.matMul(input.transpose());
         bias -= learningRate * deltaCurrent.sumToColVec();
     }
 
-    void backpropagate(Matrix<T> input, double costDerivative) {   // Backpropagation for a network with a single layer
+    void backpropagate(Matrix<T> input, double costDerivative, double learningRate) {   // Backpropagation for a network with a single layer
         // TODO--could do this instead of saving zCurrent for each node
         // deltaCurrent = costDerivative * activationDerivative(weights.matMul(input).colAdd(bias));
 
@@ -78,7 +129,7 @@ public:
     }
 
 
-    void backpropagate() {
+    void backpropagate(double learningRate) {   // Backpropagation for any general hidden layer
         // Needs weights(n+1), delta(n+1), z(n), a(n-1)
 
         // dCda3 = (weight4.transpose()).matMul(delta4);
@@ -113,15 +164,16 @@ public:
         return aCurrent;
     }
 
-    // Matrix<T> getZ() {
-    //     return zCurrent;
-    // }
+    Matrix<T> getZ() {
+        return zCurrent;
+    }
 
     Matrix<T> getDelta() {
         return deltaCurrent;
     }
 
 private:
+    int numNodes;
     Matrix<T> weights;
     Matrix<T> bias;
     Matrix<T> (*activation)(Matrix<T>);
@@ -135,7 +187,14 @@ private:
     Matrix<T> zCurrent; // Current result of the feed forward process from this node
     Matrix<T> deltaCurrent; // Intermediate step for backprop, saved to pass to next layer
 
-    double learningRate;
+protected:
+    Matrix<T> getActivation() {
+        return activation;
+    }
+
+    Matrix<T> getActivationDerivative() {
+        return activation;
+    }
 };
 
 

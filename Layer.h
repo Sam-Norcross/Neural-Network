@@ -17,7 +17,7 @@ public:
         // actFunc is the activation function, actDer is the derivative of the activation function
 
         weights = Matrix<T>(numNodes, previousNodes);
-        weights.randomize();
+        weights.randomize();    // TODO--add another constructor that has limits for randomized values?
 
         bias = Matrix<T>(numNodes, 1);
         bias.randomize();
@@ -101,14 +101,9 @@ public:
         return aCurrent;
     }
 
-    // TODO
-    // Define backpropagate() for a general node and for the input and output nodes?
-    // Ex: backpropagate(), backpropagateInput(Matrix<T> input), backpropagateOutput(Matrix<T> output)
-
-    // nodeUpdate and biasUpdate should be the gradient of the matrices
     void backpropagateLastLayer(Matrix<T> costDerivative, double learningRate) { // Called before backpropagate() for the last layer in the network
         deltaCurrent = costDerivative * activationDerivative(zCurrent);
-        weights -= learningRate * deltaCurrent.matMul((previousLayer->getA()).transpose()); // TODO--problem
+        weights -= learningRate * deltaCurrent.matMul((previousLayer->getA()).transpose());
         bias -= learningRate * deltaCurrent.sumToColVec();
     }
 
@@ -120,9 +115,6 @@ public:
     }
 
     void backpropagateSingleLayer(Matrix<T> input, Matrix<T> costDerivative, double learningRate) {   // Backpropagation for a network with a single layer
-        // TODO--could do this instead of saving zCurrent for each node--probably less time efficient
-        // deltaCurrent = costDerivative * activationDerivative(weights.matMul(input).colAdd(bias));
-
         deltaCurrent = costDerivative * activationDerivative(zCurrent);
         weights -= learningRate * deltaCurrent.matMul(input.transpose());
         bias -= learningRate * deltaCurrent.sumToColVec();
@@ -308,53 +300,3 @@ template <typename T>
 Matrix<T> sigmoidDerivative(Matrix<T> input) {
     return sigmoid(input) * (1.0 - sigmoid(input));
 }
-
-
-
-
-
-
-
-
-// TODO--old code, designed to run feed forward and backpropagation from previous and next pointers--the new code will
-// use these pointers in NeuralNetwork.h to iterate through the list, returning the necessary values
-
-// void feedForward(Matrix<T> input) {
-//     Matrix z = weights.matMul(input).colAdd(bias);
-//     aCurrent = activation(z);
-//     nextLayer->feedForward(aCurrent);
-// }
-//
-// // TODO
-// // Define backpropagate() for a general node and for the input and output nodes?
-// // Ex: backpropagate(), backpropagateInput(Matrix<T> input), backpropagateOutput(Matrix<T> output)
-//
-// // nodeUpdate and biasUpdate should be the gradient of the matrices
-// void backpropagate() {
-//
-//     // dCda3 = (weight4.transpose()).matMul(delta4);
-//     // Matrix delta3 = dCda3 * reluDerivative(z3);
-//     // dCdW3 = delta3.matMul(a2.transpose());
-//     // dCdb3 =  delta3.sumToColVec();
-//
-//     // Matrix<T> dCda1 = (weight2.transpose()).matMul(delta2);
-//     // Matrix delta1 = dCda1 * activationDerivative(z1);
-//     //
-//     // weights -= delta1.matMul(inputTrain.transpose());
-//     // bias -= delta1.sumToColVec();
-//
-//     Matrix<T> dCda;
-//     if (nextLayer != nullptr) {
-//         dCda = (nextLayer->getWeights()).transpose().matMul(nextLayer->getDelta());
-//     } else {
-//         // dCda = costDerivative(aCurrent);
-//     }
-//     deltaCurrent = dCda * activationDerivative(zCurrent);
-//
-//     if (previousLayer != nullptr) {
-//         weights -= deltaCurrent.matMul((previousLayer->getA()).transpose());
-//     } else {
-//         // weights -= deltaCurrent.matMul(networkInput.transpose());
-//     }
-//     bias -= deltaCurrent.sumToColVec();
-// }

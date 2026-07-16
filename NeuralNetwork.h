@@ -16,6 +16,9 @@ Matrix<double> rmseDerivative(Matrix<double> actual, Matrix<double> expected);
 double mse(Matrix<double> actual, Matrix<double> expected);
 Matrix<double> mseDerivative(Matrix<double> actual, Matrix<double> expected);
 
+// TODO--add function to make predictions with trained dataset--maybe make feedForwardFull a private method and create a wrapper for predictions?
+// TODO--add functionality to save the trained NN to a file so it can be loaded and used for predictions without retraining
+// TODO--add functionality so that the learning rate can be adjusted as the model trains to increase speed?
 
 
 template <typename T>
@@ -101,6 +104,7 @@ public:
     }
 
     void backpropagateFull(Matrix<T> input, Matrix<T> output, Matrix<T> expected) {
+        // TODO--maybe have this function return another function so it doesn't need to check the number of layers each time?
         if (numLayers == 1) {   // If the network only has one layer
             inputLayer->backpropagateSingleLayer(input, costFunctionDerivative(output, expected), learningRate);
         } else {
@@ -141,12 +145,18 @@ public:
             cost = costFunction(output, outputTrain);
             cout << cost << endl;
 
+
+            // Backpropagation
             backpropagateFull(inputTrain, output, outputTrain);
 
-            // TODO--backpropagation here
-
-
         }
+
+
+        // Validate data
+        output = feedForwardFull(inputValidate);
+        cost = costFunction(output, outputValidate);
+
+        cout << "The cost of the validation data is " << cost << endl;
 
 
 

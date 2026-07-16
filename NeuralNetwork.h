@@ -109,12 +109,13 @@ public:
             // backpropagate(double learningRate)
             // backpropagateFirstLayer(Matrix<T> input, double learningRate)
 
-            outputLayer->backpropagateLastLayer(costFunctionDerivative(output, expected), learningRate);    // TODO--problem
+            outputLayer->backpropagateLastLayer(costFunctionDerivative(output, expected), learningRate);
 
-            Layer<T> *current = outputLayer;
+            Layer<T> *current = outputLayer->getPreviousLayer();
             while (current != inputLayer) {
                 current->backpropagate(learningRate);
-                current = current->getNextLayer();
+
+                current = current->getPreviousLayer();
             }
 
             inputLayer->backpropagateFirstLayer(input, learningRate);

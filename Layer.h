@@ -107,8 +107,8 @@ public:
 
     // nodeUpdate and biasUpdate should be the gradient of the matrices
     void backpropagateLastLayer(Matrix<T> costDerivative, double learningRate) { // Called before backpropagate() for the last layer in the network
-        Matrix<T> delta = costDerivative * activationDerivative(zCurrent);
-        weights -= learningRate * deltaCurrent.matMul((nextLayer->getA()).transpose());
+        deltaCurrent = costDerivative * activationDerivative(zCurrent);
+        weights -= learningRate * deltaCurrent.matMul((previousLayer->getA()).transpose()); // TODO--problem
         bias -= learningRate * deltaCurrent.sumToColVec();
     }
 
@@ -143,12 +143,11 @@ public:
         // weights -= delta1.matMul(inputTrain.transpose());
         // bias -= delta1.sumToColVec();
 
-        Matrix<T> dCda;
-        dCda = (nextLayer->getWeights()).transpose().matMul(nextLayer->getDelta());
+        Matrix<T> dCda = (nextLayer->getWeights()).transpose().matMul(nextLayer->getDelta());
 
         deltaCurrent = dCda * activationDerivative(zCurrent);
 
-        weights -= learningRate * deltaCurrent.matMul((nextLayer->getA()).transpose());
+        weights -= learningRate * deltaCurrent.matMul((previousLayer->getA()).transpose());
         bias -= learningRate * deltaCurrent.sumToColVec();
     }
 

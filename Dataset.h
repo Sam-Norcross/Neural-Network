@@ -8,7 +8,7 @@
 #pragma once
 using namespace std;
 
-double castString(string str);
+inline double castString(string str);
 
 template <typename T>
 T stdDev(Matrix<T> data);

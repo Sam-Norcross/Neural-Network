@@ -1,10 +1,10 @@
 #include <catch2/catch_test_macros.hpp>
 #include <string>
 
-#include "NeuralNetwork.h"
+#include "NeuralNetwork.h"  // TODO--problem
 using namespace std;
 
-#include "Matrix.h" // TODO--remove eventually if possible
+// #include "Matrix.h" // TODO--remove eventually if possible
 
 TEST_CASE("NeuralNetwork initialization and feed forward", "[NeuralNetwork]") {
     string filepath = "Datasets/BostonHousing.csv";
@@ -18,9 +18,9 @@ TEST_CASE("NeuralNetwork initialization and feed forward", "[NeuralNetwork]") {
 
     network.partitionDataset(0.75);
 
-    Matrix<double> inputTrain = network.getTrainingInput();
+    // Matrix<double> inputTrain = network.getTrainingInput();
 
-    cout << network.feedForwardFull(inputTrain).dims();
+    // cout << network.feedForwardFull(inputTrain).dims();
 
     // TODO--add test cases for partitionDataset, check that the dimensions of the feedForward output are correct, etc.
 

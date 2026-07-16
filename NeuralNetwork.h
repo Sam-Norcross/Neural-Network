@@ -22,7 +22,7 @@ template <typename T>
 class NeuralNetwork {
 public:
     NeuralNetwork(string fileName, string depName, double learningRate, string cost) :
-            dataset(Dataset<T>(fileName, depName)), outputLayer(nullptr), inputLayer(nullptr),
+            dataset(Dataset<T>(fileName, depName)), numLayers(0), outputLayer(nullptr), inputLayer(nullptr),
             learningRate(learningRate), dataPartitioned(false) {
 
         dataset = Dataset<T>(fileName, depName);
@@ -57,13 +57,13 @@ public:
 
         // Set activation functions
         if (activationType == "Linear") {
-            newLayer = new Layer<T>(numNodes, prevNodes, linearAct, linearActDerivative, learningRate);
+            newLayer = new Layer<T>(numNodes, prevNodes, linearAct, linearActDerivative);
         }
         else if (activationType == "ReLU") {
-            newLayer = new Layer<T>(numNodes, prevNodes, relu, reluDerivative, learningRate);
+            newLayer = new Layer<T>(numNodes, prevNodes, relu, reluDerivative);
         }
         else if (activationType == "Sigmoid") {
-            newLayer = new Layer<T>(numNodes, prevNodes, sigmoid, sigmoidDerivative, learningRate);
+            newLayer = new Layer<T>(numNodes, prevNodes, sigmoid, sigmoidDerivative);
         } // TODO--add more here
         else {
             throw NeuralNetworkException("Activation function type '" + activationType + "' is unknown.");
@@ -84,6 +84,8 @@ public:
             newLayer->setPreviousLayer(outputLayer);
             outputLayer = newLayer;
         }
+
+        numLayers++;
     }
 
     Matrix<T> feedForwardFull(Matrix<T> input) {
@@ -98,8 +100,29 @@ public:
         return currentOutput;
     }
 
+    void backpropagateFull(Matrix<T> input, Matrix<T> output, Matrix<T> expected) {
+        if (numLayers == 1) {   // If the network only has one layer
+            inputLayer->backpropagateSingleLayer(input, costFunctionDerivative(output, expected), learningRate);
+        } else {
+
+            // backpropagateLastLayer(Matrix<T> costDerivative, double learningRate)
+            // backpropagate(double learningRate)
+            // backpropagateFirstLayer(Matrix<T> input, double learningRate)
+
+            outputLayer->backpropagateLastLayer(costFunctionDerivative(output, expected), learningRate);    // TODO--problem
+
+            Layer<T> *current = outputLayer;
+            while (current != inputLayer) {
+                current->backpropagate(learningRate);
+                current = current->getNextLayer();
+            }
+
+            inputLayer->backpropagateFirstLayer(input, learningRate);
+        }
+    }
+
     void trainNetwork(int epochs) {    // TODO--add functionality for relTol stopping condition in addition to epoch number
-        if (inputLayer == nullptr) {
+        if (numLayers == 0) {
             throw NeuralNetworkException("Network has no layers.");
         }
 
@@ -116,6 +139,8 @@ public:
             output = feedForwardFull(inputTrain);
             cost = costFunction(output, outputTrain);
             cout << cost << endl;
+
+            backpropagateFull(inputTrain, output, outputTrain);
 
             // TODO--backpropagation here
 
@@ -182,6 +207,7 @@ private:
     T (*costFunction)(Matrix<T>, Matrix<T>);
     Matrix<T> (*costFunctionDerivative)(Matrix<T>, Matrix<T>);
 
+    int numLayers;
     Layer<T> *inputLayer;
     Layer<T> *outputLayer;
 

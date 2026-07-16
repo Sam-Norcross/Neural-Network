@@ -9,7 +9,7 @@ using namespace std;
 template <typename T>
 class Layer {
 public:
-    Layer (int numNodes, int previousNodes, Matrix<T> (*actFunc)(Matrix<T>), Matrix<T> (*actDer)(Matrix<T>), double learningRate) :
+    Layer (int numNodes, int previousNodes, Matrix<T> (*actFunc)(Matrix<T>), Matrix<T> (*actDer)(Matrix<T>)) :
             numNodes(numNodes), nextLayer(nullptr), previousLayer(nullptr), activation(actFunc), activationDerivative(actDer) {
     // Layer (int numNodes, int previousNodes, function<Matrix<T>(Matrix<T>)> actFunc, function<Matrix<T>(Matrix<T>)> actDer) :
     //         nextLayer(nullptr), previousLayer(nullptr), activation(actFunc), activationDerivative(actDer) {
@@ -106,21 +106,21 @@ public:
     // Ex: backpropagate(), backpropagateInput(Matrix<T> input), backpropagateOutput(Matrix<T> output)
 
     // nodeUpdate and biasUpdate should be the gradient of the matrices
-    void backpropagate(double costDerivative, double learningRate) { // Called before backpropagate() for the last layer in the network
+    void backpropagateLastLayer(Matrix<T> costDerivative, double learningRate) { // Called before backpropagate() for the last layer in the network
         Matrix<T> delta = costDerivative * activationDerivative(zCurrent);
         weights -= learningRate * deltaCurrent.matMul((nextLayer->getA()).transpose());
         bias -= learningRate * deltaCurrent.sumToColVec();
     }
 
-    void backpropagate(Matrix<T> input, double learningRate) {   // Called after backpropagate() for the first layer in the network
+    void backpropagateFirstLayer(Matrix<T> input, double learningRate) {   // Called after backpropagate() for the first layer in the network
         Matrix<T> dCda = (nextLayer->getWeights()).transpose().matMul(nextLayer->getDelta());
         deltaCurrent = dCda * activationDerivative(zCurrent);
         weights -= learningRate * deltaCurrent.matMul(input.transpose());
         bias -= learningRate * deltaCurrent.sumToColVec();
     }
 
-    void backpropagate(Matrix<T> input, double costDerivative, double learningRate) {   // Backpropagation for a network with a single layer
-        // TODO--could do this instead of saving zCurrent for each node
+    void backpropagateSingleLayer(Matrix<T> input, Matrix<T> costDerivative, double learningRate) {   // Backpropagation for a network with a single layer
+        // TODO--could do this instead of saving zCurrent for each node--probably less time efficient
         // deltaCurrent = costDerivative * activationDerivative(weights.matMul(input).colAdd(bias));
 
         deltaCurrent = costDerivative * activationDerivative(zCurrent);

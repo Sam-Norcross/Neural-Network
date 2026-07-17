@@ -2,6 +2,7 @@
 #include <string>
 
 #include "NeuralNetwork.h"
+#include "Matrix.h"
 using namespace std;
 
 TEST_CASE("NeuralNetwork initialization and feed forward", "[NeuralNetwork]") {
@@ -40,9 +41,19 @@ TEST_CASE("Classification architecture", "[NeuralNetwork]") {
     network.addLayer(50, "Sigmoid");
     network.addLayer(1, "Sigmoid");
 
+    network.randomizeLayers(1.0);
+
     network.partitionDataset(0.75);
 
-    network.trainNetwork(500);  // TODO--costs are lower with values randomized within (-1, 1)
+    network.trainNetwork(1000);
     // TODO--build functionality to export this data for visualization in Julia or Python (or just find a good C++ plotting library)
 
+
+    Matrix<double> predictedOutput = network.predict(network.getValidationInput());
+
+    cout << "Input data:\n";
+    network.getValidationInput().display();
+
+    cout << "Predicted output:\n";
+    predictedOutput.display();
 }

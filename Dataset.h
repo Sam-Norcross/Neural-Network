@@ -167,10 +167,6 @@ public:
         readFile.close();
     }
 
-    ~Dataset() {
-        delete [] header;
-    }
-
     // Copy constructor
     Dataset(const Dataset& other) {
         dependentVar = other.dependentVar;
@@ -186,6 +182,10 @@ public:
         for (int i = 0; i < numFields; i++) {
             header[i] = other.header[i];
         }
+    }
+
+    ~Dataset() {
+        delete [] header;
     }
 
     // Copy assignment operator

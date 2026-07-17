@@ -91,6 +91,18 @@ public:
         numLayers++;
     }
 
+    void randomizeLayers(T max) {
+        randomizeLayers(-max, max);
+    }
+
+    void randomizeLayers(T lowBound, T highBound) {
+        Layer<T> *current = inputLayer;
+        while (current != nullptr) {
+            current->randomizeLayer(lowBound, highBound);
+            current = current->getNextLayer();
+        }
+    }
+
     Matrix<T> feedForwardFull(Matrix<T> input) {
         Layer<T> *current = inputLayer;
         Matrix<T> currentOutput = input;
@@ -183,33 +195,38 @@ public:
 
     Matrix<T> getTrainingInput() {
         checkDataPartitioned();
-
         return inputTrain;
     }
 
     Matrix<T> getTrainingOutput() {
         checkDataPartitioned();
-
         return outputTrain;
     }
 
     Matrix<T> getValidationInput() {
         checkDataPartitioned();
-
         return inputValidate;
     }
 
     Matrix<T> getValidationOutput() {
         checkDataPartitioned();
-
         return outputValidate;
+    }
+
+    Matrix<T> predict(Matrix<T> input) {
+        if (input.getNumRows() != dataset.getNumFields()) {
+            throw NeuralNetworkException("Input matrix has incorrect dimensions.");
+        }
+
+        return feedForwardFull(input);
     }
 
 private:
     Dataset<T> dataset;
 
-    bool dataPartitioned;
     // Keeps track of whether the dataset has been partitioned or not (if inputTrain, outputTrain, etc. have been declared)
+    bool dataPartitioned;
+
     Matrix<T> inputTrain;
     Matrix<T> outputTrain;
     Matrix<T> inputValidate;

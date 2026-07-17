@@ -163,6 +163,11 @@ public:
         return deltaCurrent;
     }
 
+    void randomizeLayer(T lowBound, T highBound) {
+        weights.randomize(lowBound, highBound);
+        bias.randomize(lowBound, highBound);
+    }
+
 private:
     int numNodes;
     Matrix<T> weights;

@@ -35,7 +35,11 @@ TEST_CASE("NeuralNetwork initialization and feed forward", "[NeuralNetwork]") {
 TEST_CASE("Classification architecture", "[NeuralNetwork]") {
     string filepath = "Datasets/HalfMoonDataset.csv";
 
-    NeuralNetwork<double> network(filepath, "moon_id", 0.05, "RMSE");
+    NeuralNetwork<double> network(filepath, "moon_id", 0.15, "RMSE");
+
+    // network.addLayer(100, "ReLU");
+    // network.addLayer(50, "Sigmoid");
+    // network.addLayer(1, "Sigmoid");
 
     network.addLayer(100, "ReLU");
     network.addLayer(50, "Sigmoid");
@@ -51,9 +55,44 @@ TEST_CASE("Classification architecture", "[NeuralNetwork]") {
 
     Matrix<double> predictedOutput = network.predict(network.getValidationInput());
 
-    cout << "Input data:\n";
+    cout << "Validation data input:\n";
     network.getValidationInput().display();
 
-    cout << "Predicted output:\n";
+    cout << "Validation data output:\n";
     predictedOutput.display();
+
+
+
+    // Run the network for a grid of values to test decision boundary
+
+    // Create grid
+    double xMin = -2.5;
+    double xMax = 2.5;
+    double yMin = -1.5;
+    double yMax = 1.5;
+    double h = 0.1;
+
+    int numXPts = (xMax - xMin) / h + 1;
+    int numYPts = (yMax - yMin) / h + 1;
+
+    Matrix<double> gridInput(2, numXPts * numYPts);
+
+    int i = 0;
+    for (int yInc = 0; yInc < numYPts; yInc++) {
+        for (int xInc = 0; xInc < numXPts; xInc++) {
+
+            gridInput.get(0, i) = xMin + xInc * h;
+            gridInput.get(1, i) = yMin + yInc * h;
+            i++;
+        }
+    }
+
+    cout << "Grid input:\n";
+    gridInput.display();
+
+    // Run network
+    Matrix<double> gridPredictions = network.predict(gridInput);
+
+    cout << "Grid output:\n";
+    gridPredictions.display();
 }

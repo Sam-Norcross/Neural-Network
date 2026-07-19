@@ -36,11 +36,7 @@ TEST_CASE("Classification architecture", "[NeuralNetwork]") {
     string filepath = "Datasets/HalfMoonDataset.csv";
 
     NeuralNetwork<double> network(filepath, "moon_id", 0.15, "RMSE");
-
-    // network.addLayer(100, "ReLU");
-    // network.addLayer(50, "Sigmoid");
-    // network.addLayer(1, "Sigmoid");
-
+    
     network.addLayer(100, "ReLU");
     network.addLayer(50, "Sigmoid");
     network.addLayer(1, "Sigmoid");

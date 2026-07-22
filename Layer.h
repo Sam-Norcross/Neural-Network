@@ -299,9 +299,6 @@ Matrix<T> sigmoid(Matrix<T> input) {
 }
 
 template <typename T>
-function sigmoidTEST = [](Matrix<T> input) {return sigmoid(input);};
-
-template <typename T>
 Matrix<T> sigmoidDerivative(Matrix<T> input) {
     return sigmoid(input) * (1.0 - sigmoid(input));
 }

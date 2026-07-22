@@ -150,19 +150,24 @@ public:
         double cost;
 
         // Training loop
+        // cout << "TRAINING" << endl;
+        cout << "[";
         for (int epoch = 0; epoch < epochs; epoch++) {
+            // cout << "Epoch " << epoch + 1 << ":" << endl;
 
             // Feed forward
             output = feedForwardFull(inputTrain);
-            cost = costFunction(output, outputTrain);
-            cout << cost << endl;
+            // cost = costFunction(output, outputTrain);
+            // cout << cost << endl;
 
 
             // Backpropagation
             backpropagateFull(inputTrain, output, outputTrain);
 
+            // Display progress bar
+            progressBar(epoch, epochs);
         }
-
+        cout << "]" << endl;
 
         // Validate data
         output = feedForwardFull(inputValidate);
@@ -246,6 +251,15 @@ private:
     void checkDataPartitioned() {
         if (!dataPartitioned) {
             throw NeuralNetworkException("Training and validation data are not properly partitioned. Be sure to call 'partitionDataset' before training network.");
+        }
+    }
+
+    void progressBar(int current, int total) {
+        double percentProgress = 1000.0 * current / total;
+        // cout << percentProgress << endl;
+
+        if (static_cast<int>(percentProgress) % 10 == 0) {
+            cout << "=";
         }
     }
 };

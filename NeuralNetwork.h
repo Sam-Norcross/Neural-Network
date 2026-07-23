@@ -25,8 +25,8 @@ template <typename T>
 class NeuralNetwork {
 public:
     NeuralNetwork(string fileName, string depName, double learningRate, string cost) :
-            dataset(Dataset<T>(fileName, depName)), numLayers(0), outputLayer(nullptr), inputLayer(nullptr),
-            learningRate(learningRate), dataPartitioned(false) {
+            datasetFilePath(fileName), dataset(Dataset<T>(fileName, depName)), numLayers(0),
+            outputLayer(nullptr), inputLayer(nullptr), learningRate(learningRate), dataPartitioned(false) {
 
         dataset = Dataset<T>(fileName, depName);
 
@@ -41,13 +41,13 @@ public:
 
     }
 
+
     ~NeuralNetwork() {
         // delete inputLayer;
         // delete outputLayer;
     }
 
     void addLayer(int numNodes, string activationType) {
-        Layer<T> *newLayer;
 
         int prevNodes;
         if (outputLayer == nullptr) {
@@ -56,21 +56,23 @@ public:
             prevNodes = outputLayer->getNumNodes();
         }
 
+        Layer<T> *newLayer = new Layer<T>(numNodes, prevNodes, activationType);
 
 
-        // Set activation functions
-        if (activationType == "Linear") {
-            newLayer = new Layer<T>(numNodes, prevNodes, linearAct, linearActDerivative);
-        }
-        else if (activationType == "ReLU") {
-            newLayer = new Layer<T>(numNodes, prevNodes, relu, reluDerivative);
-        }
-        else if (activationType == "Sigmoid") {
-            newLayer = new Layer<T>(numNodes, prevNodes, sigmoid, sigmoidDerivative);
-        } // TODO--add more here
-        else {
-            throw NeuralNetworkException("Activation function type '" + activationType + "' is unknown.");
-        }
+
+        // // Set activation functions
+        // if (activationType == "Linear") {
+        //     newLayer = new Layer<T>(numNodes, prevNodes, linearAct, linearActDerivative);
+        // }
+        // else if (activationType == "ReLU") {
+        //     newLayer = new Layer<T>(numNodes, prevNodes, relu, reluDerivative);
+        // }
+        // else if (activationType == "Sigmoid") {
+        //     newLayer = new Layer<T>(numNodes, prevNodes, sigmoid, sigmoidDerivative);
+        // } // TODO--add more here
+        // else {
+        //     throw NeuralNetworkException("Activation function type '" + activationType + "' is unknown.");
+        // }
 
 
 
@@ -198,6 +200,10 @@ public:
         dataPartitioned = true;
     }
 
+    string getDatasetFilePath() {
+        return datasetFilePath;
+    }
+
     Matrix<T> getTrainingInput() {
         checkDataPartitioned();
         return inputTrain;
@@ -218,6 +224,10 @@ public:
         return outputValidate;
     }
 
+    Layer<T>* getInputLayer() {
+        return inputLayer;
+    }
+
     Matrix<T> predict(Matrix<T> input) {
         if (input.getNumRows() != dataset.getNumFields()) {
             throw NeuralNetworkException("Input matrix has incorrect dimensions.");
@@ -226,7 +236,12 @@ public:
         return feedForwardFull(input);
     }
 
+    void save(string filename) {
+
+    }
+
 private:
+    string datasetFilePath;
     Dataset<T> dataset;
 
     // Keeps track of whether the dataset has been partitioned or not (if inputTrain, outputTrain, etc. have been declared)
@@ -264,7 +279,29 @@ private:
     }
 };
 
+template <typename T>
+string to_string(NeuralNetwork<T> network) {
+    string networkString = "";
 
+    // Add dataset
+    networkString += "dataset path: " + network.getDatasetFilePath() + "\n";
+
+    // TODO--add training/validation partitions
+
+
+
+    // Add layers
+    Layer currentLayer = network->getInputLayer();
+
+    for (int i = 0; i < network.getNumLayers(); i++) {
+        networkString += "layer " + to_string(i) + ":\n";
+        networkString += to_string(network.getLayer(i)) + "\n";
+
+        currentLayer = currentLayer->getNextLayer();
+    }
+
+    return networkString;
+}
 
 
 

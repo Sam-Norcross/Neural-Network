@@ -519,27 +519,8 @@ public:
         return newMat;
     }
 
-
-
-    string toString() {
-        string matString = "[";
-        for (int r = 0; r < getNumRows(); r++) {
-            for (int c = 0; c < getNumCols(); c++) {
-                matString += to_string(get(r, c));
-                if (c < getNumCols() - 1) {
-                    matString += ", ";
-                } else if (r < getNumRows() - 1) {
-                    matString += "\n";
-                }
-            }
-        }
-        matString += "]";
-
-        return matString;
-    }
-
     void display() {
-        cout << toString() << endl;
+        cout << to_string(*this) << endl;
     }
 
     string dims() {
@@ -606,7 +587,20 @@ Matrix<T> ones(int rows, int cols) {
 
 template <typename T>
 string to_string(Matrix<T> mat) {
-    return mat.toString();
+    string matString = "[";
+    for (int r = 0; r < mat.getNumRows(); r++) {
+        for (int c = 0; c < mat.getNumCols(); c++) {
+            matString += to_string(mat.get(r, c));
+            if (c < mat.getNumCols() - 1) {
+                matString += ", ";
+            } else if (r < mat.getNumRows() - 1) {
+                matString += "\n";
+            }
+        }
+    }
+    matString += "]";
+
+    return matString;
 }
 
 // Extra operator functions to implement commutative operators

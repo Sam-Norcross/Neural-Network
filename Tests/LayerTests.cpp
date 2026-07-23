@@ -15,9 +15,19 @@ TEST_CASE("Layer initialization and minimization", "[Layer]") {
     Matrix<double> input(5, 10); // 5 dependent variables, 10 data points
     input.randomize();
 
-    Layer<double> layer(10, 5, sigmoid, sigmoidDerivative);
-    // Layer<double> layer(5, 5, sigmoidTEST<double>, sigmoidDerivative);
+    Layer<double> layer(10, 5, "sigmoid");
 
     layer.feedForward(input);
 
+}
+
+
+TEST_CASE("Layer to_string()", "[Layer]") {
+    Layer<double> layer(10, 5, "Leaky ReLU");
+
+    string layerString = to_string(layer);
+
+    string layerStringBeginning = "numNodes: 10\nactivationType: Leaky ReLU\nweights:\n[";
+
+    CHECK(layerString.substr(0, layerStringBeginning.length()) == layerStringBeginning);
 }

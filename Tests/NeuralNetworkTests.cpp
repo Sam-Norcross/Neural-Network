@@ -32,6 +32,17 @@ TEST_CASE("NeuralNetwork initialization and feed forward", "[NeuralNetwork]") {
 
 }
 
+TEST_CASE("NeuralNetwork to_string()", "[NeuralNetwork]") {
+    string filepath = "Datasets/BostonHousing.csv";
+    NeuralNetwork<double> network(filepath, "medv", 0.05, "MSE");
+
+    network.partitionDataset(0.75);
+
+    network.addLayer(10, "ReLU");
+    network.addLayer(10, "Sigmoid");
+    network.addLayer(1, "Linear");
+}
+
 TEST_CASE("Regression architecture: boston housing dataset", "[NeuralNetwork]") {
     string filepath = "Datasets/BostonHousing.csv";
 
@@ -62,7 +73,7 @@ TEST_CASE("Classification architecture", "[NeuralNetwork]") {
 
     network.partitionDataset(0.75);
 
-    network.trainNetwork(1000);
+    network.trainNetwork(100);
     // TODO--build functionality to export this data for visualization in Julia or Python (or just find a good C++ plotting library)
 
 

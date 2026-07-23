@@ -118,11 +118,12 @@ TEST_CASE("Matrix toString()", "{Matrix}") {
     Matrix mat5(2, 3, arr5);
     string mat5String = "[2, 3, 4\n5, 6, 7]";
 
-    CHECK(mat1.toString() == mat1String);
-    CHECK(mat2.toString() == mat2String);
-    CHECK(mat3.toString() == mat3String);
-    CHECK(mat4.toString() == mat4String);
-    CHECK(mat5.toString() == mat5String);
+    CHECK(to_string(mat1) == mat1String);
+    CHECK(to_string(mat2) == mat2String);
+    CHECK(to_string(mat3) == mat3String);
+    CHECK(to_string(mat4) == mat4String);
+    CHECK(to_string(mat5) == mat5String);
+
 }
 
 TEST_CASE("Matrix Equality", "[Matrix]") {

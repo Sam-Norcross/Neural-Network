@@ -2,17 +2,45 @@
 #include <functional>
 
 #include "Matrix.h"
+#include "LayerException.h"
 
 #pragma once
 using namespace std;
 
+
+
+template <typename T> Matrix<T> linearAct(Matrix<T> input);
+template <typename T> Matrix<T> linearActDerivative(Matrix<T> input);
+template <typename T> Matrix<T> relu(Matrix<T> input);
+template <typename T> Matrix<T> reluDerivative(Matrix<T> input);
+template <typename T> Matrix<T> leakyRelu(Matrix<T> input);
+template <typename T> Matrix<T> leakyReluDerivative(Matrix<T> input);
+template <typename T> Matrix<T> sigmoid(Matrix<T> input);
+template <typename T> Matrix<T> sigmoidDerivative(Matrix<T> input);
+
+
+
 template <typename T>
 class Layer {
 public:
-    Layer (int numNodes, int previousNodes, Matrix<T> (*actFunc)(Matrix<T>), Matrix<T> (*actDer)(Matrix<T>)) :
-            numNodes(numNodes), nextLayer(nullptr), previousLayer(nullptr), activation(actFunc), activationDerivative(actDer) {
-    // Layer (int numNodes, int previousNodes, function<Matrix<T>(Matrix<T>)> actFunc, function<Matrix<T>(Matrix<T>)> actDer) :
-    //         nextLayer(nullptr), previousLayer(nullptr), activation(actFunc), activationDerivative(actDer) {
+    // Layer (int numNodes, int previousNodes, Matrix<T> (*actFunc)(Matrix<T>), Matrix<T> (*actDer)(Matrix<T>)) :
+    //         numNodes(numNodes), nextLayer(nullptr), previousLayer(nullptr), activation(actFunc), activationDerivative(actDer) {
+    // // Layer (int numNodes, int previousNodes, function<Matrix<T>(Matrix<T>)> actFunc, function<Matrix<T>(Matrix<T>)> actDer) :
+    // //         nextLayer(nullptr), previousLayer(nullptr), activation(actFunc), activationDerivative(actDer) {
+    //     // numNodes is the number of nodes in this layer, previousNodes is the number of nodes in the previous layer,
+    //     // actFunc is the activation function, actDer is the derivative of the activation function
+    //
+    //     weights = Matrix<T>(numNodes, previousNodes);
+    //     weights.randomize();    // TODO--add another constructor that has limits for randomized values?
+    //
+    //     bias = Matrix<T>(numNodes, 1);
+    //     bias.randomize();
+    // }
+
+    Layer (int numNodes, int previousNodes, string activationType) :
+            numNodes(numNodes), nextLayer(nullptr), previousLayer(nullptr), activationType(activationType) {
+        // Layer (int numNodes, int previousNodes, function<Matrix<T>(Matrix<T>)> actFunc, function<Matrix<T>(Matrix<T>)> actDer) :
+        //         nextLayer(nullptr), previousLayer(nullptr), activation(actFunc), activationDerivative(actDer) {
         // numNodes is the number of nodes in this layer, previousNodes is the number of nodes in the previous layer,
         // actFunc is the activation function, actDer is the derivative of the activation function
 
@@ -21,25 +49,48 @@ public:
 
         bias = Matrix<T>(numNodes, 1);
         bias.randomize();
+
+        // Set activation functions
+        if (activationType == "Linear") {
+            activation = linearAct;
+            activationDerivative = linearActDerivative;
+        }
+        else if (activationType == "ReLU") {
+            activation = relu;
+            activationDerivative = reluDerivative;
+        }
+        else if (activationType == "Leaky ReLU") {
+            activation = leakyRelu;
+            activationDerivative = leakyReluDerivative;
+        }
+        else if (activationType == "Sigmoid") {
+            activation = sigmoid;
+            activationDerivative = sigmoidDerivative;
+        } // TODO--add more here
+        else {
+            throw LayerException("Activation function type '" + activationType + "' is unknown.");
+        }
     }
 
     Layer() : numNodes(0), nextLayer(nullptr), previousLayer(nullptr), activation(nullptr), activationDerivative(nullptr) {}
 
     // Copy constructor
     Layer(const Layer& other) {
-        numNodes = other.getNumNodes();
-        weights = other.getWeights();
-        bias = other.getBias();
+        numNodes = other.numNodes;
+        weights = other.weights;
+        bias = other.bias;
 
-        activation = other.getActivation();
-        activationDerivative = other.getActivationDerivative();
+        activationType = other.activationType;
+        activation = other.activation;
+        activationDerivative = other.activationDerivative;
 
-        nextLayer = other.getNextLayer();
-        previousLayer = other.getPreviousLayer();
+        nextLayer = other.nextLayer;
+        previousLayer = other.previousLayer;
 
-        aCurrent = other.getA();
-        zCurrent = other.getZ();
-        deltaCurrent = other.getDelta();
+        // Not needed
+        // aCurrent = other.aCurrent;
+        // zCurrent = other.zCurrent;
+        // deltaCurrent = other.deltaCurrent;
     }
 
     ~Layer() {
@@ -89,9 +140,6 @@ public:
         previousLayer = previous;
     }
 
-    int getNumNodes() {
-        return numNodes;
-    }
 
 
 
@@ -143,12 +191,20 @@ public:
         bias -= learningRate * deltaCurrent.sumToColVec();
     }
 
+    int getNumNodes() {
+        return numNodes;
+    }
+
     Matrix<T> getWeights() {
         return weights;
     }
 
     Matrix<T> getBias() {
         return bias;
+    }
+
+    string getActivationType() {
+        return activationType;
     }
 
     Matrix<T> getA() {
@@ -172,6 +228,8 @@ private:
     int numNodes;
     Matrix<T> weights;
     Matrix<T> bias;
+
+    string activationType;
     Matrix<T> (*activation)(Matrix<T>);
     Matrix<T> (*activationDerivative)(Matrix<T>);
 
@@ -194,7 +252,16 @@ protected:
 };
 
 
+template <typename T>
+string to_string(Layer<T> layer) {
+    string layerString = "";
+    layerString += "numNodes: " + to_string(layer.getNumNodes()) + "\n";
+    layerString += "activationType: " + layer.getActivationType() + "\n";
+    layerString += "weights:\n" + to_string(layer.getWeights()) + "\n";
+    layerString += "bias:\n" + to_string(layer.getBias());
 
+    return layerString;
+}
 
 
 

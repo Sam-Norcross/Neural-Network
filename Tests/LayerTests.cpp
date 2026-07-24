@@ -15,7 +15,7 @@ TEST_CASE("Layer initialization and minimization", "[Layer]") {
     Matrix<double> input(5, 10); // 5 dependent variables, 10 data points
     input.randomize();
 
-    Layer<double> layer(10, 5, "sigmoid");
+    Layer<double> layer(10, 5, "Sigmoid");
 
     layer.feedForward(input);
 

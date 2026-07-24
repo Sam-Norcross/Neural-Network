@@ -279,29 +279,30 @@ private:
     }
 };
 
-template <typename T>
-string to_string(NeuralNetwork<T> network) {
-    string networkString = "";
-
-    // Add dataset
-    networkString += "dataset path: " + network.getDatasetFilePath() + "\n";
-
-    // TODO--add training/validation partitions
-
-
-
-    // Add layers
-    Layer currentLayer = network->getInputLayer();
-
-    for (int i = 0; i < network.getNumLayers(); i++) {
-        networkString += "layer " + to_string(i) + ":\n";
-        networkString += to_string(network.getLayer(i)) + "\n";
-
-        currentLayer = currentLayer->getNextLayer();
-    }
-
-    return networkString;
-}
+// TODO--probably not needed, moving to serialize() and deserialize() to handle this
+// template <typename T>
+// string to_string(NeuralNetwork<T> network) {
+//     string networkString = "";
+//
+//     // Add dataset
+//     networkString += "dataset path: " + network.getDatasetFilePath() + "\n";
+//
+//     // TODO--add training/validation partitions
+//
+//
+//
+//     // Add layers
+//     Layer currentLayer = network->getInputLayer();
+//
+//     for (int i = 0; i < network.getNumLayers(); i++) {
+//         networkString += "layer " + to_string(i) + ":\n";
+//         networkString += to_string(network.getLayer(i)) + "\n";
+//
+//         currentLayer = currentLayer->getNextLayer();
+//     }
+//
+//     return networkString;
+// }
 
 
 

@@ -2,11 +2,13 @@
 #include <random>
 #include <string>
 #include <functional>
+#include <nlohmann/json.hpp>
 
 #include "MatrixException.h"
 
 #pragma once
 using namespace std;
+// using json = nlohmann::json;
 
 template <typename T>
 class Matrix {
@@ -43,6 +45,11 @@ public:
     T& get(int row, int col) {
         checkValidIndex(row, col);
         return mat[row * cols + col];
+    }
+
+    // Get objects directly from mat array
+    T get(int i) const {
+        return mat[i];
     }
 
     Matrix getRow(int row) {
@@ -95,15 +102,15 @@ public:
         return newMat;
     }
 
-    int getNumRows() {
+    int getNumRows() const {
         return rows;
     }
 
-    int getNumCols() {
+    int getNumCols() const {
         return cols;
     }
 
-    int getSize() {
+    int getSize() const {
         return matSize;
     }
 
@@ -550,19 +557,50 @@ private:
         }
     }
 
-// protected:
-//
-//     void setSize(int rowNum, int colNum) {
-//         rows = rowNum;
-//         cols = colNum;
-//         matSize = rows * cols;
-//
-//         delete [] mat;
-//         mat = new T[rows * cols];
-//     }
-
 };
 
+
+// Functions to serialize and deserialize Matrix objects as JSON strings
+template <typename T>
+void to_json(nlohmann::json& j, const Matrix<T>& mat) {
+    j["rows"] = mat.getNumRows();
+    j["cols"] = mat.getNumCols();
+    j["matSize"] = mat.getSize();
+
+    j["mat"] = nlohmann::json::array();
+    for (int i = 0; i < mat.getSize(); i++) {
+        j["mat"].push_back(mat.get(i));
+    }
+}
+
+template <typename T>
+void from_json(const nlohmann::json& j, Matrix<T>& mat) {
+    mat = Matrix<T>(j.at("rows"), j.at("cols"));
+
+    // j.at("size").get_to(mat.size);
+
+}
+
+template <typename T>
+string to_string(Matrix<T> mat) {
+    string matString = "[";
+    for (int r = 0; r < mat.getNumRows(); r++) {
+        for (int c = 0; c < mat.getNumCols(); c++) {
+            matString += to_string(mat.get(r, c));
+            if (c < mat.getNumCols() - 1) {
+                matString += ", ";
+            } else if (r < mat.getNumRows() - 1) {
+                matString += "\n";
+            }
+        }
+    }
+    matString += "]";
+
+    return matString;
+}
+
+
+// Functions for easier matrix initialization
 template <typename T>
 Matrix<T> fill(int rows, int cols, T val) {
     Matrix<T> newMat = Matrix<T>(rows, cols);
@@ -585,23 +623,7 @@ Matrix<T> ones(int rows, int cols) {
     return fill(rows, cols, static_cast<T>(1));
 }
 
-template <typename T>
-string to_string(Matrix<T> mat) {
-    string matString = "[";
-    for (int r = 0; r < mat.getNumRows(); r++) {
-        for (int c = 0; c < mat.getNumCols(); c++) {
-            matString += to_string(mat.get(r, c));
-            if (c < mat.getNumCols() - 1) {
-                matString += ", ";
-            } else if (r < mat.getNumRows() - 1) {
-                matString += "\n";
-            }
-        }
-    }
-    matString += "]";
 
-    return matString;
-}
 
 // Extra operator functions to implement commutative operators
 template <typename T, typename U>

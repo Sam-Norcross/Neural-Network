@@ -602,3 +602,18 @@ TEST_CASE("Matrix ones(), zeros(), and fill()", "[Matrix]") {
     CHECK(zerosMat == zeros<double>(3, 2));
     CHECK(fivesMat == fill<double>(2, 2, 5.0));
 }
+
+TEST_CASE("Matrix JSON serialization", "[Matrix]") {
+    Matrix<double> mat(5, 3);
+    mat.randomize(-5.0, 5.0);
+
+    nlohmann::json matJSON = mat;
+
+    cout << matJSON << endl;
+
+    Matrix<double> matFromJSON = matJSON.get<Matrix<double>>();
+
+    matFromJSON.display();
+
+    CHECK(mat == matFromJSON);
+}

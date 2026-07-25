@@ -1,6 +1,7 @@
 #include <iostream>
 #include <string>
 #include <fstream>
+#include <nlohmann/json.hpp>
 
 #include "DatasetException.h"
 #include "Matrix.h"
@@ -167,6 +168,10 @@ public:
         readFile.close();
     }
 
+    Dataset(string* head, string depVar, Matrix<T> dataMat, Matrix<T> dependentMat, int entries, int fields, T depMean, T depStdDev) :
+            header(head), dependentVar(depVar), data(dataMat), dependent(dependentMat), numEntries(entries), numFields(fields),
+            dependentMean(depMean), dependentStdDev(depStdDev) {}
+
     // Copy constructor
     Dataset(const Dataset& other) {
         dependentVar = other.dependentVar;
@@ -214,30 +219,38 @@ public:
     }
 
     // Returns the number of data points (lines in the CSV)
-    int getNumEntries() {
+    int getNumEntries() const {
         return numEntries;
     }
 
     // Returns the number of independent variables recorded for each data point (the number of columns in the CSV,
     // minus one to account for the dependent variable column)
-    int getNumFields() {
+    int getNumFields() const {
         return numFields;
     }
 
-    string* getHeader() {
+    string* getHeader() const {
         return header;
     }
 
-    string getDependentVar() {
+    string getDependentVar() const {
         return dependentVar;
     }
 
-    Matrix<T>& getData() {
+    Matrix<T>& getData() const {
         return data;
     }
 
-    Matrix<T>& getDependent() {
+    Matrix<T>& getDependent() const {
         return dependent;
+    }
+
+    T getDependentMean() const {
+        return dependentMean;
+    }
+
+    T getDependentStdDev() const {
+        return dependentStdDev;
     }
 
     double getValue(string field, int entryIndex) {
@@ -331,6 +344,57 @@ private:
     }
 
 };
+
+
+// string* header;     // Array with the names of each column
+// string dependentVar;    // Name of the dependent variable
+// Matrix<T> data;     // Contains the independent variables
+// Matrix<T> dependent;   // Dependent variable in the dataset
+// int numEntries;     // Number of data points (rows in the CSV)
+// int numFields;      // Number of fields (columns in the CSV)
+//
+// T dependentMean;
+// T dependentStdDev;
+
+// Functions to serialize and deserialize Dataset objects as JSON strings
+template <typename T>
+void to_json(nlohmann::json& j, const Dataset<T>& dataset) {
+
+    j["header"] = nlohmann::json::array();
+    string* header = dataset.getHeader();
+    for (int i = 0; i < dataset.getNumFields(); i++) {
+        j["header"].push_back(header[i]);
+    }
+
+    j["dependentVar"] = dataset.getDependentVar();
+    j["data"] = dataset.getData();
+    j["dependent"] = dataset.getDependent();
+    j["numEntries"] = dataset.getNumEntries();
+    j["numFields"] = dataset.getNumFields();
+
+    j["dependentMean"] = dataset.getDependentMean();
+    j["dependentStdDev"] = dataset.getDependentStdDev();
+
+}
+
+
+
+template <typename T>
+void from_json(const nlohmann::json& j, Dataset<T>& dataset) {
+    // mat = Matrix<T>(j.at("rows"), j.at("cols"));
+    // for (int i = 0; i < mat.getSize(); i++) {
+    //     mat.get(i) = j.at("mat").at(i);
+    // }
+
+    // TODO--create new pointer for header, fill values into constructor
+
+    dataset = Dataset<T>()
+
+
+}
+
+
+
 
 // TODO--could be overloaded to accept/return different variable types in the future?
 double castString(string str) {

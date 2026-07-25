@@ -30,9 +30,6 @@ public:
         // numNodes is the number of nodes in this layer, previousNodes is the number of nodes in the previous layer,
         // actFunc is the activation function, actDer is the derivative of the activation function
 
-        cout << "5\t" << activationType << endl;
-        cout << "5\t" << getActivationType() << endl;
-
         weights = Matrix<T>(numNodes, previousNodes);
         weights.randomize();    // TODO--add another constructor that has limits for randomized values?
 
@@ -62,7 +59,7 @@ public:
     }
 
     Layer() : numNodes(0), prevNumNodes(0), nextLayer(nullptr), previousLayer(nullptr),
-                activationType(""), activation(nullptr), activationDerivative(nullptr) {}
+                activationType("TEST--Layer() constructor"), activation(nullptr), activationDerivative(nullptr) {}
 
     // Copy constructor
     Layer(const Layer& other) {
@@ -100,6 +97,7 @@ public:
         weights = other.getWeights();
         bias = other.getBias();
 
+        activationType = other.getActivationType();
         activation = other.getActivation();
         activationDerivative = other.getActivationDerivative();
 
@@ -119,17 +117,14 @@ public:
     bool operator==(Layer other) {
 
         if (getNumNodes() != other.getNumNodes()) {
-            cout << "AAA" << endl;
             return false;
         }
 
         if (getPrevNumNodes() != other.getPrevNumNodes()) {
-            cout << "BBB" << endl;
             return false;
         }
 
         if (getActivationType() != other.getActivationType()) {
-            cout << "CCC" << endl;
             return false;
         }
 
@@ -309,19 +304,11 @@ void to_json(nlohmann::json& j, const Layer<T>& layer) {
     j["bias"] = layer.getBias();
 
     j["activationType"] = layer.getActivationType();
-    cout << "\t" << j["activationType"] << endl;
 }
 
 template <typename T>
 void from_json(const nlohmann::json& j, Layer<T>& layer) {
-    cout << "START:\n";
     layer = Layer<T>(j["numNodes"], j["prevNumNodes"], j["activationType"]);
-
-    Layer<T> layerTEST(j["numNodes"], j["prevNumNodes"], j["activationType"]);
-    cout << "TEST:\t" << layerTEST.getActivationType() << endl;
-
-    cout << "\t" << j["activationType"] << endl;
-    cout << "2\t" << layer.getActivationType() << endl;
 
     layer.setWeights(j["weights"]);
     layer.setBias(j["bias"]);

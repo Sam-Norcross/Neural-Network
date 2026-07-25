@@ -45,16 +45,24 @@ TEST_CASE("Layer copy constructor", "[Layer]") {
     CHECK(layer == layer2);
 }
 
+TEST_CASE("Layer copy assignment", "[Layer]") {
+    Layer<double> layer(10, 5, "Sigmoid");
+    Layer<double> layer2(11, 6, "ReLU");
+
+    layer = layer2;
+
+    CHECK(layer == layer2);
+}
+
 TEST_CASE("Layer JSON serialization", "[Layer]") {
     Layer<double> layer(10, 5, "Sigmoid");
-    cout << "---" << layer.getActivationType() << endl;
 
     nlohmann::json layerJSON = layer;
-
     Layer<double> layerFromJSON = layerJSON.get<Layer<double>>();
 
     CHECK(layer == layerFromJSON);
-
-    cout << layer.getActivationType() << endl;
-    cout << layerFromJSON.getActivationType() << endl;
 }
+
+
+
+// TODO--test cases for all the other Layer methods

@@ -280,31 +280,23 @@ private:
     }
 };
 
-// TODO--probably not needed, moving to serialize() and deserialize() to handle this
-// template <typename T>
-// string to_string(NeuralNetwork<T> network) {
-//     string networkString = "";
-//
-//     // Add dataset
-//     networkString += "dataset path: " + network.getDatasetFilePath() + "\n";
-//
-//     // TODO--add training/validation partitions
-//
-//
-//
-//     // Add layers
-//     Layer currentLayer = network->getInputLayer();
-//
-//     for (int i = 0; i < network.getNumLayers(); i++) {
-//         networkString += "layer " + to_string(i) + ":\n";
-//         networkString += to_string(network.getLayer(i)) + "\n";
-//
-//         currentLayer = currentLayer->getNextLayer();
-//     }
-//
-//     return networkString;
-// }
 
+
+// Functions to serialize and deserialize NeuralNetwork objects as JSON strings
+template <typename T>
+void to_json(nlohmann::json& j, const NeuralNetwork<T>& network) {
+    // j["rows"] = mat.getNumRows();
+
+}
+
+
+
+template <typename T>
+void from_json(const nlohmann::json& j, NeuralNetwork<T>& network) {
+    // mat = Matrix<T>(j.at("rows"), j.at("cols"));
+
+
+}
 
 
 

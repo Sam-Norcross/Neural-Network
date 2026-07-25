@@ -8,7 +8,6 @@
 
 #pragma once
 using namespace std;
-// using json = nlohmann::json;
 
 template <typename T>
 class Matrix {
@@ -48,7 +47,7 @@ public:
     }
 
     // Get objects directly from mat array
-    T get(int i) const {
+    T& get(int i) const {
         return mat[i];
     }
 
@@ -578,6 +577,14 @@ void from_json(const nlohmann::json& j, Matrix<T>& mat) {
     mat = Matrix<T>(j.at("rows"), j.at("cols"));
 
     // j.at("size").get_to(mat.size);
+
+    if (mat.getSize() != j.at("matSize")) {
+        throw MatrixException("Error serializing Matrix object to JSON: matrix size does not match the number of rows and columns");
+    }
+
+    for (int i = 0; i < mat.getSize(); i++) {
+        mat.get(i) = j.at("mat").at(i);
+    }
 
 }
 

@@ -1,5 +1,6 @@
 #include <iostream>
 #include <functional>
+#include <nlohmann/json.hpp>
 
 #include "Matrix.h"
 #include "LayerException.h"
@@ -23,26 +24,14 @@ template <typename T> Matrix<T> sigmoidDerivative(Matrix<T> input);
 template <typename T>
 class Layer {
 public:
-    // Layer (int numNodes, int previousNodes, Matrix<T> (*actFunc)(Matrix<T>), Matrix<T> (*actDer)(Matrix<T>)) :
-    //         numNodes(numNodes), nextLayer(nullptr), previousLayer(nullptr), activation(actFunc), activationDerivative(actDer) {
-    // // Layer (int numNodes, int previousNodes, function<Matrix<T>(Matrix<T>)> actFunc, function<Matrix<T>(Matrix<T>)> actDer) :
-    // //         nextLayer(nullptr), previousLayer(nullptr), activation(actFunc), activationDerivative(actDer) {
-    //     // numNodes is the number of nodes in this layer, previousNodes is the number of nodes in the previous layer,
-    //     // actFunc is the activation function, actDer is the derivative of the activation function
-    //
-    //     weights = Matrix<T>(numNodes, previousNodes);
-    //     weights.randomize();    // TODO--add another constructor that has limits for randomized values?
-    //
-    //     bias = Matrix<T>(numNodes, 1);
-    //     bias.randomize();
-    // }
-
-    Layer (int numNodes, int previousNodes, string activationType) :
-            numNodes(numNodes), nextLayer(nullptr), previousLayer(nullptr), activationType(activationType) {
-        // Layer (int numNodes, int previousNodes, function<Matrix<T>(Matrix<T>)> actFunc, function<Matrix<T>(Matrix<T>)> actDer) :
-        //         nextLayer(nullptr), previousLayer(nullptr), activation(actFunc), activationDerivative(actDer) {
+    Layer (int numNodes, int previousNodes, const string& activationName) :
+            numNodes(numNodes), prevNumNodes(previousNodes), nextLayer(nullptr), previousLayer(nullptr),
+            activationType(activationName) {
         // numNodes is the number of nodes in this layer, previousNodes is the number of nodes in the previous layer,
         // actFunc is the activation function, actDer is the derivative of the activation function
+
+        cout << "5\t" << activationType << endl;
+        cout << "5\t" << getActivationType() << endl;
 
         weights = Matrix<T>(numNodes, previousNodes);
         weights.randomize();    // TODO--add another constructor that has limits for randomized values?
@@ -72,13 +61,16 @@ public:
         }
     }
 
-    Layer() : numNodes(0), nextLayer(nullptr), previousLayer(nullptr), activation(nullptr), activationDerivative(nullptr) {}
+    Layer() : numNodes(0), prevNumNodes(0), nextLayer(nullptr), previousLayer(nullptr),
+                activationType(""), activation(nullptr), activationDerivative(nullptr) {}
 
     // Copy constructor
     Layer(const Layer& other) {
         numNodes = other.numNodes;
+        prevNumNodes = other.prevNumNodes;
         weights = other.weights;
         bias = other.bias;
+
 
         activationType = other.activationType;
         activation = other.activation;
@@ -87,7 +79,7 @@ public:
         nextLayer = other.nextLayer;
         previousLayer = other.previousLayer;
 
-        // Not needed
+        // TODO--not needed?
         // aCurrent = other.aCurrent;
         // zCurrent = other.zCurrent;
         // deltaCurrent = other.deltaCurrent;
@@ -104,6 +96,7 @@ public:
         }
 
         numNodes = other.getNumNodes();
+        prevNumNodes = other.getPrevNumNodes();
         weights = other.getWeights();
         bias = other.getBias();
 
@@ -113,22 +106,55 @@ public:
         nextLayer = other.getNextLayer();
         previousLayer = other.getPreviousLayer();
 
-        aCurrent = other.getA();
-        zCurrent = other.getZ();
-        deltaCurrent = other.getDelta();
+        // TODO--probably not needed?
+        // aCurrent = other.getA();
+        // zCurrent = other.getZ();
+        // deltaCurrent = other.getDelta();
 
         return *this;
     }
 
-    // bool operator==(const Layer& other) {    // TODO--probably needed for the copy assignment operator (operator=())
-    //
-    // }
+    // Layer equality only checks the structure of the nodes, not the matrices, as they are randomized
+    // bool operator==(const Layer& other) {
+    bool operator==(Layer other) {
 
-    Layer* getNextLayer() {
+        if (getNumNodes() != other.getNumNodes()) {
+            cout << "AAA" << endl;
+            return false;
+        }
+
+        if (getPrevNumNodes() != other.getPrevNumNodes()) {
+            cout << "BBB" << endl;
+            return false;
+        }
+
+        if (getActivationType() != other.getActivationType()) {
+            cout << "CCC" << endl;
+            return false;
+        }
+
+        // if (getNextLayer() != other.getNextLayer()) {
+        //     return false;
+        // }
+        //
+        // if (getPreviousLayer() != other.getPreviousLayer()) {
+        //     return false;
+        // }
+
+        // TODO--aCurrent, zCurrent, and deltaCurrent don't need to be checked because they are only stored temporarily
+        // // a = activation(z)
+        // Matrix<T> aCurrent; // Current pre-activation result of the feed forward process
+        // Matrix<T> zCurrent; // Current result of the feed forward process from this node
+        // Matrix<T> deltaCurrent; // Intermediate step for backprop, saved to pass to next layer
+
+        return true;
+    }
+
+    Layer* getNextLayer() const {
         return nextLayer;
     }
 
-    Layer* getPreviousLayer() {
+    Layer* getPreviousLayer() const {
         return previousLayer;
     }
 
@@ -191,31 +217,43 @@ public:
         bias -= learningRate * deltaCurrent.sumToColVec();
     }
 
-    int getNumNodes() {
+    int getNumNodes() const {
         return numNodes;
     }
 
-    Matrix<T> getWeights() {
+    int getPrevNumNodes() const {
+        return prevNumNodes;
+    }
+
+    Matrix<T> getWeights() const {
         return weights;
     }
 
-    Matrix<T> getBias() {
+    Matrix<T> getBias() const {
         return bias;
     }
 
-    string getActivationType() {
+    void setWeights(Matrix<T> weightsMat) {
+        weights = weightsMat;
+    }
+
+    void setBias(Matrix<T> biasMat) {
+        bias = biasMat;
+    }
+
+    string getActivationType() const {
         return activationType;
     }
 
-    Matrix<T> getA() {
+    Matrix<T> getA() const {
         return aCurrent;
     }
 
-    Matrix<T> getZ() {
+    Matrix<T> getZ() const {
         return zCurrent;
     }
 
-    Matrix<T> getDelta() {
+    Matrix<T> getDelta() const {
         return deltaCurrent;
     }
 
@@ -226,6 +264,7 @@ public:
 
 private:
     int numNodes;
+    int prevNumNodes;
     Matrix<T> weights;
     Matrix<T> bias;
 
@@ -242,14 +281,53 @@ private:
     Matrix<T> deltaCurrent; // Intermediate step for backprop, saved to pass to next layer
 
 protected:
-    Matrix<T> getActivation() {
+    // Matrix<T> getActivation() const {
+    //     return activation;
+    // }
+
+    // Matrix<T> getActivationDerivative() const {
+    //     return activationDerivative();
+    // }
+
+    Matrix<T> (*getActivation() const)(Matrix<T>) {
         return activation;
     }
 
-    Matrix<T> getActivationDerivative() {
-        return activation;
+    Matrix<T> (*getActivationDerivative() const)(Matrix<T>) {
+        return activationDerivative;
     }
 };
+
+
+
+// JSON serialization and deserialization functions
+template <typename T>
+void to_json(nlohmann::json& j, const Layer<T>& layer) {
+    j["numNodes"] = layer.getNumNodes();
+    j["prevNumNodes"] = layer.getPrevNumNodes();
+    j["weights"] = layer.getWeights();
+    j["bias"] = layer.getBias();
+
+    j["activationType"] = layer.getActivationType();
+    cout << "\t" << j["activationType"] << endl;
+}
+
+template <typename T>
+void from_json(const nlohmann::json& j, Layer<T>& layer) {
+    cout << "START:\n";
+    layer = Layer<T>(j["numNodes"], j["prevNumNodes"], j["activationType"]);
+
+    Layer<T> layerTEST(j["numNodes"], j["prevNumNodes"], j["activationType"]);
+    cout << "TEST:\t" << layerTEST.getActivationType() << endl;
+
+    cout << "\t" << j["activationType"] << endl;
+    cout << "2\t" << layer.getActivationType() << endl;
+
+    layer.setWeights(j["weights"]);
+    layer.setBias(j["bias"]);
+
+}
+
 
 
 template <typename T>

@@ -1,6 +1,7 @@
 #include <catch2/catch_test_macros.hpp>
 #include "Matrix.h"
 #include "Dual.h"
+#include <nlohmann/json.hpp>
 
 TEST_CASE("Matrix initialization and randomization", "[Matrix]") {
     Matrix<int> mat1(2, 2);
@@ -609,11 +610,7 @@ TEST_CASE("Matrix JSON serialization", "[Matrix]") {
 
     nlohmann::json matJSON = mat;
 
-    cout << matJSON << endl;
-
     Matrix<double> matFromJSON = matJSON.get<Matrix<double>>();
-
-    matFromJSON.display();
 
     CHECK(mat == matFromJSON);
 }

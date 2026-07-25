@@ -1,5 +1,6 @@
 #include <iostream>
 #include <string>
+#include <nlohmann/json.hpp>
 
 #include "Matrix.h"
 #include "Layer.h"

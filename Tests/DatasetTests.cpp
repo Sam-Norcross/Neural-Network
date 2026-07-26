@@ -1,5 +1,6 @@
 #include <catch2/catch_test_macros.hpp>
 #include <string>
+#include <nlohmann/json.hpp>
 
 #include "Dataset.h"
 #include "Matrix.h"
@@ -155,4 +156,28 @@ TEST_CASE("Dataset normalization with TestData3", "[Dataset]") {
     Matrix zeros(11, 1, arr1);
 
     CHECK(dataset2.getColumn("Threes") == zeros);
+}
+
+TEST_CASE("Dataset equality", "[Dataset]") {
+    string fileName1 = "Tests/TestDatasets/TestData1.csv";
+    Dataset<double> dataset1(fileName1, "Ones");
+
+    string fileName2 = "Tests/TestDatasets/TestData2.csv";
+    Dataset<double> dataset2(fileName2, "Column two");
+
+    Dataset dataset3 = dataset2;
+
+    CHECK(dataset1 != dataset2);
+    CHECK(dataset2 == dataset3);
+}
+
+TEST_CASE("Dataset JSON serializers", "[Dataset]") {
+    string fileName = "Datasets/BostonHousing.csv";
+    Dataset<double> dataset(fileName, "medv");
+
+    nlohmann::json datasetJSON = dataset;
+
+    Dataset<double> datasetFromJSON = datasetJSON.get<Dataset<double>>();
+
+    CHECK(dataset == datasetFromJSON);
 }

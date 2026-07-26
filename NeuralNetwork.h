@@ -42,6 +42,45 @@ public:
 
     }
 
+    // Copy constructor
+    NeuralNetwork(const NeuralNetwork& other) {
+        datasetFilePath = other.getDatasetFilePath();
+        dataset = other.getDataset();
+        dataPartitioned = other.getDataPartitioned();
+        inputTrain = other.getTrainingInput();
+        outputTrain = other.getTrainingOutput();
+        inputValidate = other.getValidationInput();
+        outputValidate = other.getValidationOutput();
+        costFunction = other.getCostFunction();
+        costFunctionDerivative = other.getCostFunctionDerivative();
+        numLayers = other.getNumLayers();
+        inputLayer = other.getInputLayer();
+        outputLayer = other.getOutputLayer();
+        learningRate = other.getLearningRate();
+
+        // string datasetFilePath;
+        // Dataset<T> dataset;
+        //
+        // // Keeps track of whether the dataset has been partitioned or not (if inputTrain, outputTrain, etc. have been declared)
+        // bool dataPartitioned;
+        //
+        // Matrix<T> inputTrain;
+        // Matrix<T> outputTrain;
+        // Matrix<T> inputValidate;
+        // Matrix<T> outputValidate;
+        //
+        // T (*costFunction)(Matrix<T>, Matrix<T>);
+        // Matrix<T> (*costFunctionDerivative)(Matrix<T>, Matrix<T>);
+        //
+        // int numLayers;
+        // Layer<T> *inputLayer;
+        // Layer<T> *outputLayer;
+        //
+        // double learningRate;
+    }
+
+    NeuralNetwork() : datasetFilePath(""), dataPartitioned(false), numLayers(0),
+                        inputLayer(nullptr), outputLayer(nullptr), learningRate(0.0) {}
 
     ~NeuralNetwork() {
         // delete inputLayer;
@@ -201,32 +240,52 @@ public:
         dataPartitioned = true;
     }
 
-    string getDatasetFilePath() {
+    string getDatasetFilePath() const {
         return datasetFilePath;
     }
 
-    Matrix<T> getTrainingInput() {
+    Dataset<T> getDataset() const {
+        return dataset;
+    }
+
+    Matrix<T> getTrainingInput() const {
         checkDataPartitioned();
         return inputTrain;
     }
 
-    Matrix<T> getTrainingOutput() {
+    Matrix<T> getTrainingOutput() const {
         checkDataPartitioned();
         return outputTrain;
     }
 
-    Matrix<T> getValidationInput() {
+    Matrix<T> getValidationInput() const {
         checkDataPartitioned();
         return inputValidate;
     }
 
-    Matrix<T> getValidationOutput() {
+    Matrix<T> getValidationOutput() const {
         checkDataPartitioned();
         return outputValidate;
     }
 
-    Layer<T>* getInputLayer() {
+    Matrix<T> (*getCostFunction() const)(Matrix<T>, Matrix<T>) {
+        return costFunction;
+    }
+
+    Matrix<T> (*getCostFunctionDerivative() const)(Matrix<T>, Matrix<T>) {
+        return costFunctionDerivative;
+    }
+
+    int getNumLayers() const {
+        return numLayers;
+    }
+
+    Layer<T>* getInputLayer() const {
         return inputLayer;
+    }
+
+    Layer<T>* getOutputLayer() const {
+        return outputLayer;
     }
 
     Matrix<T> predict(Matrix<T> input) {
@@ -281,11 +340,31 @@ private:
 };
 
 
-
+// TODO--needs copy constructor, copy assignment operator, == operator, and test cases
 // Functions to serialize and deserialize NeuralNetwork objects as JSON strings
 template <typename T>
 void to_json(nlohmann::json& j, const NeuralNetwork<T>& network) {
     // j["rows"] = mat.getNumRows();
+
+
+    // string datasetFilePath;
+    // Dataset<T> dataset;
+    //
+    // bool dataPartitioned;
+    //
+    // Matrix<T> inputTrain;
+    // Matrix<T> outputTrain;
+    // Matrix<T> inputValidate;
+    // Matrix<T> outputValidate;
+    //
+    // T (*costFunction)(Matrix<T>, Matrix<T>);
+    // Matrix<T> (*costFunctionDerivative)(Matrix<T>, Matrix<T>);
+    //
+    // int numLayers;
+    // Layer<T> *inputLayer;
+    // Layer<T> *outputLayer;
+    //
+    // double learningRate;
 
 }
 

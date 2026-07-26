@@ -172,6 +172,8 @@ public:
             header(head), dependentVar(depVar), data(dataMat), dependent(dependentMat), numEntries(entries), numFields(fields),
             dependentMean(depMean), dependentStdDev(depStdDev) {}
 
+    Dataset() : header(nullptr), dependentVar(""), numEntries(0), numFields(0), dependentMean(0), dependentStdDev(0) {}
+
     // Copy constructor
     Dataset(const Dataset& other) {
         dependentVar = other.dependentVar;
@@ -218,6 +220,46 @@ public:
         return *this;
     }
 
+    bool operator==(const Dataset& other) const {
+
+        if (getDependentVar() != other.getDependentVar()) {
+            return false;
+        }
+
+        if (getData() != other.getData()) {
+            return false;
+        }
+
+        if (getDependent() != other.getDependent()) {
+            return false;
+        }
+
+        if (getNumEntries() != other.getNumEntries()) {
+            return false;
+        }
+
+        if (getNumFields() != other.getNumFields()) {
+            return false;
+        }
+
+        if (dependentMean != other.getDependentMean()) {
+            return false;
+        }
+
+        if (dependentStdDev != other.getDependentStdDev()) {
+            return false;
+        }
+
+        string* otherHeader = other.getHeader();
+        for (int i = 0; i < numFields; i++) {
+            if (header[i] != other.header[i]) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     // Returns the number of data points (lines in the CSV)
     int getNumEntries() const {
         return numEntries;
@@ -237,11 +279,20 @@ public:
         return dependentVar;
     }
 
-    Matrix<T>& getData() const {
+    Matrix<T> getData() const {
         return data;
     }
 
-    Matrix<T>& getDependent() const {
+    Matrix<T> getDependent() const {
+        return dependent;
+    }
+
+    // Overloading these functions as non-const references allows data and dependent to be accessed and modified
+    Matrix<T>& getData() {
+        return data;
+    }
+
+    Matrix<T>& getDependent() {
         return dependent;
     }
 
@@ -377,20 +428,17 @@ void to_json(nlohmann::json& j, const Dataset<T>& dataset) {
 
 }
 
-
-
 template <typename T>
 void from_json(const nlohmann::json& j, Dataset<T>& dataset) {
-    // mat = Matrix<T>(j.at("rows"), j.at("cols"));
-    // for (int i = 0; i < mat.getSize(); i++) {
-    //     mat.get(i) = j.at("mat").at(i);
-    // }
 
-    // TODO--create new pointer for header, fill values into constructor
+    string* header = new string[j["numFields"]];
+    for (int i = 0; i < j["numFields"]; i++) {
+        header[i] = j.at("header").at(i);
+    }
 
-    dataset = Dataset<T>()
-
-
+    dataset = Dataset<T>(header, j["dependentVar"], j["data"], j["dependent"],
+                        j["numEntries"], j["numFields"],
+                        j["dependentMean"], j["dependentStdDev"]);
 }
 
 

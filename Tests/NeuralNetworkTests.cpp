@@ -5,9 +5,49 @@
 #include "Matrix.h"
 using namespace std;
 
+TEST_CASE("NeuralNetwork equality", "[NeuralNetwork]") {
+    string filepath = "Datasets/BostonHousing.csv";
+    NeuralNetwork<double> network(filepath, "medv", 0.01, "RMSE");
+    network.addLayer(64, "ReLU");
+    network.addLayer(32, "ReLU");
+    network.addLayer(1, "Linear");
+
+    NeuralNetwork<double> network2(filepath, "medv", 0.01, "RMSE");
+    network2.addLayer(64, "ReLU");
+    network2.addLayer(32, "ReLU");
+    network2.addLayer(1, "Linear");
+
+    CHECK(network == network2);
+}
+
+TEST_CASE("NeuralNetwork copy constructor", "[NeuralNetwork]") {
+    string filepath = "Datasets/BostonHousing.csv";
+    NeuralNetwork<double> network(filepath, "medv", 0.01, "RMSE");
+    network.addLayer(64, "ReLU");
+    network.addLayer(32, "ReLU");
+    network.addLayer(1, "Linear");
+
+    NeuralNetwork<double> network2 = network;
+
+    CHECK(network == network2);
+}
+
+TEST_CASE("NeuralNetwork copy assignment operator", "[NeuralNetwork]") {
+    string filepath = "Datasets/BostonHousing.csv";
+    NeuralNetwork<double> network(filepath, "medv", 0.01, "RMSE");
+    network.addLayer(64, "ReLU");
+    network.addLayer(32, "ReLU");
+    network.addLayer(1, "Linear");
+
+    NeuralNetwork<double> network2(filepath, "medv", 0.5, "MSE");
+    network2 = network;
+
+    CHECK(network == network2);
+}
+
 TEST_CASE("NeuralNetwork initialization and feed forward", "[NeuralNetwork]") {
-    // string filepath = "Datasets/BostonHousing.csv";
-    string filepath = "Datasets/auto-mpg.csv";
+    string filepath = "Datasets/BostonHousing.csv";
+    // string filepath = "Datasets/auto-mpg.csv";   // TODO--no error is thrown when this dataset is used with depName = "medv" (should be "mpg")
 
     NeuralNetwork<double> network(filepath, "medv", 0.01, "RMSE");
 
@@ -32,21 +72,62 @@ TEST_CASE("NeuralNetwork initialization and feed forward", "[NeuralNetwork]") {
 
 }
 
-TEST_CASE("NeuralNetwork to_string()", "[NeuralNetwork]") {
-    string filepath = "Datasets/BostonHousing.csv";
-    NeuralNetwork<double> network(filepath, "medv", 0.05, "MSE");
 
-    network.partitionDataset(0.75);
 
-    network.addLayer(10, "ReLU");
-    network.addLayer(10, "Sigmoid");
+// Known neural network test cases
+TEST_CASE("Identity mapping", "[NeuralNetwork]") { // TODO--fix
+    string filepath = "Tests/TestDatasets/Identity.csv";    // Contains x and y values for y = x
+
+    NeuralNetwork<double> network(filepath, "y", 0.1, "RMSE");
     network.addLayer(1, "Linear");
+    network.partitionDataset(10);
+
+    network.trainNetwork(100);
+
+    Matrix<double> prediction = network.predict(network.getTrainingInput());
+    network.getTrainingInput().display();
+    prediction.display();
 }
 
+TEST_CASE("Constant function", "[NeuralNetwork]") { // TODO--fix
+    string filepath = "Tests/TestDatasets/Constant.csv";    // Contains x and y values for y = 5
+
+    NeuralNetwork<double> network(filepath, "y", 0.1, "RMSE");
+    network.addLayer(1, "Linear");
+    network.partitionDataset(10);
+
+    network.trainNetwork(1000);
+
+    Matrix<double> prediction = network.predict(network.getTrainingInput());
+    network.getTrainingInput().display();
+    prediction.display();
+    // network.getTrainingOutput().display();
+
+}
+
+TEST_CASE("Linear regression", "[NeuralNetwork]") { // TODO--fix
+    string filepath = "Tests/TestDatasets/LinearRegression.csv";    // Contains x and y values for y = 3x + 2
+
+    NeuralNetwork<double> network(filepath, "y", 0.1, "RMSE");
+    network.addLayer(1, "Linear");
+    network.partitionDataset(9);
+
+    network.trainNetwork(1000);
+
+    Matrix<double> prediction = network.predict(network.getTrainingInput());
+    network.getTrainingInput().display();
+    prediction.display();
+    // network.getTrainingOutput().display();
+
+}
+
+
+
+// More complex datasets
 TEST_CASE("Regression architecture: boston housing dataset", "[NeuralNetwork]") {
     string filepath = "Datasets/BostonHousing.csv";
 
-    NeuralNetwork<double> network(filepath, "medv", 0.05, "MSE");
+    NeuralNetwork<double> network(filepath, "medv", 0.1, "MSE");
 
     network.addLayer(256, "ReLU");
     network.addLayer(128, "ReLU");
@@ -61,6 +142,7 @@ TEST_CASE("Regression architecture: boston housing dataset", "[NeuralNetwork]") 
 }
 
 TEST_CASE("Classification architecture", "[NeuralNetwork]") {
+    // See the Julia notebooks for dataset generation and visualization
     string filepath = "Datasets/HalfMoonDataset.csv";
 
     NeuralNetwork<double> network(filepath, "moon_id", 0.15, "RMSE");

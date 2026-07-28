@@ -114,7 +114,7 @@ public:
 
     // Layer equality only checks the structure of the nodes, not the matrices, as they are randomized
     // bool operator==(const Layer& other) {
-    bool operator==(Layer other) {
+    bool operator==(const Layer& other) const {
 
         if (getNumNodes() != other.getNumNodes()) {
             return false;

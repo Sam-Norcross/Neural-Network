@@ -36,6 +36,10 @@ TEST_CASE("Layer equality", "[Layer]") {
     Layer<double> layer2(10, 5, "Sigmoid");
 
     CHECK(layer == layer2);
+    CHECK_FALSE(layer != layer2);
+
+    Layer<double> layer3(11, 5, "Sigmoid");
+    CHECK(layer != layer3);
 }
 
 TEST_CASE("Layer copy constructor", "[Layer]") {

@@ -25,28 +25,58 @@ Matrix<double> mseDerivative(Matrix<double> actual, Matrix<double> expected);
 template <typename T>
 class NeuralNetwork {
 public:
+    // NeuralNetwork(string fileName, string depName, double learningRate, string cost) :
+    //         datasetFilePath(fileName), dataset(Dataset<T>(fileName, depName)), numLayers(0),
+    //         outputLayer(nullptr), inputLayer(nullptr), learningRate(learningRate), dataPartitioned(false), costType(cost) {
+    //
+    //     dataset = Dataset<T>(fileName, depName); // TODO--already handled in initializer list?
+    //
+    //     setCostFunction(cost);
+    // }
+
     NeuralNetwork(string fileName, string depName, double learningRate, string cost) :
-            datasetFilePath(fileName), dataset(Dataset<T>(fileName, depName)), numLayers(0),
+            dataset(Dataset<T>(fileName, depName)), numLayers(0),
             outputLayer(nullptr), inputLayer(nullptr), learningRate(learningRate), dataPartitioned(false), costType(cost) {
 
-        dataset = Dataset<T>(fileName, depName);
+        setCostFunction(cost);
+    }
+
+    // TODO--test this
+    NeuralNetwork(Dataset<T> data, double learningRate, string cost) :
+            dataset(data), numLayers(0), outputLayer(nullptr), inputLayer(nullptr), learningRate(learningRate),
+            dataPartitioned(false), costType(cost) {
 
         setCostFunction(cost);
 
-        // if (cost == "RMSE") {
-        //     costFunction = rmse;
-        //     costFunctionDerivative = rmseDerivative;
-        // }
-        // else if (cost == "MSE") {
-        //     costFunction = mse;
-        //     costFunctionDerivative = mseDerivative;
-        // }
+    }
+
+    // For JSON deserialization
+    NeuralNetwork(Dataset<T> data, string cost, bool dataPartitioned, Matrix<T> inTrain, Matrix<T> outTrain,
+                    Matrix<T> inValidate, Matrix<T> outValidate, double learningRate) :
+                        dataset(data), costType(cost), dataPartitioned(dataPartitioned), numLayers(0),
+                        outputLayer(nullptr), inputLayer(nullptr), learningRate(learningRate)  {
+
+        setCostFunction(cost);
+
+        // This constructor assumes dataPartitioned = true
+        inputTrain = inTrain;
+        outputTrain = outTrain;
+        inputValidate = inValidate;
+        outputValidate = outValidate;
+
+    }
+
+    NeuralNetwork(Dataset<T> data, string cost, bool dataPartitioned, double learningRate) :
+                        dataset(data), costType(cost), dataPartitioned(dataPartitioned), numLayers(0),
+                        outputLayer(nullptr), inputLayer(nullptr), learningRate(learningRate)  {
+
+        setCostFunction(cost);
 
     }
 
     // Copy constructor
     NeuralNetwork(const NeuralNetwork& other) {
-        datasetFilePath = other.getDatasetFilePath();
+        // datasetFilePath = other.getDatasetFilePath();
         dataset = other.getDataset();
         dataPartitioned = other.getDataPartitioned();
 
@@ -65,8 +95,11 @@ public:
 
     }
 
-    NeuralNetwork() : datasetFilePath(""), dataPartitioned(false), numLayers(0),
+    NeuralNetwork() : dataPartitioned(false), numLayers(0),
                         inputLayer(nullptr), outputLayer(nullptr), learningRate(0.0), costType("") {}
+
+    // NeuralNetwork() : datasetFilePath(""), dataPartitioned(false), numLayers(0),
+    //                     inputLayer(nullptr), outputLayer(nullptr), learningRate(0.0), costType("") {}
 
     ~NeuralNetwork() {
         // delete inputLayer;
@@ -78,7 +111,7 @@ public:
             return *this;
         }
 
-        datasetFilePath = other.getDatasetFilePath();
+        // datasetFilePath = other.getDatasetFilePath();
         dataset = other.getDataset();
         dataPartitioned = other.getDataPartitioned();
 
@@ -98,11 +131,11 @@ public:
         return *this;
     }
 
-    bool operator==(NeuralNetwork other) {
+    bool operator==(const NeuralNetwork& other) const {
         // TODO--refactor so that the dataset filepath isn't necessary to run the network--it could probably be removed entirely
-        if (datasetFilePath != other.getDatasetFilePath()) {
-            return false;
-        }
+        // if (datasetFilePath != other.getDatasetFilePath()) {
+        //     return false;
+        // }
 
         if (dataset != other.getDataset()) {
             return false;
@@ -162,18 +195,7 @@ public:
         return true;
     }
 
-
-    void addLayer(int numNodes, string activationType) {
-
-        int prevNodes;
-        if (outputLayer == nullptr) {
-            prevNodes = dataset.getNumFields();
-        } else {
-            prevNodes = outputLayer->getNumNodes();
-        }
-
-        Layer<T> *newLayer = new Layer<T>(numNodes, prevNodes, activationType);
-
+    void addLayer(Layer<T> *newLayer) {
         // Reset layer pointers
         if (inputLayer == nullptr) {
             inputLayer = newLayer;
@@ -190,6 +212,48 @@ public:
 
         numLayers++;
     }
+
+    void addLayer(int numNodes, string activationType) {
+
+        int prevNodes;
+        if (outputLayer == nullptr) {
+            prevNodes = dataset.getNumFields();
+        } else {
+            prevNodes = outputLayer->getNumNodes();
+        }
+
+        Layer<T> *newLayer = new Layer<T>(numNodes, prevNodes, activationType);
+
+        addLayer(newLayer);
+    }
+
+    // void addLayer(int numNodes, string activationType) {
+    //
+    //     int prevNodes;
+    //     if (outputLayer == nullptr) {
+    //         prevNodes = dataset.getNumFields();
+    //     } else {
+    //         prevNodes = outputLayer->getNumNodes();
+    //     }
+    //
+    //     Layer<T> *newLayer = new Layer<T>(numNodes, prevNodes, activationType);
+    //
+    //     // Reset layer pointers
+    //     if (inputLayer == nullptr) {
+    //         inputLayer = newLayer;
+    //     }
+    //
+    //     if (outputLayer == nullptr) {
+    //         outputLayer = newLayer;
+    //     } else {
+    //
+    //         outputLayer->setNextLayer(newLayer);
+    //         newLayer->setPreviousLayer(outputLayer);
+    //         outputLayer = newLayer;
+    //     }
+    //
+    //     numLayers++;
+    // }
 
     void randomizeLayers(T max) {
         randomizeLayers(-max, max);
@@ -298,9 +362,9 @@ public:
         dataPartitioned = true;
     }
 
-    string getDatasetFilePath() const {
-        return datasetFilePath;
-    }
+    // string getDatasetFilePath() const {
+    //     return datasetFilePath;
+    // }
 
     string getCostType() const {
         return costType;
@@ -371,7 +435,7 @@ public:
     }
 
 private:
-    string datasetFilePath;
+    // string datasetFilePath;
     Dataset<T> dataset;
 
     string costType;
@@ -427,22 +491,20 @@ private:
 // Functions to serialize and deserialize NeuralNetwork objects as JSON strings
 template <typename T>
 void to_json(nlohmann::json& j, const NeuralNetwork<T>& network) {
-    // j["rows"] = mat.getNumRows();
-
-    j["datasetFilePath"] = network.getDatasetFilePath();
     j["dataset"] = network.getDataset();
+    j["costType"] = network.getCostType();
     j["dataPartitioned"] = network.getDataPartitioned();
 
     if (network.getDataPartitioned()) {
-        j["inputTrain"] = network.getInputTrain();
-        j["outputTrain"] = network.getOutputTrain();
-        j["inputValidate"] = network.getInputValidate();
-        j["outputValidate"] = network.getOutputValidate();
+        j["inputTrain"] = network.getTrainingInput();
+        j["outputTrain"] = network.getTrainingOutput();
+        j["inputValidate"] = network.getValidationInput();
+        j["outputValidate"] = network.getValidationOutput();
     }
 
     j["numLayers"] = network.getNumLayers();
 
-    // ADD LAYERS TO JSON HERE
+    // Add layers
     Layer<T>* current = network.getInputLayer();
     j["layers"] = nlohmann::json::array();
     while (current != nullptr) {
@@ -455,16 +517,22 @@ void to_json(nlohmann::json& j, const NeuralNetwork<T>& network) {
 
 }
 
-
-
 template <typename T>
 void from_json(const nlohmann::json& j, NeuralNetwork<T>& network) {
-    // mat = Matrix<T>(j.at("rows"), j.at("cols"));
+    if (j["dataPartitioned"] == true) {
+        network = NeuralNetwork<T>(j.at("dataset"), j["costType"], j.at("dataPartitioned"),
+                        j.at("inputTrain"), j.at("outputTrain"), j.at("inputValidate"),
+                        j.at("outputValidate"), j.at("learningRate"));
+    } else {
+        Dataset<T> dataset = j.at("dataset").get<Dataset<T>>(); // Necessary to remove constructor ambiguity
+        network = NeuralNetwork<T>(dataset, j["costType"], j.at("dataPartitioned"), j.at("learningRate"));
+    }
 
-    // TODO--finish
-    // It's probably a better idea to remove the dataset filepath from the class variables--just store the dataset
-    // itself--this also removes the need to pass in the dependent variable name to the constructor in this function
-
+    // Add layers
+    for (int i = 0; i < j.at("numLayers"); i++) {
+        Layer<T> *newLayer = new Layer<T>(j.at("layers").at(i).get<Layer<T>>());
+        network.addLayer(newLayer);
+    }
 }
 
 

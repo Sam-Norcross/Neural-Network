@@ -45,6 +45,19 @@ TEST_CASE("NeuralNetwork copy assignment operator", "[NeuralNetwork]") {
     CHECK(network == network2);
 }
 
+TEST_CASE("NeuralNetwork JSON serialization", "[Layer]") {
+    string filepath = "Datasets/BostonHousing.csv";
+    NeuralNetwork<double> network(filepath, "medv", 0.01, "RMSE");
+    network.addLayer(64, "ReLU");
+    network.addLayer(32, "ReLU");
+    network.addLayer(1, "Linear");
+
+    nlohmann::json networkJSON = network;
+    NeuralNetwork<double> networkFromJSON = networkJSON.get<NeuralNetwork<double>>();
+
+    CHECK(network == networkFromJSON);
+}
+
 TEST_CASE("NeuralNetwork initialization and feed forward", "[NeuralNetwork]") {
     string filepath = "Datasets/BostonHousing.csv";
     // string filepath = "Datasets/auto-mpg.csv";   // TODO--no error is thrown when this dataset is used with depName = "medv" (should be "mpg")
@@ -75,12 +88,12 @@ TEST_CASE("NeuralNetwork initialization and feed forward", "[NeuralNetwork]") {
 
 
 // Known neural network test cases
-TEST_CASE("Identity mapping", "[NeuralNetwork]") { // TODO--fix
+TEST_CASE("Identity", "[NeuralNetwork]") { // TODO--fix
     string filepath = "Tests/TestDatasets/Identity.csv";    // Contains x and y values for y = x
 
     NeuralNetwork<double> network(filepath, "y", 0.1, "RMSE");
     network.addLayer(1, "Linear");
-    network.partitionDataset(10);
+    network.partitionDataset(9);
 
     network.trainNetwork(100);
 

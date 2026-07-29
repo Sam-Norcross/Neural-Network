@@ -163,7 +163,6 @@ public:
 
 
 
-
     Matrix<T> feedForward(Matrix<T> input) {
         zCurrent = weights.matMul(input).colAdd(bias);
         aCurrent = activation(zCurrent);
@@ -184,9 +183,37 @@ public:
     }
 
     void backpropagateSingleLayer(Matrix<T> input, Matrix<T> costDerivative, double learningRate) {   // Backpropagation for a network with a single layer
+
+        // cout << "Weights: ";
+        // weights.display();
+        // cout << "Bias: ";
+        // bias.display();
+        // cout << "zCurrent: ";
+        // zCurrent.display();
+        // cout << endl;
+
+
+
         deltaCurrent = costDerivative * activationDerivative(zCurrent);
         weights -= learningRate * deltaCurrent.matMul(input.transpose());
         bias -= learningRate * deltaCurrent.sumToColVec();
+
+        // cout << "Cost derivative: ";
+        // costDerivative.display();
+        // cout << "Weight gradient: ";
+        // deltaCurrent.matMul(input.transpose()).display();
+        // cout << "Bias gradient: ";  // TODO-doesn't match
+        // deltaCurrent.sumToColVec().display();
+        // cout << endl;
+        //
+        // cout << "deltaCurrent: ";
+        // deltaCurrent.display();
+        // deltaCurrent.sumToColVec().display();
+        // cout << deltaCurrent.sum() << endl;
+        // cout << "input: ";
+        // input.display();
+        //
+        // cout << endl << "--------------" << endl << endl;
     }
 
 

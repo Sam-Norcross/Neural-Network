@@ -45,7 +45,7 @@ TEST_CASE("NeuralNetwork copy assignment operator", "[NeuralNetwork]") {
     CHECK(network == network2);
 }
 
-TEST_CASE("NeuralNetwork JSON serialization", "[Layer]") {
+TEST_CASE("NeuralNetwork JSON serialization", "[Layer]") {  // TODO--add test case to load prepared network and make predictions with it
     string filepath = "Datasets/BostonHousing.csv";
     NeuralNetwork<double> network(filepath, "medv", 0.01, "RMSE");
     network.addLayer(64, "ReLU");
@@ -91,21 +91,27 @@ TEST_CASE("NeuralNetwork initialization and feed forward", "[NeuralNetwork]") {
 TEST_CASE("Identity", "[NeuralNetwork]") { // TODO--fix
     string filepath = "Tests/TestDatasets/Identity.csv";    // Contains x and y values for y = x
 
-    NeuralNetwork<double> network(filepath, "y", 0.1, "RMSE");
+    NeuralNetwork<double> network(filepath, "y", 0.01, "MSE");  // TODO--try with RMSE also
     network.addLayer(1, "Linear");
     network.partitionDataset(9);
 
-    network.trainNetwork(100);
+    // network.getInputLayer()->setWeights(zeros<double>(1, 1));    //TODO--testing only
+    // network.getInputLayer()->setBias(zeros<double>(1, 1));
 
-    Matrix<double> prediction = network.predict(network.getTrainingInput());
-    network.getTrainingInput().display();
-    prediction.display();
+    network.trainNetwork(5000);
+
+    // Matrix<double> prediction = network.predict(network.getTrainingInput());
+    // network.getTrainingInput().display();
+    // prediction.display();
+
+    CHECK(network.trainingCost() < 1e-16);
+    CHECK(network.validationCost() < 1e-16);
 }
 
 TEST_CASE("Constant function", "[NeuralNetwork]") { // TODO--fix
     string filepath = "Tests/TestDatasets/Constant.csv";    // Contains x and y values for y = 5
 
-    NeuralNetwork<double> network(filepath, "y", 0.1, "RMSE");
+    NeuralNetwork<double> network(filepath, "y", 0.01, "RMSE");
     network.addLayer(1, "Linear");
     network.partitionDataset(10);
 

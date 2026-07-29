@@ -455,6 +455,33 @@ TEST_CASE("Matrix colAdd() 5x1 + 5x1", "[Matrix]") {
     CHECK(mat1.colAdd(colVec) == result);
 }
 
+TEST_CASE("Matrix sumToColVec() for row vectors", "[Matrix]") {
+    int arr1[9] = {1, 2, 3, 4, 5, 6, 7, 8, 9};
+    Matrix mat1(1, 9, arr1);
+
+    int arr2[1] = {45};
+    Matrix result(1, 1, arr2);
+
+    CHECK(mat1.sumToColVec() == result);
+}
+
+TEST_CASE("Matrix sumToColVec() for row vectors #2", "[Matrix]") {  // TODO--fix
+    double arr1[9] = {-0.222222, -0.444444, -0.666667, -0.888889, -1.111111, -1.333333, -1.555556, -1.777778, -2.000000};
+    Matrix mat1(1, 9, arr1);
+
+    double arr2[1] = {-10};
+    Matrix result(1, 1, arr2);
+
+    cout << "Result: ";
+    result.display();
+    cout << "sumToColVec() result: ";
+    mat1.sumToColVec().display();
+
+    cout << (static_cast<int>(mat1.get(0, 0)) == static_cast<int>(result.get(0, 0))) << endl;
+
+    CHECK(mat1.sumToColVec() == result);
+}
+
 TEST_CASE("Matrix sumToColVec()", "[Matrix]") {
     int arr1[9] = {1, 2, 3, 4, 5, 6, 7, 8, 9};
     Matrix mat1(3, 3, arr1);

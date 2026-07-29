@@ -339,10 +339,19 @@ public:
 
         cout << "The cost of the validation data is " << cost << endl;
 
-
-
-
     }
+
+    // Returns the cost of the training data
+    T trainingCost() {
+        return costFunction(feedForwardFull(inputTrain), outputTrain);
+    }
+
+    // Returns the cost of the validation data
+    T validationCost() {
+        return costFunction(feedForwardFull(inputValidate), outputValidate);
+    }
+
+
 
     void partitionDataset(double val) { // val is the fraction of the dataset used for training
         int partitionIndex = static_cast<int> (val * dataset.getNumEntries());
@@ -428,10 +437,6 @@ public:
         }
 
         return feedForwardFull(input);
-    }
-
-    void save(string filename) {
-
     }
 
 private:
@@ -537,40 +542,48 @@ void from_json(const nlohmann::json& j, NeuralNetwork<T>& network) {
 
 
 
+// Cost function utilities
+void checkMatrixDimensions(Matrix<double> actual, Matrix<double> expected, string costType) {
+    if (actual.getNumRows() != expected.getNumRows() || actual.getNumCols() != expected.getNumCols()) {
+        throw MatrixException("Invalid matrix dimensions in " + costType + "()");
+    }
+}
+
+// // Difference
+// double difference(Matrix<double> actual, Matrix<double> expected) {
+//     checkMatrixDimensions(actual, expected);
+//     return actual - expected;
+// }
+//
+// double differenceDerivative(Matrix<double> actual, Matrix<double> expected) {
+//
+// }
+
 
 // RMSE
 double rmse(Matrix<double> actual, Matrix<double> expected) {
-    if (actual.getNumRows() != expected.getNumRows() || actual.getNumCols() != expected.getNumCols()) {
-        throw MatrixException("Invalid matrix dimensions in rmse()");
-    }
-
-    return sqrt(pow(actual - expected, 2).sum() / expected.getNumCols()); // RMSE
+    checkMatrixDimensions(actual, expected, "rmse");
+    double numDataPoints = expected.getNumCols();
+    return sqrt(pow(actual - expected, 2).sum() / numDataPoints); // RMSE
 }
 
 Matrix<double> rmseDerivative(Matrix<double> actual, Matrix<double> expected) {
-
-    if (actual.getNumRows() != expected.getNumRows() || actual.getNumCols() != expected.getNumCols()) {
-        throw MatrixException("Invalid matrix dimensions in rmseDerivative(): matrices with dimensions " + actual.dims() + " and " + expected.dims() + " are not compatible.");
-    }
-
-    return  (actual - expected) / (expected.getNumCols() * rmse(actual, expected)); // RMSE
+    checkMatrixDimensions(actual, expected, "rmseDerivative");
+    double numDataPoints = expected.getNumCols();
+    return  (actual - expected) / (numDataPoints * rmse(actual, expected)); // RMSE
 }
 
 
 
 // MSE
 double mse(Matrix<double> actual, Matrix<double> expected) {
-    if (actual.getNumRows() != expected.getNumRows() || actual.getNumCols() != expected.getNumCols()) {
-        throw MatrixException("Invalid matrix dimensions in rmse()");
-    }
-
-    return pow(actual - expected, 2).sum() /  expected.getNumCols(); // MSE
+    checkMatrixDimensions(actual, expected, "mse");
+    double numDataPoints = expected.getNumCols();
+    return pow(actual - expected, 2).sum() /  numDataPoints; // MSE
 }
 
 Matrix<double> mseDerivative(Matrix<double> actual, Matrix<double> expected) {
-    if (actual.getNumRows() != expected.getNumRows() || actual.getNumCols() != expected.getNumCols()) {
-        throw MatrixException("Invalid matrix dimensions in rmseDerivative()");
-    }
-
-    return (actual - expected) * 2 / expected.getNumCols(); // MSE
+    checkMatrixDimensions(actual, expected, "mseDerivative");
+    double numDataPoints = expected.getNumCols();
+    return (actual - expected) * 2 / numDataPoints; // MSE
 }

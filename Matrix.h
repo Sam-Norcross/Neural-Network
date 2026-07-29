@@ -501,7 +501,7 @@ public:
     Matrix sumToColVec() {
         Matrix newMat = Matrix(getNumRows(), 1);
 
-        int rowSum = 0;
+        T rowSum = 0;
         for (int r = 0; r < getNumRows(); r++) {
             for (int c = 0; c < getNumCols(); c++) {
                 rowSum += get(r, c);

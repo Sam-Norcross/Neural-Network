@@ -472,14 +472,9 @@ TEST_CASE("Matrix sumToColVec() for row vectors #2", "[Matrix]") {  // TODO--fix
     double arr2[1] = {-10};
     Matrix result(1, 1, arr2);
 
-    cout << "Result: ";
-    result.display();
-    cout << "sumToColVec() result: ";
-    mat1.sumToColVec().display();
-
-    cout << (static_cast<int>(mat1.get(0, 0)) == static_cast<int>(result.get(0, 0))) << endl;
-
-    CHECK(mat1.sumToColVec() == result);
+    double diff = (mat1.sumToColVec() - result).sum();
+    CHECK(diff < 1e-14);
+    CHECK(diff > -1e-14);
 }
 
 TEST_CASE("Matrix sumToColVec()", "[Matrix]") {

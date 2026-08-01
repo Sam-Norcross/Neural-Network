@@ -315,7 +315,7 @@ public:
 
         // Training loop
         // cout << "TRAINING" << endl;
-        cout << "[";
+        // cout << "["; // For progross bar
         for (int epoch = 0; epoch < epochs; epoch++) {
             // cout << "Epoch " << epoch + 1 << ":" << endl;
 
@@ -328,10 +328,10 @@ public:
             // Backpropagation
             backpropagateFull(inputTrain, output, outputTrain);
 
-            // Display progress bar
-            progressBar(epoch, epochs);
+            // Display progress bar--TODO--fix
+            // progressBar(epoch, epochs);
         }
-        cout << "]" << endl;
+        // cout << "]" << endl; // For progress bar
 
         // Validate data
         output = feedForwardFull(inputValidate);

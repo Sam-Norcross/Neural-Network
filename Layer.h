@@ -202,14 +202,12 @@ public:
         // costDerivative.display();
         // cout << "Weight gradient: ";
         // deltaCurrent.matMul(input.transpose()).display();
-        // cout << "Bias gradient: ";  // TODO-doesn't match
+        // cout << "Bias gradient: ";
         // deltaCurrent.sumToColVec().display();
         // cout << endl;
         //
         // cout << "deltaCurrent: ";
         // deltaCurrent.display();
-        // deltaCurrent.sumToColVec().display();
-        // cout << deltaCurrent.sum() << endl;
         // cout << "input: ";
         // input.display();
         //
@@ -218,19 +216,6 @@ public:
 
 
     void backpropagate(double learningRate) {   // Backpropagation for any general hidden layer
-        // Needs weights(n+1), delta(n+1), z(n), a(n-1)
-
-        // dCda3 = (weight4.transpose()).matMul(delta4);
-        // Matrix delta3 = dCda3 * reluDerivative(z3);
-        // dCdW3 = delta3.matMul(a2.transpose());
-        // dCdb3 =  delta3.sumToColVec();
-
-        // Matrix<T> dCda1 = (weight2.transpose()).matMul(delta2);
-        // Matrix delta1 = dCda1 * activationDerivative(z1);
-        //
-        // weights -= delta1.matMul(inputTrain.transpose());
-        // bias -= delta1.sumToColVec();
-
         Matrix<T> dCda = (nextLayer->getWeights()).transpose().matMul(nextLayer->getDelta());
 
         deltaCurrent = dCda * activationDerivative(zCurrent);
@@ -382,7 +367,7 @@ Matrix<T> relu(Matrix<T> input) {
         for (int c = 0; c < input.getNumCols(); c++) {
 
             if (newMat.get(r, c) < 0.0) {
-                newMat.get(r, c) = static_cast<T>(0.0);
+                newMat.get(r, c) = 0.0;//static_cast<T>(0.0);
             }
 
         }
@@ -399,9 +384,9 @@ Matrix<T> reluDerivative(Matrix<T> input) {
         for (int c = 0; c < input.getNumCols(); c++) {
 
             if (newMat.get(r, c) <= 0) {
-                newMat.get(r, c) = static_cast<T>(0.0);
+                newMat.get(r, c) = 0.0;//static_cast<T>(0.0);
             } else {
-                newMat.get(r, c) = static_cast<T>(1.0);
+                newMat.get(r, c) = 1.0;//static_cast<T>(1.0);
             }
 
         }

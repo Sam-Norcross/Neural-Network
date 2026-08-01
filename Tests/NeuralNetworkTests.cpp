@@ -88,56 +88,61 @@ TEST_CASE("NeuralNetwork initialization and feed forward", "[NeuralNetwork]") {
 
 
 // Known neural network test cases
-TEST_CASE("Identity", "[NeuralNetwork]") { // TODO--fix
+TEST_CASE("Identity with MSE", "[NeuralNetwork]") {
     string filepath = "Tests/TestDatasets/Identity.csv";    // Contains x and y values for y = x
 
-    NeuralNetwork<double> network(filepath, "y", 0.01, "MSE");  // TODO--try with RMSE also
+    NeuralNetwork<double> network(filepath, "y", 0.01, "MSE");
     network.addLayer(1, "Linear");
     network.partitionDataset(9);
 
-    // network.getInputLayer()->setWeights(zeros<double>(1, 1));    //TODO--testing only
-    // network.getInputLayer()->setBias(zeros<double>(1, 1));
-
     network.trainNetwork(5000);
 
-    // Matrix<double> prediction = network.predict(network.getTrainingInput());
-    // network.getTrainingInput().display();
-    // prediction.display();
-
-    CHECK(network.trainingCost() < 1e-16);
-    CHECK(network.validationCost() < 1e-16);
+    double tol = 1e-16;
+    CHECK(network.trainingCost() < tol);
+    CHECK(network.validationCost() < tol);
 }
 
-TEST_CASE("Constant function", "[NeuralNetwork]") { // TODO--fix
+// Known neural network test cases
+TEST_CASE("Identity with RMSE", "[NeuralNetwork]") {
+    string filepath = "Tests/TestDatasets/Identity.csv";    // Contains x and y values for y = x
+
+    NeuralNetwork<double> network(filepath, "y", 0.0001, "RMSE");
+    network.addLayer(1, "Linear");
+    network.partitionDataset(9);
+
+    network.trainNetwork(500000);
+
+    double tol = 0.005;
+    CHECK(network.trainingCost() < tol);
+    CHECK(network.validationCost() < tol);
+}
+
+TEST_CASE("Constant function", "[NeuralNetwork]") {
     string filepath = "Tests/TestDatasets/Constant.csv";    // Contains x and y values for y = 5
 
-    NeuralNetwork<double> network(filepath, "y", 0.01, "RMSE");
+    NeuralNetwork<double> network(filepath, "y", 0.001, "MSE");
     network.addLayer(1, "Linear");
-    network.partitionDataset(10);
+    network.partitionDataset(9);
 
-    network.trainNetwork(1000);
+    network.trainNetwork(50000);
 
-    Matrix<double> prediction = network.predict(network.getTrainingInput());
-    network.getTrainingInput().display();
-    prediction.display();
-    // network.getTrainingOutput().display();
-
+    double tol = 1e-16;
+    CHECK(network.trainingCost() < tol);
+    CHECK(network.validationCost() < tol);
 }
 
 TEST_CASE("Linear regression", "[NeuralNetwork]") { // TODO--fix
     string filepath = "Tests/TestDatasets/LinearRegression.csv";    // Contains x and y values for y = 3x + 2
 
-    NeuralNetwork<double> network(filepath, "y", 0.1, "RMSE");
+    NeuralNetwork<double> network(filepath, "y", 0.01, "MSE");
     network.addLayer(1, "Linear");
     network.partitionDataset(9);
 
-    network.trainNetwork(1000);
+    network.trainNetwork(5000);
 
-    Matrix<double> prediction = network.predict(network.getTrainingInput());
-    network.getTrainingInput().display();
-    prediction.display();
-    // network.getTrainingOutput().display();
-
+    double tol = 1e-16;
+    CHECK(network.trainingCost() < tol);
+    CHECK(network.validationCost() < tol);
 }
 
 
@@ -146,18 +151,31 @@ TEST_CASE("Linear regression", "[NeuralNetwork]") { // TODO--fix
 TEST_CASE("Regression architecture: boston housing dataset", "[NeuralNetwork]") {
     string filepath = "Datasets/BostonHousing.csv";
 
-    NeuralNetwork<double> network(filepath, "medv", 0.1, "MSE");
+    NeuralNetwork<double> network(filepath, "medv", 0.001, "MSE");
 
-    network.addLayer(256, "ReLU");
-    network.addLayer(128, "ReLU");
-    network.addLayer(64, "ReLU");
+    // network.addLayer(256, "ReLU");
+    // network.addLayer(128, "ReLU");
+    // network.addLayer(64, "ReLU");
+    // network.addLayer(1, "Linear");
+
+    network.addLayer(30, "ReLU");
+    network.addLayer(15, "ReLU");
+    network.addLayer(8, "ReLU");
+    network.addLayer(5, "ReLU");
     network.addLayer(1, "Linear");
 
 
-    network.partitionDataset(0.75);
+    network.partitionDataset(0.002);    // TODO--add a test case for partitionDataset()--have a way to return the dependent variable?
 
-    network.trainNetwork(100); // TODO--add simple progress bar?
+    network.trainNetwork(10);
 
+    // network.getTrainingInput().display();
+    network.predict(network.getTrainingInput()).display();
+
+
+    double tol = 1e-16;
+    CHECK(network.trainingCost() < tol);
+    CHECK(network.validationCost() < tol);
 }
 
 TEST_CASE("Classification architecture", "[NeuralNetwork]") {

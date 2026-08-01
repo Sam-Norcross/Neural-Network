@@ -465,7 +465,7 @@ TEST_CASE("Matrix sumToColVec() for row vectors", "[Matrix]") {
     CHECK(mat1.sumToColVec() == result);
 }
 
-TEST_CASE("Matrix sumToColVec() for row vectors #2", "[Matrix]") {  // TODO--fix
+TEST_CASE("Matrix sumToColVec() for row vectors #2", "[Matrix]") {
     double arr1[9] = {-0.222222, -0.444444, -0.666667, -0.888889, -1.111111, -1.333333, -1.555556, -1.777778, -2.000000};
     Matrix mat1(1, 9, arr1);
 

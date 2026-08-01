@@ -431,7 +431,8 @@ void to_json(nlohmann::json& j, const Dataset<T>& dataset) {
 template <typename T>
 void from_json(const nlohmann::json& j, Dataset<T>& dataset) {
 
-    string* header = new string[j["numFields"]];
+    int numHeaderFields = j["numFields"];
+    string* header = new string[numHeaderFields];
     for (int i = 0; i < j["numFields"]; i++) {
         header[i] = j.at("header").at(i);
     }

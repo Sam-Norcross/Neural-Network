@@ -169,20 +169,49 @@ public:
         return aCurrent;
     }
 
-    void backpropagateLastLayer(Matrix<T> costDerivative, double learningRate) { // Called before backpropagate() for the last layer in the network
+    void backpropagateLastLayer(Matrix<T> costDerivative) { // Called before backpropagate() for the last layer in the network
         deltaCurrent = costDerivative * activationDerivative(zCurrent);
-        weights -= learningRate * deltaCurrent.matMul((previousLayer->getA()).transpose());
-        bias -= learningRate * deltaCurrent.sumToColVec();
+        weightGradient = deltaCurrent.matMul(previousLayer->getA().transpose());
+        biasGradient = deltaCurrent.sumToColVec();
+
+        // weights -= learningRate * deltaCurrent.matMul((previousLayer->getA()).transpose());
+        // bias -= learningRate * deltaCurrent.sumToColVec();
     }
 
-    void backpropagateFirstLayer(Matrix<T> input, double learningRate) {   // Called after backpropagate() for the first layer in the network
+    void backpropagateFirstLayer(Matrix<T> input) {   // Called after backpropagate() for the first layer in the network
+
+        // cout << "First layer:" << endl;
+        // cout << "Weights: ";
+        // weights.display();
+        // cout << "Bias: ";
+        // bias.display();
+        // cout << "zCurrent: ";
+        // zCurrent.display();
+        // cout << endl;
+
         Matrix<T> dCda = (nextLayer->getWeights()).transpose().matMul(nextLayer->getDelta());
         deltaCurrent = dCda * activationDerivative(zCurrent);
-        weights -= learningRate * deltaCurrent.matMul(input.transpose());
-        bias -= learningRate * deltaCurrent.sumToColVec();
+        weightGradient = deltaCurrent.matMul(input.transpose());
+        biasGradient = deltaCurrent.sumToColVec();
+        // weights -= learningRate * deltaCurrent.matMul(input.transpose());
+        // bias -= learningRate * deltaCurrent.sumToColVec();
+
+
+        // cout << "Weight gradient: ";
+        // deltaCurrent.matMul(input.transpose()).display();
+        // cout << "Bias gradient: ";
+        // deltaCurrent.sumToColVec().display();
+        // cout << endl;
+        //
+        // cout << "deltaCurrent: ";
+        // deltaCurrent.display();
+        // cout << "input: ";
+        // input.display();
+        //
+        // cout << endl << "--------------" << endl << endl;
     }
 
-    void backpropagateSingleLayer(Matrix<T> input, Matrix<T> costDerivative, double learningRate) {   // Backpropagation for a network with a single layer
+    void backpropagateSingleLayer(Matrix<T> input, Matrix<T> costDerivative) {   // Backpropagation for a network with a single layer
 
         // cout << "Weights: ";
         // weights.display();
@@ -195,8 +224,10 @@ public:
 
 
         deltaCurrent = costDerivative * activationDerivative(zCurrent);
-        weights -= learningRate * deltaCurrent.matMul(input.transpose());
-        bias -= learningRate * deltaCurrent.sumToColVec();
+        weightGradient = deltaCurrent.matMul(input.transpose());
+        biasGradient  = deltaCurrent.sumToColVec();
+        // weights -= learningRate * deltaCurrent.matMul(input.transpose());
+        // bias -= learningRate * deltaCurrent.sumToColVec();
 
         // cout << "Cost derivative: ";
         // costDerivative.display();
@@ -214,14 +245,26 @@ public:
         // cout << endl << "--------------" << endl << endl;
     }
 
-
-    void backpropagate(double learningRate) {   // Backpropagation for any general hidden layer
+    void backpropagate() {   // Backpropagation for any general hidden layer
         Matrix<T> dCda = (nextLayer->getWeights()).transpose().matMul(nextLayer->getDelta());
 
         deltaCurrent = dCda * activationDerivative(zCurrent);
 
-        weights -= learningRate * deltaCurrent.matMul((previousLayer->getA()).transpose());
-        bias -= learningRate * deltaCurrent.sumToColVec();
+        weightGradient = deltaCurrent.matMul((previousLayer->getA()).transpose());
+        biasGradient = deltaCurrent.sumToColVec();
+
+        // weights -= learningRate * deltaCurrent.matMul((previousLayer->getA()).transpose());
+        // bias -= learningRate * deltaCurrent.sumToColVec();
+    }
+
+    void updateLayer(double learningRate) {
+        weights -= learningRate * weightGradient;
+        bias -= learningRate * biasGradient;
+
+        // cout << "Weight gradient:\n";
+        // weightGradient.display();
+        // cout << "Bias gradient:\n";
+        // biasGradient.display();
     }
 
     int getNumNodes() const {
@@ -241,10 +284,16 @@ public:
     }
 
     void setWeights(Matrix<T> weightsMat) {
+        if (weights.getNumRows() != weightsMat.getNumRows() || weights.getNumCols() != weightsMat.getNumCols()) {
+            throw LayerException("Cannot set Layer weights with dimensions " + weights.dims() + " to have dimensions " + weightsMat.dims() + ".");
+        }
         weights = weightsMat;
     }
 
     void setBias(Matrix<T> biasMat) {
+        if (bias.getNumRows() != biasMat.getNumRows() || bias.getNumCols() != biasMat.getNumCols()) {
+            throw LayerException("Cannot set Layer weights with dimensions " + bias.dims() + " to have dimensions " + biasMat.dims() + ".");
+        }
         bias = biasMat;
     }
 
@@ -286,6 +335,9 @@ private:
     Matrix<T> aCurrent; // Current pre-activation result of the feed forward process
     Matrix<T> zCurrent; // Current result of the feed forward process from this node
     Matrix<T> deltaCurrent; // Intermediate step for backprop, saved to pass to next layer
+
+    Matrix<T> weightGradient;
+    Matrix<T> biasGradient;
 
 protected:
     // Matrix<T> getActivation() const {

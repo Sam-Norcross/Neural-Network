@@ -271,8 +271,18 @@ public:
         Layer<T> *current = inputLayer;
         Matrix<T> currentOutput = input;
 
+        // int i = 0;
         while (current != nullptr) {
             currentOutput = current->feedForward(currentOutput);
+
+            // cout << "LAYER " << i << endl;
+            // currentOutput.display();
+            // current->getWeights().display();
+            // current->getBias().display();
+            // cout << endl;
+            // i++;
+
+
             current = current->getNextLayer();
         }
 
@@ -282,23 +292,30 @@ public:
     void backpropagateFull(Matrix<T> input, Matrix<T> output, Matrix<T> expected) {
         // TODO--maybe have this function return another function so it doesn't need to check the number of layers each time?
         if (numLayers == 1) {   // If the network only has one layer
-            inputLayer->backpropagateSingleLayer(input, costFunctionDerivative(output, expected), learningRate);
+            inputLayer->backpropagateSingleLayer(input, costFunctionDerivative(output, expected));
         } else {
 
             // backpropagateLastLayer(Matrix<T> costDerivative, double learningRate)
             // backpropagate(double learningRate)
             // backpropagateFirstLayer(Matrix<T> input, double learningRate)
 
-            outputLayer->backpropagateLastLayer(costFunctionDerivative(output, expected), learningRate);
+            outputLayer->backpropagateLastLayer(costFunctionDerivative(output, expected));
 
             Layer<T> *current = outputLayer->getPreviousLayer();
             while (current != inputLayer) {
-                current->backpropagate(learningRate);
+                current->backpropagate();
 
                 current = current->getPreviousLayer();
             }
 
-            inputLayer->backpropagateFirstLayer(input, learningRate);
+            inputLayer->backpropagateFirstLayer(input);
+        }
+
+        // Update weights and biases
+        Layer<T> *current = outputLayer;
+        while (current != nullptr) {
+            current->updateLayer(learningRate);
+            current = current->getPreviousLayer();
         }
     }
 
@@ -564,13 +581,13 @@ void checkMatrixDimensions(Matrix<double> actual, Matrix<double> expected, strin
 double rmse(Matrix<double> actual, Matrix<double> expected) {
     checkMatrixDimensions(actual, expected, "rmse");
     double numDataPoints = expected.getNumCols();
-    return sqrt(pow(actual - expected, 2).sum() / numDataPoints); // RMSE
+    return sqrt(pow(actual - expected, 2).sum() / numDataPoints);
 }
 
 Matrix<double> rmseDerivative(Matrix<double> actual, Matrix<double> expected) {
     checkMatrixDimensions(actual, expected, "rmseDerivative");
     double numDataPoints = expected.getNumCols();
-    return  (actual - expected) / (numDataPoints * rmse(actual, expected)); // RMSE
+    return  (actual - expected) / (numDataPoints * rmse(actual, expected));
 }
 
 
@@ -579,11 +596,11 @@ Matrix<double> rmseDerivative(Matrix<double> actual, Matrix<double> expected) {
 double mse(Matrix<double> actual, Matrix<double> expected) {
     checkMatrixDimensions(actual, expected, "mse");
     double numDataPoints = expected.getNumCols();
-    return pow(actual - expected, 2).sum() /  numDataPoints; // MSE
+    return pow(actual - expected, 2).sum() /  numDataPoints;
 }
 
 Matrix<double> mseDerivative(Matrix<double> actual, Matrix<double> expected) {
     checkMatrixDimensions(actual, expected, "mseDerivative");
     double numDataPoints = expected.getNumCols();
-    return (actual - expected) * 2 / numDataPoints; // MSE
+    return (actual - expected) * 2 / numDataPoints;
 }

@@ -56,6 +56,14 @@ TEST_CASE("TestData2 read", "[Dataset]") {  // TODO--FIX THIS!
     CHECK(dependent.getNumCols() == 1);
 }
 
+TEST_CASE("Read LinearRegression2Layer", "[Dataset]") {
+    string filepath = "Tests/TestDatasets/LinearRegression2Layer.csv";
+    Dataset<double> dataset(filepath, "y");
+
+    CHECK(dataset.getNumEntries() == 20);
+    CHECK(dataset.getNumFields() == 2);
+}
+
 TEST_CASE("Dataset accessors", "[Dataset]") {
     string fileName = "Tests/TestDatasets/TestData1.csv";;
     Dataset<double> dataset(fileName, "Twos");

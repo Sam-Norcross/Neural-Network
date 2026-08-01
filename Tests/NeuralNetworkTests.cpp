@@ -131,7 +131,7 @@ TEST_CASE("Constant function", "[NeuralNetwork]") {
     CHECK(network.validationCost() < tol);
 }
 
-TEST_CASE("Linear regression", "[NeuralNetwork]") { // TODO--fix
+TEST_CASE("Linear regression", "[NeuralNetwork]") {
     string filepath = "Tests/TestDatasets/LinearRegression.csv";    // Contains x and y values for y = 3x + 2
 
     NeuralNetwork<double> network(filepath, "y", 0.01, "MSE");
@@ -144,6 +144,36 @@ TEST_CASE("Linear regression", "[NeuralNetwork]") { // TODO--fix
     CHECK(network.trainingCost() < tol);
     CHECK(network.validationCost() < tol);
 }
+
+// Two-layer linear regression
+TEST_CASE("Two-layer linear regression", "[NeuralNetwork]") {   // TODO--suddenly having some problems
+    string filepath = "Tests/TestDatasets/LinearRegression2Layer.csv";
+    // Contains x1, x2, and y values for y = 3 * x1 - 4 * x2 + 5
+
+    NeuralNetwork<double> network(filepath, "y", 0.001, "MSE");
+    network.addLayer(1, "Linear");
+    network.addLayer(1, "Linear");
+    network.partitionDataset(19);
+
+    network.trainNetwork(50000);
+
+    // TODO--this network seems very sensitive to the initial random weights and biases--what is the best way to initialize them to avoid this?
+
+    // For testing only
+    Matrix<double> prediction = network.predict(network.getTrainingInput());
+    cout << "---------------\n";
+    network.getTrainingOutput().display();
+    prediction.display();
+
+
+
+
+    double tol = 1e-16;
+    CHECK(network.trainingCost() < tol);
+    CHECK(network.validationCost() < tol);
+}
+
+// Three-layer network
 
 
 
@@ -165,9 +195,9 @@ TEST_CASE("Regression architecture: boston housing dataset", "[NeuralNetwork]") 
     network.addLayer(1, "Linear");
 
 
-    network.partitionDataset(0.002);    // TODO--add a test case for partitionDataset()--have a way to return the dependent variable?
+    network.partitionDataset(0.75);    // TODO--add a test case for partitionDataset()--have a way to return the dependent variable?
 
-    network.trainNetwork(10);
+    network.trainNetwork(1000);
 
     // network.getTrainingInput().display();
     network.predict(network.getTrainingInput()).display();

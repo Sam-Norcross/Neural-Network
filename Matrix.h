@@ -677,5 +677,27 @@ Matrix<T> exp(Matrix<T> mat) {
     return mat;
 }
 
-// TODO--implement log, log10, log2, exp, sin, cos
-// TODO--change updateAll() to map() that applies the function directly to each value without needing an extra argument?
+// Natural log
+template <typename T>
+Matrix<T> log(Matrix<T> mat) {
+    function logFunc = [](T x) {return log(x);};
+    mat.map(logFunc);
+    return mat;
+}
+
+template <typename T>
+Matrix<T> log10(Matrix<T> mat) {
+    function log10Func = [](T x) {return log10(x);};
+    mat.map(log10Func);
+    return mat;
+}
+
+template <typename T>
+Matrix<T> log2(Matrix<T> mat) {
+    function log2Func = [](T x) {return log2(x);};
+    mat.map(log2Func);
+    return mat;
+}
+
+
+// TODO--implement sin, cos

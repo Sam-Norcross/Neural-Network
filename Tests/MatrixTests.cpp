@@ -612,6 +612,24 @@ TEST_CASE("Matrix pow()", "[Matrix]") {
     CHECK(pow(mat1, 2) == resMat1);
 }
 
+TEST_CASE("Matrix logarithms", "[Matrix]") {
+    double arr1[4] = {1, 2, 3, 4};
+    Matrix mat1(2, 2, arr1);
+
+    double logArr[4] = {log(1), log(2), log(3), log(4)};
+    Matrix logMat(2, 2, logArr);
+
+    double log10Arr[4] = {log10(1), log10(2), log10(3), log10(4)};
+    Matrix log10Mat(2, 2, log10Arr);
+
+    double log2Arr[4] = {log2(1), log2(2), log2(3), log2(4)};
+    Matrix log2Mat(2, 2, log2Arr);
+
+    CHECK(log(mat1) == logMat);
+    CHECK(log10(mat1) == log10Mat);
+    CHECK(log2(mat1) == log2Mat);
+}
+
 TEST_CASE("Matrix ones(), zeros(), and fill()", "[Matrix]") {
     int onesArr[5] = {1, 1, 1, 1, 1};
     double zerosArr[6] = {0, 0, 0, 0, 0, 0};

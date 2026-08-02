@@ -31,10 +31,12 @@ public:
         // actFunc is the activation function, actDer is the derivative of the activation function
 
         weights = Matrix<T>(numNodes, previousNodes);
-        weights.randomize();    // TODO--add another constructor that has limits for randomized values?
+        weights.randomize();//-.1, .1);    // TODO--add another constructor that has limits for randomized values?
+        // TODO--what is the best way to initialize the weights?
 
-        bias = Matrix<T>(numNodes, 1);
-        bias.randomize();
+        bias = zeros<T>(numNodes, 1);   // NEW--supposed to be the standard for bias initialization
+        // bias = Matrix<T>(numNodes, 1);
+        // bias.randomize();
 
         // Set activation functions
         if (activationType == "Linear") {
@@ -213,36 +215,10 @@ public:
 
     void backpropagateSingleLayer(Matrix<T> input, Matrix<T> costDerivative) {   // Backpropagation for a network with a single layer
 
-        // cout << "Weights: ";
-        // weights.display();
-        // cout << "Bias: ";
-        // bias.display();
-        // cout << "zCurrent: ";
-        // zCurrent.display();
-        // cout << endl;
-
-
-
         deltaCurrent = costDerivative * activationDerivative(zCurrent);
+        // deltaCurrent = costDerivative * nextLayer->getActivationDerivative(zCurrent); // TODO--is this correct? Maybe it should be previousLayer?
         weightGradient = deltaCurrent.matMul(input.transpose());
         biasGradient  = deltaCurrent.sumToColVec();
-        // weights -= learningRate * deltaCurrent.matMul(input.transpose());
-        // bias -= learningRate * deltaCurrent.sumToColVec();
-
-        // cout << "Cost derivative: ";
-        // costDerivative.display();
-        // cout << "Weight gradient: ";
-        // deltaCurrent.matMul(input.transpose()).display();
-        // cout << "Bias gradient: ";
-        // deltaCurrent.sumToColVec().display();
-        // cout << endl;
-        //
-        // cout << "deltaCurrent: ";
-        // deltaCurrent.display();
-        // cout << "input: ";
-        // input.display();
-        //
-        // cout << endl << "--------------" << endl << endl;
     }
 
     void backpropagate() {   // Backpropagation for any general hidden layer

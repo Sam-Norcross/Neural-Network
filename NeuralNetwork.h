@@ -17,6 +17,11 @@ Matrix<double> rmseDerivative(Matrix<double> actual, Matrix<double> expected);
 double mse(Matrix<double> actual, Matrix<double> expected);
 Matrix<double> mseDerivative(Matrix<double> actual, Matrix<double> expected);
 
+template <typename T>
+T bce(Matrix<T> predicted, Matrix<T> expected);
+template <typename T>
+Matrix<T> bceDerivative(Matrix<T> predicted, Matrix<T> expected);
+
 // TODO--add function to make predictions with trained dataset--maybe make feedForwardFull a private method and create a wrapper for predictions?
 // TODO--add functionality to save the trained NN to a file so it can be loaded and used for predictions without retraining
 // TODO--add functionality so that the learning rate can be adjusted as the model trains to increase speed?
@@ -505,6 +510,10 @@ private:
             costFunction = mse;
             costFunctionDerivative = mseDerivative;
         }
+        else if (cost == "BCE") {
+            costFunction = bce;
+            costFunctionDerivative = bceDerivative;
+        }
     }
 
 };
@@ -603,4 +612,23 @@ Matrix<double> mseDerivative(Matrix<double> actual, Matrix<double> expected) {
     checkMatrixDimensions(actual, expected, "mseDerivative");
     double numDataPoints = expected.getNumCols();
     return (actual - expected) * 2 / numDataPoints;
+}
+
+
+
+// Binary cross-entropy (BCE)
+template <typename T>   // TODO--add to other cost functions
+T bce(Matrix<T> predicted, Matrix<T> expected) {
+    checkMatrixDimensions(predicted, expected, "bce");
+
+    double numDataPoints = expected.getNumCols();
+    return -1.0 * (expected * log(predicted) + (1.0 - expected) * log(1.0 - predicted)).sum() / numDataPoints;
+}
+
+template <typename T>
+Matrix<T> bceDerivative(Matrix<T> predicted, Matrix<T> expected) {
+    checkMatrixDimensions(predicted, expected, "bceDerivative");
+
+    double numDataPoints = expected.getNumCols();
+    return (predicted - expected) / (predicted * (1.0 - predicted) * numDataPoints);
 }

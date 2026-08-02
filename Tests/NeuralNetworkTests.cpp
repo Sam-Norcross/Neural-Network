@@ -155,16 +155,36 @@ TEST_CASE("Two-layer linear regression", "[NeuralNetwork]") {   // TODO--suddenl
     network.addLayer(1, "Linear");
     network.partitionDataset(19);
 
-    network.trainNetwork(50000);
+    network.trainNetwork(5000);
 
     // TODO--this network seems very sensitive to the initial random weights and biases--what is the best way to initialize them to avoid this?
+    // TODO--weights need to be randomized between -0.1 and 0.1
 
-    // For testing only
+    double tol = 1e-16;
+    CHECK(network.trainingCost() < tol);
+    CHECK(network.validationCost() < tol);
+}
+
+TEST_CASE("Three-layer network (XOR)", "[NeuralNetwork]") {
+    string filepath = "Tests/TestDatasets/XOR.csv";
+    // Contains x1, x2, and y values for y = XOR(x1, x2)
+
+    NeuralNetwork<double> network(filepath, "y", 0.001, "BCE");
+    network.addLayer(2, "Sigmoid");
+    network.addLayer(2, "Sigmoid");
+    network.addLayer(1, "Sigmoid");
+    network.partitionDataset(39);
+
+    network.trainNetwork(50000);
+
+    // TODO--weights need to be randomized ~between -10 and 10
+    // TODO--look at which activation should be used in backpropagate() (and related backprop functions)
+
+
+    // Testing only
     Matrix<double> prediction = network.predict(network.getTrainingInput());
-    cout << "---------------\n";
     network.getTrainingOutput().display();
     prediction.display();
-
 
 
 
@@ -173,7 +193,8 @@ TEST_CASE("Two-layer linear regression", "[NeuralNetwork]") {   // TODO--suddenl
     CHECK(network.validationCost() < tol);
 }
 
-// Three-layer network
+// TODO--implement batch training
+// TODO--add test case to read in pre-trained network from JSON
 
 
 

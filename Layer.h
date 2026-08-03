@@ -173,11 +173,10 @@ public:
 
     void backpropagateLastLayer(Matrix<T> costDerivative) { // Called before backpropagate() for the last layer in the network
         deltaCurrent = costDerivative * activationDerivative(zCurrent);
+        // deltaCurrent = costDerivative * nextLayer->getActivationDerivative()(zCurrent); // TODO
+
         weightGradient = deltaCurrent.matMul(previousLayer->getA().transpose());
         biasGradient = deltaCurrent.sumToColVec();
-
-        // weights -= learningRate * deltaCurrent.matMul((previousLayer->getA()).transpose());
-        // bias -= learningRate * deltaCurrent.sumToColVec();
     }
 
     void backpropagateFirstLayer(Matrix<T> input) {   // Called after backpropagate() for the first layer in the network
@@ -193,6 +192,8 @@ public:
 
         Matrix<T> dCda = (nextLayer->getWeights()).transpose().matMul(nextLayer->getDelta());
         deltaCurrent = dCda * activationDerivative(zCurrent);
+        // deltaCurrent = dCda * nextLayer->getActivationDerivative()(zCurrent); // TODO
+
         weightGradient = deltaCurrent.matMul(input.transpose());
         biasGradient = deltaCurrent.sumToColVec();
         // weights -= learningRate * deltaCurrent.matMul(input.transpose());
@@ -225,12 +226,10 @@ public:
         Matrix<T> dCda = (nextLayer->getWeights()).transpose().matMul(nextLayer->getDelta());
 
         deltaCurrent = dCda * activationDerivative(zCurrent);
+        // deltaCurrent = dCda * nextLayer->getActivationDerivative()(zCurrent); // TODO
 
         weightGradient = deltaCurrent.matMul((previousLayer->getA()).transpose());
         biasGradient = deltaCurrent.sumToColVec();
-
-        // weights -= learningRate * deltaCurrent.matMul((previousLayer->getA()).transpose());
-        // bias -= learningRate * deltaCurrent.sumToColVec();
     }
 
     void updateLayer(double learningRate) {

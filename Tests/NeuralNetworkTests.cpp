@@ -88,6 +88,24 @@ TEST_CASE("NeuralNetwork initialization and feed forward", "[NeuralNetwork]") {
 
 
 // Known neural network test cases
+TEST_CASE("NeuralNetwork overfitting", "[NeuralNetwork]") { // Overfitting data should result in near-zero loss
+    string filepath = "Tests/TestDatasets/TestData1.csv";
+
+    NeuralNetwork<double> network(filepath, "Threes", 0.001, "RMSE");
+
+    network.addLayer(128, "Leaky ReLU");
+    network.addLayer(64, "Sigmoid");
+    network.addLayer(32, "ReLU");
+    network.addLayer(1, "Linear");
+
+    network.partitionDataset(3);    // Assigns all samples to be training data
+
+    network.trainNetwork(5000);
+
+    double tol = 1e-16;
+    CHECK(network.trainingCost() < tol);
+}
+
 TEST_CASE("Identity with MSE", "[NeuralNetwork]") {
     string filepath = "Tests/TestDatasets/Identity.csv";    // Contains x and y values for y = x
 

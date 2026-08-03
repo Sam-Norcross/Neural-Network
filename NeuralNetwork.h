@@ -459,6 +459,7 @@ public:
         }
 
         return feedForwardFull(input);
+        // TODO--add different functions to not reset the temporary variables in each layer (zCurrent, etc.)
     }
 
 private:

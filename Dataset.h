@@ -168,6 +168,31 @@ public:
         readFile.close();
     }
 
+    // Constructor to create a dataset from Matrix objects for easy testing
+    Dataset(Matrix<T> dataMat, Matrix<T> dependentMat) {
+        if (dataMat.getNumRows() != dependentMat.getNumRows()) {
+            throw DatasetException("Both independent and dependent variable matrices must have the same number of rows.");
+        }
+        if (dependentMat.getNumCols() != 1) {
+            throw DatasetException("The dependent variable matrix should only have one column");
+        }
+
+        data = dataMat;
+        dependent = dependentMat;
+
+        numEntries = dataMat.getNumRows();
+        numFields = dataMat.getNumCols();
+
+        dependentVar = "Dependent";
+        header = new string[numFields];
+        for (int i = 0; i < numFields; i++) {
+            header[i] = "Field " + to_string(i);
+        }
+
+        dependentMean = 0;
+        dependentStdDev = 0;
+    }
+
     Dataset(string* head, string depVar, Matrix<T> dataMat, Matrix<T> dependentMat, int entries, int fields, T depMean, T depStdDev) :
             header(head), dependentVar(depVar), data(dataMat), dependent(dependentMat), numEntries(entries), numFields(fields),
             dependentMean(depMean), dependentStdDev(depStdDev) {}

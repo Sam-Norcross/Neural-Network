@@ -189,3 +189,24 @@ TEST_CASE("Dataset JSON serializers", "[Dataset]") {
 
     CHECK(dataset == datasetFromJSON);
 }
+
+TEST_CASE("Dataset Matrix constructor", "[Dataset]") {
+    int arrData[9] = {1, 2, 3, 4, 5, 6, 7, 8, 9};
+    int arrDep[3] = {10, 11, 12};
+
+    Matrix data(3, 3, arrData);
+    Matrix dependent(3, 1, arrDep);
+
+    Dataset dataset(data, dependent);
+
+    CHECK(dataset.getDependent() == dependent);
+    CHECK(dataset.getData() == data);
+
+    CHECK(dataset.getDependentVar() == "Dependent");
+    CHECK(dataset.getHeader()[0] == "Field 0");
+    CHECK(dataset.getHeader()[1] == "Field 1");
+    CHECK(dataset.getHeader()[2] == "Field 2");
+
+    CHECK_THROWS(dataset = Dataset(data, zeros<int>(4, 1)));
+    CHECK_THROWS(dataset = Dataset(data, data));
+}

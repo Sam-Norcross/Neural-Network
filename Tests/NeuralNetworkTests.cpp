@@ -91,16 +91,24 @@ TEST_CASE("NeuralNetwork initialization and feed forward", "[NeuralNetwork]") {
 TEST_CASE("NeuralNetwork overfitting", "[NeuralNetwork]") { // Overfitting data should result in near-zero loss
     string filepath = "Tests/TestDatasets/TestData1.csv";
 
-    NeuralNetwork<double> network(filepath, "Threes", 0.001, "RMSE");
+    NeuralNetwork<double> network(filepath, "Threes", 0.001, "MSE");
 
-    network.addLayer(128, "Leaky ReLU");
-    network.addLayer(64, "Sigmoid");
-    network.addLayer(32, "ReLU");
+    // network.addLayer(128, "Leaky ReLU");
+    // network.addLayer(64, "Sigmoid");
+    // network.addLayer(32, "ReLU");
+    // network.addLayer(1, "Linear");
+
+    network.addLayer(50, "Linear");
     network.addLayer(1, "Linear");
 
     network.partitionDataset(3);    // Assigns all samples to be training data
 
-    network.trainNetwork(5000);
+    network.trainNetwork(50000);
+
+    // Testing only
+    Matrix<double> prediction = network.predict(network.getTrainingInput());
+    network.getTrainingOutput().display();
+    prediction.display();
 
     double tol = 1e-16;
     CHECK(network.trainingCost() < tol);

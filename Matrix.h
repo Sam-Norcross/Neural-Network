@@ -630,6 +630,30 @@ Matrix<T> ones(int rows, int cols) {
     return fill(rows, cols, static_cast<T>(1));
 }
 
+template <typename T>
+Matrix<T> range(T start, T stop, T step) {  // stop is not included in the returned matrix
+    int numPts = round((stop - start) / step);
+    Matrix<T> mat(numPts, 1);
+
+    for (int i = 0; i < numPts; i++) {
+        mat.get(i, 0) = start + i * step;
+    }
+
+    return mat;
+}
+
+template <typename T>
+Matrix<T> linspace(T start, T stop, int numPts) {   // stop is not included in the returned matrix
+    T step = (stop - start) / numPts;
+    Matrix<T> mat(numPts, 1);
+
+    for (int i = 0; i < numPts; i++) {
+        mat.get(i, 0) = start + i * step;
+    }
+
+    return mat;
+}
+
 
 
 // Extra operator functions to implement commutative operators

@@ -644,6 +644,72 @@ TEST_CASE("Matrix ones(), zeros(), and fill()", "[Matrix]") {
     CHECK(fivesMat == fill<double>(2, 2, 5.0));
 }
 
+TEST_CASE("Matrix range()", "[Matrix]") {
+    double tol = 1e-15;
+
+    Matrix<double> mat = range<double>(0.0, 10.0, 1.0);
+
+    CHECK(mat.getNumRows() == 10);
+    CHECK(mat.getNumCols() == 1);
+    CHECK(mat.get(0, 0) == 0);
+    CHECK(mat.get(1, 0) == 1);
+    CHECK(mat.get(2, 0) == 2);
+    CHECK(mat.get(8, 0) == 8);
+    CHECK(mat.get(9, 0) == 9);
+
+
+
+    Matrix<double> mat2 = range<double>(0.0, 1.2, 0.2);
+
+    CHECK(mat2.getNumRows() == 6);
+    CHECK(mat2.getNumCols() == 1);
+
+    CHECK(abs(mat2.get(0, 0)) < tol);
+    CHECK(abs(mat2.get(1, 0)) - 0.2 < tol);
+    CHECK(abs(mat2.get(2, 0)) - 0.4 < tol);
+    CHECK(abs(mat2.get(3, 0)) - 0.6 < tol);
+    CHECK(abs(mat2.get(5, 0)) - 1.0 < tol);
+
+
+
+    Matrix<double> mat3 = range<double>(0.333333, 1.333333, 0.333333);
+
+    CHECK(mat3.getNumRows() == 3);
+    CHECK(mat3.getNumCols() == 1);
+
+    CHECK(abs(mat3.get(0, 0)) - 0.333333 < tol);
+    CHECK(abs(mat3.get(1, 0)) - 0.666666 < tol);
+    CHECK(abs(mat3.get(2, 0)) - 0.999999 < tol);
+}
+
+TEST_CASE("Matrix linspace()", "[Matrix]") {
+    double tol = 1e-15;
+
+    Matrix<int> mat = linspace<int>(0, 10, 10);
+
+    CHECK(mat.getNumRows() == 10);
+    CHECK(mat.getNumCols() == 1);
+    CHECK(mat.get(0, 0) == 0);
+    CHECK(mat.get(1, 0) == 1);
+    CHECK(mat.get(2, 0) == 2);
+    CHECK(mat.get(8, 0) == 8);
+    CHECK(mat.get(9, 0) == 9);
+
+
+
+    Matrix<double> mat2 = linspace<double>(0.0, 2.0, 8);
+
+    CHECK(mat2.getNumRows() == 8);
+    CHECK(mat2.getNumCols() == 1);
+    CHECK(abs(mat2.get(0,0)) < tol);
+    CHECK(abs(mat2.get(1,0) - 0.25) < tol);
+    CHECK(abs(mat2.get(2,0) - 0.5) < tol);
+    CHECK(abs(mat2.get(6,0) - 1.5) < tol);
+    CHECK(abs(mat2.get(7,0) - 1.75) < tol);
+
+
+}
+
 TEST_CASE("Matrix JSON serialization", "[Matrix]") {
     Matrix<double> mat(5, 3);
     mat.randomize(-5.0, 5.0);

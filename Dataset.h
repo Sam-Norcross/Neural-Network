@@ -166,6 +166,9 @@ public:
         }
 
         readFile.close();
+
+        independentMeans = zeros<T>(1, numFields);
+        independentStdDevs = zeros<T>(1, numFields);
     }
 
     // Constructor to create a dataset from Matrix objects for easy testing
@@ -191,13 +194,19 @@ public:
 
         dependentMean = 0;
         dependentStdDev = 0;
+
+        independentMeans = zeros<T>(1, numFields);
+        independentStdDevs = zeros<T>(1, numFields);
     }
 
-    Dataset(string* head, string depVar, Matrix<T> dataMat, Matrix<T> dependentMat, int entries, int fields, T depMean, T depStdDev) :
-            header(head), dependentVar(depVar), data(dataMat), dependent(dependentMat), numEntries(entries), numFields(fields),
-            dependentMean(depMean), dependentStdDev(depStdDev) {}
+    Dataset(string* head, string depVar, Matrix<T> dataMat, Matrix<T> dependentMat, int entries, int fields,
+                T depMean, T depStdDev, Matrix<T> indMean, Matrix<T> indStdDev) :
+                header(head), dependentVar(depVar), data(dataMat), dependent(dependentMat),
+                numEntries(entries), numFields(fields), dependentMean(depMean), dependentStdDev(depStdDev),
+                independentMeans(indMean), independentStdDevs(indStdDev) {}
 
-    Dataset() : header(nullptr), dependentVar(""), numEntries(0), numFields(0), dependentMean(0), dependentStdDev(0) {}
+    Dataset() : header(nullptr), dependentVar(""), numEntries(0), numFields(0), dependentMean(0), dependentStdDev(0),
+                independentMeans(zeros<T>(1, numFields)), independentStdDevs(zeros<T>(1, numFields)) {}
 
     // Copy constructor
     Dataset(const Dataset& other) {
@@ -209,6 +218,9 @@ public:
 
         dependentMean = other.dependentMean;
         dependentStdDev = other.dependentStdDev;
+
+        independentMeans = other.independentMeans;
+        independentStdDevs = other.independentStdDevs;
 
         header = new string[numFields];
         for (int i = 0; i < numFields; i++) {
@@ -236,6 +248,9 @@ public:
 
         dependentMean = other.dependentMean;
         dependentStdDev = other.dependentStdDev;
+
+        independentMeans = other.independentMeans;
+        independentStdDevs = other.independentStdDevs;
 
         header = new string[numFields];
         for (int i = 0; i < numFields; i++) {
@@ -267,11 +282,19 @@ public:
             return false;
         }
 
-        if (dependentMean != other.getDependentMean()) {
+        if (getDependentMean() != other.getDependentMean()) {
             return false;
         }
 
-        if (dependentStdDev != other.getDependentStdDev()) {
+        if (getDependentStdDev() != other.getDependentStdDev()) {
+            return false;
+        }
+
+        if (getIndependentMeans() != other.getIndependentMeans()) {
+            return false;
+        }
+
+        if (getIndependentStdDevs() != other.getIndependentStdDevs()) {
             return false;
         }
 
@@ -329,6 +352,14 @@ public:
         return dependentStdDev;
     }
 
+    Matrix<T> getIndependentMeans() const {
+        return independentMeans;
+    }
+
+    Matrix<T> getIndependentStdDevs() const {
+        return independentStdDevs;
+    }
+
     double getValue(string field, int entryIndex) {
         int fieldIndex = getFieldIndex(field);
         return data.get(entryIndex, fieldIndex);
@@ -351,6 +382,39 @@ public:
         return getColumn(fieldIndex);
     }
 
+    // // Normalize each variable to have mean 0 and standard deviation 1 (Z-scores)
+    // Dataset normalize() {
+    //     Dataset newDataset = *this;
+    //
+    //     Matrix<T> col;
+    //     for (int i = 0; i < newDataset.getData().getNumCols(); i++) {
+    //         col = newDataset.getData().getCol(i);
+    //         double colStdDev = stdDev(col);
+    //
+    //         if (colStdDev != 0) {
+    //             newDataset.getData().setCol(i, (col - mean(col)) / colStdDev);
+    //         }
+    //         else {
+    //             newDataset.getData().setCol(i, col - mean(col));  // Set column variable to all be 0s
+    //         }
+    //     }
+    //
+    //     T depMean = mean(dependent);
+    //     T depStdDev = stdDev(dependent);
+    //
+    //     newDataset.setDependentMean(depMean);
+    //     newDataset.setDependentStdDev(depStdDev);
+    //
+    //     if (depStdDev != 0) {
+    //         newDataset.getDependent() = (newDataset.getDependent() - depMean) / depStdDev;
+    //     }
+    //     else {
+    //         newDataset.getDependent() = newDataset.getDependent() - depMean;  // Set dependent variable to all be 0s
+    //     }
+    //
+    //     return newDataset;
+    // }
+
     // Normalize each variable to have mean 0 and standard deviation 1 (Z-scores)
     Dataset normalize() {
         Dataset newDataset = *this;
@@ -358,13 +422,18 @@ public:
         Matrix<T> col;
         for (int i = 0; i < newDataset.getData().getNumCols(); i++) {
             col = newDataset.getData().getCol(i);
+
+            double colMean = mean(col);
             double colStdDev = stdDev(col);
 
+            independentMeans.get(0, i) = colMean;
+            independentStdDevs.get(0, i) = colStdDev;
+
             if (colStdDev != 0) {
-                newDataset.getData().setCol(i, (col - mean(col)) / colStdDev);
+                newDataset.getData().setCol(i, (col - colMean) / colStdDev);
             }
             else {
-                newDataset.getData().setCol(i, col - mean(col));  // Set column variable to all be 0s
+                newDataset.getData().setCol(i, zeros<T>(numEntries, 1));  // Set column variable to all be 0s
             }
         }
 
@@ -384,6 +453,32 @@ public:
         return newDataset;
     }
 
+    // Apply dataset normalization to any input data of independent variables
+    Matrix<T> normalizeIndependent(Matrix<T> input) {
+        if (input.getNumCols() != getNumFields()) {
+            throw DatasetException("Could not normalize data with  " + to_string(input.getNumCols()) +
+                                    " fields when the dataset has " + to_string(getNumFields()) +
+                                    " independent variables.");
+        }
+
+        Matrix<T> scaledInput = input;
+        int scaledInputNumRows = scaledInput.getNumRows();
+
+        for (int i = 0; i < input.getNumCols(); i++) {
+            Matrix<T> col = input.getCol(i);
+            T colStdDev = independentStdDevs.get(0, i);
+
+            if (colStdDev != 0) {
+                scaledInput.setCol(i, (col - independentMeans.get(0, i)) / colStdDev);
+            }
+            else {
+                scaledInput.setCol(i, zeros<T>(scaledInputNumRows, 1));  // Set column variable to all be 0s
+            }
+        }
+
+        return scaledInput;
+    }
+
     // Reverses the normalization applied to the dependent variable to allow for meaningful NN predictions
     Matrix<T> rescaleDependent(Matrix<T> dep) {
         return dep * dependentStdDev + dependentMean;
@@ -401,6 +496,8 @@ private:
 
     T dependentMean;
     T dependentStdDev;
+    Matrix<T> independentMeans;
+    Matrix<T> independentStdDevs;
 
     int getFieldIndex(string fieldName) {
         for (int fieldIndex = 0; fieldIndex < numFields; fieldIndex++) {
@@ -421,17 +518,6 @@ private:
 
 };
 
-
-// string* header;     // Array with the names of each column
-// string dependentVar;    // Name of the dependent variable
-// Matrix<T> data;     // Contains the independent variables
-// Matrix<T> dependent;   // Dependent variable in the dataset
-// int numEntries;     // Number of data points (rows in the CSV)
-// int numFields;      // Number of fields (columns in the CSV)
-//
-// T dependentMean;
-// T dependentStdDev;
-
 // Functions to serialize and deserialize Dataset objects as JSON strings
 template <typename T>
 void to_json(nlohmann::json& j, const Dataset<T>& dataset) {
@@ -450,6 +536,8 @@ void to_json(nlohmann::json& j, const Dataset<T>& dataset) {
 
     j["dependentMean"] = dataset.getDependentMean();
     j["dependentStdDev"] = dataset.getDependentStdDev();
+    j["indpendentMeans"] = dataset.getIndependentMeans();
+    j["indpendentStdDevs"] = dataset.getIndependentStdDevs();
 
 }
 
@@ -462,9 +550,9 @@ void from_json(const nlohmann::json& j, Dataset<T>& dataset) {
         header[i] = j.at("header").at(i);
     }
 
-    dataset = Dataset<T>(header, j["dependentVar"], j["data"], j["dependent"],
-                        j["numEntries"], j["numFields"],
-                        j["dependentMean"], j["dependentStdDev"]);
+    dataset = Dataset<T>(header, j["dependentVar"], j["data"], j["dependent"], j["numEntries"],
+                    j["numFields"], j["dependentMean"], j["dependentStdDev"],
+                    j["indpendentMeans"], j["indpendentStdDevs"]);
 }
 
 

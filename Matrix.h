@@ -79,7 +79,7 @@ public:
 
     void setCol(int col, Matrix colMat) {
         if (colMat.getNumCols() != 1 || colMat.getNumRows() != getNumRows()) {
-            throw MatrixException("Matrix of dimensions" + colMat.dims() + " cannot be used as a column in a matrix of dimensions " + dims());
+            throw MatrixException("Matrix of dimensions " + colMat.dims() + " cannot be used as a column in a matrix of dimensions " + dims());
         }
 
         for (int r = 0; r < getNumRows(); r++) {

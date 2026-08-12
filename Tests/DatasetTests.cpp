@@ -129,8 +129,6 @@ TEST_CASE("Dataset normalization with TestData1", "[Dataset]") {
 
     Dataset newDataset = dataset.normalize();
 
-
-
     CHECK(newDataset.getColumn("Twos") == zeros);
     CHECK(newDataset.getColumn("Threes") == zeros);
     CHECK(newDataset.rescaleDependent(dataset.getDependent()) == onesMat);
@@ -164,6 +162,31 @@ TEST_CASE("Dataset normalization with TestData3", "[Dataset]") {
     Matrix zeros(11, 1, arr1);
 
     CHECK(dataset2.getColumn("Threes") == zeros);
+}
+
+TEST_CASE("Normalizing additional data with TestData1", "[Dataset]") {  // TODO--create a test like this for datasets where the std is not 0
+    string fileName = "Tests/TestDatasets/TestData1.csv";
+    Dataset<double> dataset(fileName, "Ones");
+
+    Matrix zerosMat = zeros<double>(3, 1);
+    Matrix onesMat = ones<double>(3, 1);
+
+    Dataset newDataset = dataset.normalize();
+
+    CHECK(newDataset.getColumn("Twos") == zerosMat);
+    CHECK(newDataset.getColumn("Threes") == zerosMat);
+    CHECK(newDataset.rescaleDependent(dataset.getDependent()) == onesMat);
+
+    double inputArr1[2] = {2, 3};
+    Matrix newInd1(1, 2, inputArr1);
+
+    CHECK(newDataset.normalizeIndependent(newInd1) == zeros<double>(1, 2));
+
+
+    double inputArr2[6] = {2, 3, 2, 3, 2, 3};
+    Matrix newInd2(3, 2, inputArr2);
+
+    CHECK(newDataset.normalizeIndependent(newInd2) == zeros<double>(3, 2));
 }
 
 TEST_CASE("Dataset equality", "[Dataset]") {

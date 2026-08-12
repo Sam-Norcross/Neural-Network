@@ -22,7 +22,6 @@ T bce(Matrix<T> predicted, Matrix<T> expected);
 template <typename T>
 Matrix<T> bceDerivative(Matrix<T> predicted, Matrix<T> expected);
 
-// TODO--add function to make predictions with trained dataset--maybe make feedForwardFull a private method and create a wrapper for predictions?
 // TODO--add functionality to save the trained NN to a file so it can be loaded and used for predictions without retraining
 // TODO--add functionality so that the learning rate can be adjusted as the model trains to increase speed?
 
@@ -30,15 +29,6 @@ Matrix<T> bceDerivative(Matrix<T> predicted, Matrix<T> expected);
 template <typename T>
 class NeuralNetwork {
 public:
-    // NeuralNetwork(string fileName, string depName, double learningRate, string cost) :
-    //         datasetFilePath(fileName), dataset(Dataset<T>(fileName, depName)), numLayers(0),
-    //         outputLayer(nullptr), inputLayer(nullptr), learningRate(learningRate), dataPartitioned(false), costType(cost) {
-    //
-    //     dataset = Dataset<T>(fileName, depName); // TODO--already handled in initializer list?
-    //
-    //     setCostFunction(cost);
-    // }
-
     NeuralNetwork(string fileName, string depName, double learningRate, string cost) :
             dataset(Dataset<T>(fileName, depName)), numLayers(0),
             outputLayer(nullptr), inputLayer(nullptr), learningRate(learningRate), dataPartitioned(false), costType(cost) {
@@ -46,7 +36,6 @@ public:
         setCostFunction(cost);
     }
 
-    // TODO--test this
     NeuralNetwork(Dataset<T> data, double learningRate, string cost) :
             dataset(data), numLayers(0), outputLayer(nullptr), inputLayer(nullptr), learningRate(learningRate),
             dataPartitioned(false), costType(cost) {
@@ -343,6 +332,7 @@ public:
 
             // Feed forward
             output = feedForwardFull(inputTrain);
+
             // cost = costFunction(output, outputTrain);
             // cout << cost << endl;
 
@@ -576,15 +566,6 @@ void checkMatrixDimensions(Matrix<double> actual, Matrix<double> expected, strin
     }
 }
 
-// // Difference
-// double difference(Matrix<double> actual, Matrix<double> expected) {
-//     checkMatrixDimensions(actual, expected);
-//     return actual - expected;
-// }
-//
-// double differenceDerivative(Matrix<double> actual, Matrix<double> expected) {
-//
-// }
 
 
 // RMSE

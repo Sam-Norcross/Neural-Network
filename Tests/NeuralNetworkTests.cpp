@@ -45,6 +45,27 @@ TEST_CASE("NeuralNetwork copy assignment operator", "[NeuralNetwork]") {
     CHECK(network == network2);
 }
 
+TEST_CASE("NeuralNetwork constructor with Dataset", "[NeuralNetwork]") {
+    int numPts = 1000;
+    Matrix xVals = linspace<double>(0, 10, numPts); // TODO--if there are too many data points, the network cost goes to infinity
+    Matrix yVals = 2 * xVals + 3;
+
+    Dataset dataset(xVals, yVals);
+
+    NeuralNetwork network(dataset, 0.01, "MSE");
+
+    // Copied from Linear Regression test
+    network.addLayer(1, "Linear");
+    network.partitionDataset(numPts - 1);
+
+    network.trainNetwork(4000);
+
+    double tol = 1e-16;
+    CHECK(network.trainingCost() < tol);
+    CHECK(network.validationCost() < tol);
+}
+
+
 TEST_CASE("NeuralNetwork JSON serialization", "[Layer]") {  // TODO--add test case to load prepared network and make predictions with it
     string filepath = "Datasets/BostonHousing.csv";
     NeuralNetwork<double> network(filepath, "medv", 0.01, "RMSE");

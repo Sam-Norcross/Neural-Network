@@ -34,9 +34,8 @@ public:
         weights.randomize();//-.1, .1);    // TODO--add another constructor that has limits for randomized values?
         // TODO--what is the best way to initialize the weights?
 
-        bias = zeros<T>(numNodes, 1);   // NEW--supposed to be the standard for bias initialization
-        // bias = Matrix<T>(numNodes, 1);
-        // bias.randomize();
+        bias = zeros<T>(numNodes, 1);   // Setting biases to 0 is the standard for bias initialization
+
 
         // Set activation functions
         if (activationType == "Linear") {

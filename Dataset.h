@@ -389,7 +389,7 @@ public:
         return dep * dependentStdDev + dependentMean;
     }
 
-
+    // TODO--add better functions to normalize and de-normalize dataset and other values that can be passed in (for use in NeuralNetwork)
 
 private:
     string* header;     // Array with the names of each column

@@ -164,7 +164,7 @@ TEST_CASE("Dataset normalization with TestData3", "[Dataset]") {
     CHECK(dataset2.getColumn("Threes") == zeros);
 }
 
-TEST_CASE("Normalizing additional data with TestData1", "[Dataset]") {  // TODO--create a test like this for datasets where the std is not 0
+TEST_CASE("Normalizing additional data with TestData1", "[Dataset]") {
     string fileName = "Tests/TestDatasets/TestData1.csv";
     Dataset<double> dataset(fileName, "Ones");
 
@@ -187,6 +187,38 @@ TEST_CASE("Normalizing additional data with TestData1", "[Dataset]") {  // TODO-
     Matrix newInd2(3, 2, inputArr2);
 
     CHECK(newDataset.normalizeIndependent(newInd2) == zeros<double>(3, 2));
+}
+
+TEST_CASE("Normalizing more complicated generic data", "[Dataset]") {
+
+    Matrix ind = zeros<double>(10, 3);
+    Matrix dep = zeros<double>(10, 1);
+
+    Matrix col0 = linspace<double>(0, 10, 10);
+    Matrix col1 = linspace<double>(1, 1.1, 10);
+    Matrix col2 = linspace<double>(10, 0, 10);
+
+    ind.setCol(0, col0);
+    ind.setCol(1, col1);
+    ind.setCol(2, col2);
+
+    dep.setCol(0, linspace<double>(-1, 9, 10));
+
+    Dataset dataset(ind, dep);
+
+    dataset = dataset.normalize();
+
+    Matrix indNormalized = dataset.normalizeIndependent(ind);
+
+    CHECK(dataset.getData() == indNormalized);
+
+    dataset.getData().display();
+    cout << endl;
+    ind.display();
+    cout<<endl;
+    indNormalized.display();
+
+
 }
 
 TEST_CASE("Dataset equality", "[Dataset]") {

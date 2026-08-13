@@ -114,7 +114,7 @@ public:
     }
 
     void randomize() {
-        randomize(-10.0, 10.0);
+        randomize(-1.0, 1.0);
     }
 
     // Assigns random values to all matrix elements
@@ -685,6 +685,13 @@ Matrix<T> operator/(U scalar, Matrix<T> mat) {
 }
 
 // Overloaded mathematical functions for Matrix() objects
+template <typename T>
+Matrix <T> abs(Matrix<T> mat) {
+    function absFunc = [](T x) {return abs(x);};
+    mat.map(absFunc);
+    return mat;
+}
+
 template <typename T, typename U>
 Matrix<T> pow(Matrix<T> mat, U exponent) {
     Matrix newMat = mat;

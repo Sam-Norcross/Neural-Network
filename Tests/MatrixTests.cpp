@@ -630,6 +630,16 @@ TEST_CASE("Matrix logarithms", "[Matrix]") {
     CHECK(log2(mat1) == log2Mat);
 }
 
+TEST_CASE("Matrix abs()", "[Matrix]") {
+    double arr1[12] = {-6, -5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5};
+    Matrix mat(3, 4, arr1);
+
+    double arr2[12] = {6, 5, 4, 3, 2, 1, 0, 1, 2, 3, 4, 5};
+    Matrix result(3, 4, arr2);
+
+    CHECK(abs(mat) == result);
+}
+
 TEST_CASE("Matrix ones(), zeros(), and fill()", "[Matrix]") {
     int onesArr[5] = {1, 1, 1, 1, 1};
     double zerosArr[6] = {0, 0, 0, 0, 0, 0};

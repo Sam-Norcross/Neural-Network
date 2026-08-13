@@ -34,6 +34,8 @@ public:
             outputLayer(nullptr), inputLayer(nullptr), learningRate(learningRate), dataPartitioned(false), costType(cost) {
 
         setCostFunction(cost);
+
+        dataset = dataset.normalize();
     }
 
     NeuralNetwork(Dataset<T> data, double learningRate, string cost) :
@@ -41,6 +43,7 @@ public:
             dataPartitioned(false), costType(cost) {
 
         setCostFunction(cost);
+        dataset = dataset.normalize();
 
     }
 
@@ -51,12 +54,14 @@ public:
                         outputLayer(nullptr), inputLayer(nullptr), learningRate(learningRate)  {
 
         setCostFunction(cost);
+        dataset = dataset.normalize();
 
-        // This constructor assumes dataPartitioned = true
-        inputTrain = inTrain;
-        outputTrain = outTrain;
-        inputValidate = inValidate;
-        outputValidate = outValidate;
+        if (dataPartitioned == true) {
+            inputTrain = inTrain;
+            outputTrain = outTrain;
+            inputValidate = inValidate;
+            outputValidate = outValidate;
+        }
 
     }
 
@@ -65,6 +70,7 @@ public:
                         outputLayer(nullptr), inputLayer(nullptr), learningRate(learningRate)  {
 
         setCostFunction(cost);
+        dataset = dataset.normalize();
 
     }
 
@@ -91,9 +97,6 @@ public:
 
     NeuralNetwork() : dataPartitioned(false), numLayers(0),
                         inputLayer(nullptr), outputLayer(nullptr), learningRate(0.0), costType("") {}
-
-    // NeuralNetwork() : datasetFilePath(""), dataPartitioned(false), numLayers(0),
-    //                     inputLayer(nullptr), outputLayer(nullptr), learningRate(0.0), costType("") {}
 
     ~NeuralNetwork() {
         // delete inputLayer;
@@ -383,10 +386,6 @@ public:
         dataPartitioned = true;
     }
 
-    // string getDatasetFilePath() const {
-    //     return datasetFilePath;
-    // }
-
     string getCostType() const {
         return costType;
     }
@@ -447,6 +446,10 @@ public:
         if (input.getNumRows() != dataset.getNumFields()) {
             throw NeuralNetworkException("Input matrix has incorrect dimensions.");
         }
+
+        input = dataset.normalizeIndependent(input.transpose()).transpose();
+        // Dataset.h uses row vectors as individual data points, but NeuralNetwork.h uses column vectors--transposing
+        // the row vector to a column vector and back corrects for this
 
         return feedForwardFull(input);
         // TODO--add different functions to not reset the temporary variables in each layer (zCurrent, etc.)

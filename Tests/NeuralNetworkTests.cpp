@@ -77,7 +77,7 @@ TEST_CASE("NeuralNetwork JSON serialization", "[Layer]") {  // TODO--add test ca
     NeuralNetwork<double> networkFromJSON = networkJSON.get<NeuralNetwork<double>>();
 
     CHECK(network == networkFromJSON);
-}
+}   // TODO--this doesn't work with Dataset normalizaion
 
 TEST_CASE("NeuralNetwork initialization and feed forward", "[NeuralNetwork]") {
     string filepath = "Datasets/BostonHousing.csv";
@@ -142,11 +142,25 @@ TEST_CASE("Identity with MSE", "[NeuralNetwork]") {
     network.addLayer(1, "Linear");
     network.partitionDataset(9);
 
-    network.trainNetwork(5000);
+    network.trainNetwork(3000);
 
     double tol = 1e-16;
     CHECK(network.trainingCost() < tol);
     CHECK(network.validationCost() < tol);
+
+    Matrix predictInput = linspace<double>(3, 8, 5).transpose();    // Transposed to a row vector
+
+    predictInput.display();
+    network.predict(predictInput).display();
+
+    Matrix predictionDiff = abs(network.predict(predictInput) - predictInput);
+
+    double diffTol = 1e-13;
+    CHECK(predictionDiff.get(0, 0) < diffTol);
+    CHECK(predictionDiff.get(0, 1) < diffTol);
+    CHECK(predictionDiff.get(0, 2) < diffTol);
+    CHECK(predictionDiff.get(0, 3) < diffTol);
+    CHECK(predictionDiff.get(0, 4) < diffTol);
 }
 
 // Known neural network test cases

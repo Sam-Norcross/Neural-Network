@@ -360,6 +360,14 @@ public:
         return independentStdDevs;
     }
 
+    Matrix<T>& getIndependentMeans() {
+        return independentMeans;
+    }
+
+    Matrix<T>& getIndependentStdDevs() {
+        return independentStdDevs;
+    }
+
     double getValue(string field, int entryIndex) {
         int fieldIndex = getFieldIndex(field);
         return data.get(entryIndex, fieldIndex);
@@ -426,8 +434,8 @@ public:
             double colMean = mean(col);
             double colStdDev = stdDev(col);
 
-            independentMeans.get(0, i) = colMean;
-            independentStdDevs.get(0, i) = colStdDev;
+            newDataset.getIndependentMeans().get(0, i) = colMean;
+            newDataset.getIndependentStdDevs().get(0, i) = colStdDev;
 
             if (colStdDev != 0) {
                 newDataset.getData().setCol(i, (col - colMean) / colStdDev);
@@ -443,12 +451,12 @@ public:
         newDataset.setDependentMean(depMean);
         newDataset.setDependentStdDev(depStdDev);
 
-        if (depStdDev != 0) {
-            newDataset.getDependent() = (newDataset.getDependent() - depMean) / depStdDev;
-        }
-        else {
-            newDataset.getDependent() = newDataset.getDependent() - depMean;  // Set dependent variable to all be 0s
-        }
+        // if (depStdDev != 0) {
+        //     newDataset.getDependent() = (newDataset.getDependent() - depMean) / depStdDev;
+        // }
+        // else {
+        //     newDataset.getDependent() = newDataset.getDependent() - depMean;  // Set dependent variable to all be 0s
+        // }
 
         return newDataset;
     }

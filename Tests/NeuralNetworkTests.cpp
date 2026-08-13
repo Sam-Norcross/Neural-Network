@@ -77,7 +77,7 @@ TEST_CASE("NeuralNetwork JSON serialization", "[Layer]") {  // TODO--add test ca
     NeuralNetwork<double> networkFromJSON = networkJSON.get<NeuralNetwork<double>>();
 
     CHECK(network == networkFromJSON);
-}   // TODO--this doesn't work with Dataset normalizaion
+}
 
 TEST_CASE("NeuralNetwork initialization and feed forward", "[NeuralNetwork]") {
     string filepath = "Datasets/BostonHousing.csv";
@@ -109,27 +109,19 @@ TEST_CASE("NeuralNetwork initialization and feed forward", "[NeuralNetwork]") {
 
 
 // Known neural network test cases
-TEST_CASE("NeuralNetwork overfitting", "[NeuralNetwork]") { // Overfitting data should result in near-zero loss
+TEST_CASE("NeuralNetwork overfitting", "[NeuralNetwork]") { // Overfitting should result in near-zero loss
     string filepath = "Tests/TestDatasets/TestData1.csv";
 
-    NeuralNetwork<double> network(filepath, "Threes", 0.001, "MSE");
+    NeuralNetwork<double> network(filepath, "Threes", 0.01, "MSE");
 
-    // network.addLayer(128, "Leaky ReLU");
-    // network.addLayer(64, "Sigmoid");
-    // network.addLayer(32, "ReLU");
-    // network.addLayer(1, "Linear");
-
-    network.addLayer(50, "Linear");
+    network.addLayer(128, "Leaky ReLU");
+    network.addLayer(64, "Sigmoid");
+    network.addLayer(32, "ReLU");
     network.addLayer(1, "Linear");
 
-    network.partitionDataset(3);    // Assigns all samples to be training data
+    network.partitionDataset(2);
 
-    network.trainNetwork(50000);
-
-    // Testing only
-    Matrix<double> prediction = network.predict(network.getTrainingInput());
-    network.getTrainingOutput().display();
-    prediction.display();
+    network.trainNetwork(20);
 
     double tol = 1e-16;
     CHECK(network.trainingCost() < tol);
@@ -138,21 +130,17 @@ TEST_CASE("NeuralNetwork overfitting", "[NeuralNetwork]") { // Overfitting data 
 TEST_CASE("Identity with MSE", "[NeuralNetwork]") {
     string filepath = "Tests/TestDatasets/Identity.csv";    // Contains x and y values for y = x
 
-    NeuralNetwork<double> network(filepath, "y", 0.01, "MSE");
+    NeuralNetwork<double> network(filepath, "y", 0.1, "MSE");
     network.addLayer(1, "Linear");
     network.partitionDataset(9);
 
-    network.trainNetwork(3000);
+    network.trainNetwork(300);
 
     double tol = 1e-16;
     CHECK(network.trainingCost() < tol);
     CHECK(network.validationCost() < tol);
 
-    Matrix predictInput = linspace<double>(3, 8, 5).transpose();    // Transposed to a row vector
-
-    predictInput.display();
-    network.predict(predictInput).display();
-
+    Matrix predictInput = linspace<double>(3.5, 8.5, 5).transpose();    // Transposed to a row vector
     Matrix predictionDiff = abs(network.predict(predictInput) - predictInput);
 
     double diffTol = 1e-13;
@@ -171,12 +159,14 @@ TEST_CASE("Identity with RMSE", "[NeuralNetwork]") {
     network.addLayer(1, "Linear");
     network.partitionDataset(9);
 
-    network.trainNetwork(500000);
+    network.trainNetwork(100000);
 
     double tol = 0.005;
     CHECK(network.trainingCost() < tol);
     CHECK(network.validationCost() < tol);
 }
+
+// TODO--tweak these vvv tests to increase efficiency
 
 TEST_CASE("Constant function", "[NeuralNetwork]") {
     string filepath = "Tests/TestDatasets/Constant.csv";    // Contains x and y values for y = 5

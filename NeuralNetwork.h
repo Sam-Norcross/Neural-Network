@@ -76,7 +76,6 @@ public:
 
     // Copy constructor
     NeuralNetwork(const NeuralNetwork& other) {
-        // datasetFilePath = other.getDatasetFilePath();
         dataset = other.getDataset();
         dataPartitioned = other.getDataPartitioned();
 

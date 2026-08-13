@@ -127,7 +127,7 @@ TEST_CASE("Matrix toString()", "{Matrix}") {
 
 }
 
-TEST_CASE("Matrix Equality", "[Matrix]") {
+TEST_CASE("Matrix equality", "[Matrix]") {
     int arr1[4] = {1, 2, 3, 4};
     Matrix mat1(2, 2, arr1);
     Matrix mat2(2, 2, arr1);
@@ -136,6 +136,15 @@ TEST_CASE("Matrix Equality", "[Matrix]") {
     int arr3[4] = {2, 2, 3, 4};
     Matrix mat3(2, 2, arr3);
     CHECK(mat1 != mat3);
+}
+
+TEST_CASE("Matrix numerical equality", "[Matrix]") {
+    Matrix mat1 = zeros<double>(100, 100);
+    Matrix mat2 = mat1;
+    mat2 += 1e-20;
+
+    CHECK(mat1 != mat2);
+    CHECK(numericalEquality(mat1, mat2));
 }
 
 TEST_CASE("Matrix comparison operators", "[Matrix]") {

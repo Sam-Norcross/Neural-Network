@@ -606,6 +606,18 @@ string to_string(Matrix<T> mat) {
     return matString;
 }
 
+// Checks if a matrix is equal to another to within a certain absolute tolerance
+template <typename T>
+bool numericalEquality(Matrix<T> mat1, Matrix<T> mat2, double tol) {
+    Matrix diff = abs(mat1 - mat2);
+    return diff < tol;
+}
+
+template <typename T>
+bool numericalEquality(Matrix<T> mat1, Matrix<T> mat2) {
+    return numericalEquality(mat1, mat2, 1e-16);
+}
+
 
 // Functions for easier matrix initialization
 template <typename T>

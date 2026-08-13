@@ -144,24 +144,20 @@ TEST_CASE("Dataset normalization with TestData3", "[Dataset]") {
 
     Dataset dataset2 = dataset.normalize();
 
-    CHECK(abs(mean(dataset2.getDependent())) < 1e-16);  // Allows for roundoff error
+    // CHECK(abs(mean(dataset2.getDependent())) < 1e-16);  // Allows for roundoff error
     CHECK(abs(mean(dataset2.getColumn("Twos"))) < 1e-16);
     CHECK(abs(mean(dataset2.getColumn("Threes"))) < 1e-16);
 
-    CHECK(abs(1 - stdDev(dataset2.getDependent())) < 1e-16);  // Allows for roundoff error
+    // CHECK(abs(1 - stdDev(dataset2.getDependent())) < 1e-16);  // Allows for roundoff error
     CHECK(abs(1 - stdDev(dataset2.getColumn("Twos"))) < 1e-16);
     CHECK(stdDev(dataset2.getColumn("Threes")) == 0);
 
-    Matrix rescaledDep = dataset2.rescaleDependent(dataset2.getDependent());
+    // Matrix rescaledDep = dataset2.rescaleDependent(dataset2.getDependent());
+    // CHECK(rescaledDep == dataDep);
 
-    CHECK(rescaledDep == dataDep);
+    Matrix zeroMat = zeros<double>(11, 1);
 
-
-
-    double arr1[11] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-    Matrix zeros(11, 1, arr1);
-
-    CHECK(dataset2.getColumn("Threes") == zeros);
+    CHECK(dataset2.getColumn("Threes") == zeroMat);
 }
 
 TEST_CASE("Normalizing additional data with TestData1", "[Dataset]") {
@@ -212,11 +208,8 @@ TEST_CASE("Normalizing more complicated generic data", "[Dataset]") {
 
     CHECK(dataset.getData() == indNormalized);
 
-    dataset.getData().display();
-    cout << endl;
-    ind.display();
-    cout<<endl;
-    indNormalized.display();
+    // TODO--add tests for normalizing the dependent data?
+
 
 
 }
@@ -237,6 +230,8 @@ TEST_CASE("Dataset equality", "[Dataset]") {
 TEST_CASE("Dataset JSON serializers", "[Dataset]") {
     string fileName = "Datasets/BostonHousing.csv";
     Dataset<double> dataset(fileName, "medv");
+
+    dataset = dataset.normalize();
 
     nlohmann::json datasetJSON = dataset;
 

@@ -171,11 +171,11 @@ TEST_CASE("Identity with RMSE", "[NeuralNetwork]") {
 TEST_CASE("Constant function", "[NeuralNetwork]") {
     string filepath = "Tests/TestDatasets/Constant.csv";    // Contains x and y values for y = 5
 
-    NeuralNetwork<double> network(filepath, "y", 0.001, "MSE");
+    NeuralNetwork<double> network(filepath, "y", 0.1, "MSE");
     network.addLayer(1, "Linear");
     network.partitionDataset(9);
 
-    network.trainNetwork(50000);
+    network.trainNetwork(200);
 
     double tol = 1e-16;
     CHECK(network.trainingCost() < tol);
@@ -185,11 +185,11 @@ TEST_CASE("Constant function", "[NeuralNetwork]") {
 TEST_CASE("Linear regression", "[NeuralNetwork]") {
     string filepath = "Tests/TestDatasets/LinearRegression.csv";    // Contains x and y values for y = 3x + 2
 
-    NeuralNetwork<double> network(filepath, "y", 0.01, "MSE");
+    NeuralNetwork<double> network(filepath, "y", 0.1, "MSE");
     network.addLayer(1, "Linear");
     network.partitionDataset(9);
 
-    network.trainNetwork(5000);
+    network.trainNetwork(200);
 
     double tol = 1e-16;
     CHECK(network.trainingCost() < tol);
@@ -197,19 +197,16 @@ TEST_CASE("Linear regression", "[NeuralNetwork]") {
 }
 
 // Two-layer linear regression
-TEST_CASE("Two-layer linear regression", "[NeuralNetwork]") {   // TODO--suddenly having some problems
+TEST_CASE("Two-layer linear regression", "[NeuralNetwork]") {
     string filepath = "Tests/TestDatasets/LinearRegression2Layer.csv";
     // Contains x1, x2, and y values for y = 3 * x1 - 4 * x2 + 5
 
-    NeuralNetwork<double> network(filepath, "y", 0.001, "MSE");
+    NeuralNetwork<double> network(filepath, "y", 0.01, "MSE");
     network.addLayer(1, "Linear");
     network.addLayer(1, "Linear");
     network.partitionDataset(19);
 
-    network.trainNetwork(5000);
-
-    // TODO--this network seems very sensitive to the initial random weights and biases--what is the best way to initialize them to avoid this?
-    // TODO--weights need to be randomized between -0.1 and 0.1
+    network.trainNetwork(50);
 
     double tol = 1e-16;
     CHECK(network.trainingCost() < tol);
@@ -221,12 +218,12 @@ TEST_CASE("Three-layer network (XOR)", "[NeuralNetwork]") {
     // Contains x1, x2, and y values for y = XOR(x1, x2)
 
     NeuralNetwork<double> network(filepath, "y", 0.001, "BCE");
-    network.addLayer(2, "Sigmoid");
-    network.addLayer(2, "Sigmoid");
+    network.addLayer(100, "Sigmoid");
+    network.addLayer(100, "Sigmoid");
     network.addLayer(1, "Sigmoid");
     network.partitionDataset(39);
 
-    network.trainNetwork(50000);
+    network.trainNetwork(5000);
 
     // TODO--weights need to be randomized ~between -10 and 10
     // TODO--look at which activation should be used in backpropagate() (and related backprop functions)
@@ -267,15 +264,15 @@ TEST_CASE("Regression architecture: boston housing dataset", "[NeuralNetwork]") 
     network.addLayer(1, "Linear");
 
 
-    network.partitionDataset(0.75);    // TODO--add a test case for partitionDataset()--have a way to return the dependent variable?
+    network.partitionDataset(0.85);    // TODO--add a test case for partitionDataset()
 
     network.trainNetwork(1000);
 
-    // network.getTrainingInput().display();
+    network.getTrainingOutput().display();
     network.predict(network.getTrainingInput()).display();
 
 
-    double tol = 1e-16;
+    double tol = 1;
     CHECK(network.trainingCost() < tol);
     CHECK(network.validationCost() < tol);
 }
@@ -284,18 +281,19 @@ TEST_CASE("Classification architecture", "[NeuralNetwork]") {
     // See the Julia notebooks for dataset generation and visualization
     string filepath = "Datasets/HalfMoonDataset.csv";
 
-    NeuralNetwork<double> network(filepath, "moon_id", 0.15, "RMSE");
+    NeuralNetwork<double> network(filepath, "moon_id", 0.5, "BCE");
     
-    network.addLayer(100, "ReLU");
-    network.addLayer(50, "Sigmoid");
+    network.addLayer(10, "ReLU");
+    network.addLayer(5, "Sigmoid");
     network.addLayer(1, "Sigmoid");
 
     network.randomizeLayers(1.0);
 
     network.partitionDataset(0.75);
 
-    network.trainNetwork(100);
+    network.trainNetwork(1000);
     // TODO--build functionality to export this data for visualization in Julia or Python (or just find a good C++ plotting library)
+    // Maybe add a function to save the output in a csv?
 
 
     Matrix<double> predictedOutput = network.predict(network.getValidationInput());

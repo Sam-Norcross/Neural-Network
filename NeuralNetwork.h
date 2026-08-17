@@ -34,7 +34,6 @@ public:
             outputLayer(nullptr), inputLayer(nullptr), learningRate(learningRate), dataPartitioned(false), costType(cost) {
 
         setCostFunction(cost);
-
         dataset = dataset.normalize();
     }
 
@@ -44,7 +43,6 @@ public:
 
         setCostFunction(cost);
         dataset = dataset.normalize();
-
     }
 
     // For JSON deserialization
@@ -451,6 +449,8 @@ public:
         // the row vector to a column vector and back corrects for this
 
         return feedForwardFull(input);
+
+
         // TODO--add different functions to not reset the temporary variables in each layer (zCurrent, etc.)
     }
 

@@ -509,6 +509,35 @@ public:
         return scaledInput;
     }
 
+    Matrix<T> rescaleIndependent(Matrix<T> input) { // TODO--add a test case for this
+        if (input.getNumCols() != getNumFields()) {
+            throw DatasetException("Could not rescale data with  " + to_string(input.getNumCols()) +
+                                    " fields when the dataset has " + to_string(getNumFields()) +
+                                    " independent variables.");
+        }
+
+        Matrix<T> scaledInput = input;
+        int scaledInputNumRows = scaledInput.getNumRows();
+
+        for (int i = 0; i < input.getNumCols(); i++) {
+            Matrix<T> col = input.getCol(i);
+            T colStdDev = independentStdDevs.get(0, i);
+
+            if (colStdDev != 0) {
+                // scaledInput.setCol(i, (col - independentMeans.get(0, i)) / colStdDev);
+
+                scaledInput.setCol(i, col * colStdDev + independentMeans.get(0, i));
+            }
+            else {
+                // scaledInput.setCol(i, zeros<T>(scaledInputNumRows, 1));  // Set column variable to all be 0s
+
+                scaledInput.setCol(i, fill<T>(scaledInputNumRows, 1, independentMeans.get(0, i)));
+            }
+        }
+
+        return scaledInput;
+    }
+
     // Reverses the normalization applied to the dependent variable to allow for meaningful NN predictions
     Matrix<T> rescaleDependent(Matrix<T> dep) {
         return dep * dependentStdDev + dependentMean;

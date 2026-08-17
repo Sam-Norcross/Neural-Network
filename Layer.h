@@ -18,6 +18,8 @@ template <typename T> Matrix<T> leakyRelu(Matrix<T> input);
 template <typename T> Matrix<T> leakyReluDerivative(Matrix<T> input);
 template <typename T> Matrix<T> sigmoid(Matrix<T> input);
 template <typename T> Matrix<T> sigmoidDerivative(Matrix<T> input);
+template <typename T> Matrix<T> tanh(Matrix<T> input);
+template <typename T> Matrix<T> tanhDerivative(Matrix<T> input);
 
 
 
@@ -53,14 +55,18 @@ public:
         else if (activationType == "Sigmoid") {
             activation = sigmoid;
             activationDerivative = sigmoidDerivative;
-        } // TODO--add more here
-        else {
+        }
+        else if (activationType == "tanh") {
+            activation = tanh;
+            activationDerivative = tanhDerivative;
+        }
+        else {  // TODO--add more here
             throw LayerException("Activation function type '" + activationType + "' is unknown.");
         }
     }
 
     Layer() : numNodes(0), prevNumNodes(0), nextLayer(nullptr), previousLayer(nullptr),
-                activationType("TEST--Layer() constructor"), activation(nullptr), activationDerivative(nullptr) {}
+                activationType("None--Layer() constructor"), activation(nullptr), activationDerivative(nullptr) {}
 
     // Copy constructor
     Layer(const Layer& other) {
@@ -179,38 +185,12 @@ public:
     }
 
     void backpropagateFirstLayer(Matrix<T> input) {   // Called after backpropagate() for the first layer in the network
-
-        // cout << "First layer:" << endl;
-        // cout << "Weights: ";
-        // weights.display();
-        // cout << "Bias: ";
-        // bias.display();
-        // cout << "zCurrent: ";
-        // zCurrent.display();
-        // cout << endl;
-
         Matrix<T> dCda = (nextLayer->getWeights()).transpose().matMul(nextLayer->getDelta());
         deltaCurrent = dCda * activationDerivative(zCurrent);
         // deltaCurrent = dCda * nextLayer->getActivationDerivative()(zCurrent); // TODO
 
         weightGradient = deltaCurrent.matMul(input.transpose());
         biasGradient = deltaCurrent.sumToColVec();
-        // weights -= learningRate * deltaCurrent.matMul(input.transpose());
-        // bias -= learningRate * deltaCurrent.sumToColVec();
-
-
-        // cout << "Weight gradient: ";
-        // deltaCurrent.matMul(input.transpose()).display();
-        // cout << "Bias gradient: ";
-        // deltaCurrent.sumToColVec().display();
-        // cout << endl;
-        //
-        // cout << "deltaCurrent: ";
-        // deltaCurrent.display();
-        // cout << "input: ";
-        // input.display();
-        //
-        // cout << endl << "--------------" << endl << endl;
     }
 
     void backpropagateSingleLayer(Matrix<T> input, Matrix<T> costDerivative) {   // Backpropagation for a network with a single layer
@@ -235,10 +215,6 @@ public:
         weights -= learningRate * weightGradient;
         bias -= learningRate * biasGradient;
 
-        // cout << "Weight gradient:\n";
-        // weightGradient.display();
-        // cout << "Bias gradient:\n";
-        // biasGradient.display();
     }
 
     int getNumNodes() const {
@@ -314,14 +290,6 @@ private:
     Matrix<T> biasGradient;
 
 protected:
-    // Matrix<T> getActivation() const {
-    //     return activation;
-    // }
-
-    // Matrix<T> getActivationDerivative() const {
-    //     return activationDerivative();
-    // }
-
     Matrix<T> (*getActivation() const)(Matrix<T>) {
         return activation;
     }
@@ -471,4 +439,17 @@ Matrix<T> sigmoid(Matrix<T> input) {
 template <typename T>
 Matrix<T> sigmoidDerivative(Matrix<T> input) {
     return sigmoid(input) * (1.0 - sigmoid(input));
+}
+
+
+
+// tanh
+template <typename T>
+Matrix<T> tanh(Matrix<T> input) {
+    return (exp(input) - exp(-input)) / (exp(input) + exp(-input));
+}
+
+template <typename T>
+Matrix<T> tanhDerivative(Matrix<T> input) {
+    return 1.0 - pow(tanh(input), 2);
 }

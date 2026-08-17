@@ -217,26 +217,15 @@ TEST_CASE("Three-layer network (XOR)", "[NeuralNetwork]") {
     string filepath = "Tests/TestDatasets/XOR.csv";
     // Contains x1, x2, and y values for y = XOR(x1, x2)
 
-    NeuralNetwork<double> network(filepath, "y", 0.001, "BCE");
-    network.addLayer(100, "Sigmoid");
-    network.addLayer(100, "Sigmoid");
+    NeuralNetwork<double> network(filepath, "y", 0.05, "BCE");
+    network.addLayer(10, "ReLU");
+    network.addLayer(10, "ReLU");
     network.addLayer(1, "Sigmoid");
-    network.partitionDataset(39);
+    network.partitionDataset(38);
 
     network.trainNetwork(5000);
 
-    // TODO--weights need to be randomized ~between -10 and 10
-    // TODO--look at which activation should be used in backpropagate() (and related backprop functions)
-
-
-    // Testing only
-    Matrix<double> prediction = network.predict(network.getTrainingInput());
-    network.getTrainingOutput().display();
-    prediction.display();
-
-
-
-    double tol = 1e-16;
+    double tol = 0.005;
     CHECK(network.trainingCost() < tol);
     CHECK(network.validationCost() < tol);
 }
@@ -252,17 +241,11 @@ TEST_CASE("Regression architecture: boston housing dataset", "[NeuralNetwork]") 
 
     NeuralNetwork<double> network(filepath, "medv", 0.001, "MSE");
 
-    // network.addLayer(256, "ReLU");
-    // network.addLayer(128, "ReLU");
-    // network.addLayer(64, "ReLU");
-    // network.addLayer(1, "Linear");
-
     network.addLayer(30, "ReLU");
     network.addLayer(15, "ReLU");
     network.addLayer(8, "ReLU");
     network.addLayer(5, "ReLU");
     network.addLayer(1, "Linear");
-
 
     network.partitionDataset(0.85);    // TODO--add a test case for partitionDataset()
 

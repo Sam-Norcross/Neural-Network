@@ -64,6 +64,17 @@ TEST_CASE("Read LinearRegression2Layer", "[Dataset]") {
     CHECK(dataset.getNumFields() == 2);
 }
 
+TEST_CASE("Unknown dependent variable", "[Dataset]") {
+    string fileName1 = "Tests/TestDatasets/TestData1.csv";
+    string fileName2 = "Tests/TestDatasets/TestData2.csv";
+    string fileName3 = "Datasets/BostonHousing.csv";
+    Dataset<double> dataset;
+
+    CHECK_THROWS(dataset = Dataset<double>(fileName1, "AAA"));
+    CHECK_THROWS(dataset = Dataset<double>(fileName2, "Column four"));
+    CHECK_THROWS(dataset = Dataset<double>(fileName3, "aaa"));
+}
+
 TEST_CASE("Dataset accessors", "[Dataset]") {
     string fileName = "Tests/TestDatasets/TestData1.csv";;
     Dataset<double> dataset(fileName, "Twos");

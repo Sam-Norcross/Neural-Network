@@ -260,6 +260,31 @@ TEST_CASE("Regression architecture: boston housing dataset", "[NeuralNetwork]") 
     CHECK(network.validationCost() < tol);
 }
 
+TEST_CASE("Regression architecture: mileage dataset", "[NeuralNetwork]") {
+    string filepath = "Datasets/auto-mpg.csv";
+
+    NeuralNetwork<double> network(filepath, "mpg", 0.01, "MSE");
+    // TODO--no error is thrown if an incorrect dependent name is entered
+
+    // network.addLayer(30, "ReLU");
+    network.addLayer(15, "ReLU");
+    network.addLayer(8, "ReLU");
+    network.addLayer(5, "ReLU");
+    network.addLayer(1, "Linear");
+
+    network.partitionDataset(0.85);
+
+    network.trainNetwork(10000);
+
+    network.getTrainingOutput().display();
+    network.predict(network.getTrainingInput()).display();
+
+
+    double tol = 1;
+    CHECK(network.trainingCost() < tol);
+    CHECK(network.validationCost() < tol);
+}
+
 TEST_CASE("Classification architecture", "[NeuralNetwork]") {
     // See the Julia notebooks for dataset generation and visualization
     string filepath = "Datasets/HalfMoonDataset.csv";

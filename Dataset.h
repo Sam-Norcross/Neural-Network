@@ -111,6 +111,15 @@ public:
             }
         }
 
+        cout << "depInd: " << depInd << endl;
+        cout << depName << endl;
+        cout << endl;
+
+        if (depInd == -1) {
+            delete [] header;
+            throw DatasetException("The dependent variable '" + depName + "' is not listed in the .csv file");
+        }
+
         // Iterate through data entries and store in the appropriate arrays
         data = Matrix<T>(numEntries, numFields);
         dependent = Matrix<T>(numEntries, 1);

@@ -1,5 +1,6 @@
 #include <iostream>
 #include <string>
+#include <fstream>
 #include <nlohmann/json.hpp>
 
 #include "Matrix.h"
@@ -105,7 +106,6 @@ public:
             return *this;
         }
 
-        // datasetFilePath = other.getDatasetFilePath();
         dataset = other.getDataset();
         dataPartitioned = other.getDataPartitioned();
 
@@ -122,15 +122,14 @@ public:
         outputLayer = other.getOutputLayer();
         learningRate = other.getLearningRate();
 
+        // TODO--do these work as expected?
+        costFunction = other.getCostFunction();
+        costFunctionDerivative = other.getCostFunctionDerivative();
+
         return *this;
     }
 
     bool operator==(const NeuralNetwork& other) const {
-        // TODO--refactor so that the dataset filepath isn't necessary to run the network--it could probably be removed entirely
-        // if (datasetFilePath != other.getDatasetFilePath()) {
-        //     return false;
-        // }
-
         if (dataset != other.getDataset()) {
             return false;
         }
@@ -415,7 +414,7 @@ public:
         return outputValidate;
     }
 
-    Matrix<T> (*getCostFunction() const)(Matrix<T>, Matrix<T>) {
+   T (*getCostFunction() const)(Matrix<T>, Matrix<T>) {
         return costFunction;
     }
 
@@ -454,8 +453,35 @@ public:
         // TODO--add different functions to not reset the temporary variables in each layer (zCurrent, etc.)
     }
 
+    void save(string filename) const {
+        nlohmann::json networkJSON = *this;
+
+        ofstream outFile(filename);
+
+        outFile << networkJSON;
+
+        outFile.close();
+    }
+
+    // For loading a NeuralNetwork from a JSON file
+    void load(string jsonFilename) {
+
+
+        ifstream inFile(jsonFilename);
+
+        if (!inFile.is_open()) {
+            throw NeuralNetworkException("Unable to open file " + jsonFilename);
+        }
+
+        stringstream buffer;
+        buffer << inFile.rdbuf();
+        string JSONstring = buffer.str();
+        nlohmann::json networkJSON = nlohmann::json::parse(JSONstring);
+
+        *this = networkJSON;
+    }
+
 private:
-    // string datasetFilePath;
     Dataset<T> dataset;
 
     string costType;

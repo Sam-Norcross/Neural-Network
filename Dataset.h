@@ -115,7 +115,7 @@ public:
         cout << depName << endl;
         cout << endl;
 
-        if (depInd == -1) {
+        if (depInd == -1) { // TODO--this doesn't always handle the issue
             delete [] header;
             throw DatasetException("The dependent variable '" + depName + "' is not listed in the .csv file");
         }

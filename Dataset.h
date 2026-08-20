@@ -100,12 +100,20 @@ public:
                     fieldLength = 0;
                 }
 
-            } else if (startIndex + fieldLength == tokenStringLength) {  // If the end of the string is reached, add the rest to tokens
+            } else if (startIndex + fieldLength == tokenStringLength) {  // If the end of the string is reached, add the rest to header
+
+                // header[fieldIndex] = line.substr(startIndex, fieldLength);
+                //
+                // if (fieldIndex == numFields && line.substr(startIndex, fieldLength) == depName) {
+                //     depInd = fieldIndex;
+                // }
 
                 if (fieldIndex < numFields) {
                     header[fieldIndex] = line.substr(startIndex, fieldLength);
-                } else {
+                }
+                else if (fieldIndex == numFields && line.substr(startIndex, fieldLength) == depName) {
                     depInd = fieldIndex;
+                    header[fieldIndex] = line.substr(startIndex, fieldLength);
                 }
 
             }
@@ -115,7 +123,8 @@ public:
         cout << depName << endl;
         cout << endl;
 
-        if (depInd == -1) { // TODO--this doesn't always handle the issue
+        // If the dependent variable wasn't found, throw an error
+        if (depInd == -1) {
             delete [] header;
             throw DatasetException("The dependent variable '" + depName + "' is not listed in the .csv file");
         }

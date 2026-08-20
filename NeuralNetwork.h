@@ -463,23 +463,22 @@ public:
         outFile.close();
     }
 
-    // For loading a NeuralNetwork from a JSON file
-    void load(string jsonFilename) {
-
-
-        ifstream inFile(jsonFilename);
-
-        if (!inFile.is_open()) {
-            throw NeuralNetworkException("Unable to open file " + jsonFilename);
-        }
-
-        stringstream buffer;
-        buffer << inFile.rdbuf();
-        string JSONstring = buffer.str();
-        nlohmann::json networkJSON = nlohmann::json::parse(JSONstring);
-
-        *this = networkJSON;
-    }
+    // For loading a NeuralNetwork from a JSON file--OLD--using loadNetwork() is preferred
+    // void load(string jsonFilename) {
+    //
+    //     ifstream inFile(jsonFilename);
+    //
+    //     if (!inFile.is_open()) {
+    //         throw NeuralNetworkException("Unable to open file " + jsonFilename);
+    //     }
+    //
+    //     stringstream buffer;
+    //     buffer << inFile.rdbuf();
+    //     string JSONstring = buffer.str();
+    //     nlohmann::json networkJSON = nlohmann::json::parse(JSONstring);
+    //
+    //     *this = networkJSON;
+    // }
 
 private:
     Dataset<T> dataset;
@@ -583,6 +582,24 @@ void from_json(const nlohmann::json& j, NeuralNetwork<T>& network) {
         Layer<T> *newLayer = new Layer<T>(j.at("layers").at(i).get<Layer<T>>());
         network.addLayer(newLayer);
     }
+}
+
+// For loading a NeuralNetwork from a JSON file
+template <typename T>
+NeuralNetwork<T> loadNetwork(string jsonFilename) {
+
+    ifstream inFile(jsonFilename);
+
+    if (!inFile.is_open()) {
+        throw NeuralNetworkException("Unable to open file " + jsonFilename);
+    }
+
+    stringstream buffer;
+    buffer << inFile.rdbuf();
+    string JSONstring = buffer.str();
+    nlohmann::json networkJSON = nlohmann::json::parse(JSONstring);
+
+    return networkJSON;
 }
 
 

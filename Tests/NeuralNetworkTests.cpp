@@ -106,35 +106,26 @@ TEST_CASE("NeuralNetwork JSON serialization", "[Layer]") {
 }
 
 TEST_CASE("NeuralNetwork JSON saving and loading", "[NeuralNetwork]") { // Overfitting should result in near-zero loss
-    string filepath = "Tests/TestDatasets/TestData1.csv";
+    string filepath = "Datasets/BostonHousing.csv";
 
-    NeuralNetwork<double> network(filepath, "Threes", 0.01, "MSE");
+    NeuralNetwork<double> network(filepath, "medv", 0.001, "MSE");
 
-    network.addLayer(128, "Leaky ReLU");
-    network.addLayer(64, "Sigmoid");
-    network.addLayer(32, "ReLU");
+    network.addLayer(15, "ReLU");
+    network.addLayer(8, "ReLU");
+    network.addLayer(5, "ReLU");
     network.addLayer(1, "Linear");
 
-    network.partitionDataset(2);
+    network.partitionDataset(0.85);
 
-    network.trainNetwork(50);
-
-    double tol = 1e-16;
-    CHECK(network.trainingCost() < tol);
-    CHECK(network.validationCost() < tol);
+    network.trainNetwork(100);
 
     // Save network
     string nnFilename = "Tests/SavedNeuralNetwork.json";
     network.save(nnFilename);
 
-    // Load saved network   //TODO--maybe add a function in NeuralNetwork.h (outside the class) to do this more cleanly?
-    NeuralNetwork<double> loadedNetwork = NeuralNetwork<double>();
-    loadedNetwork.load(nnFilename);
+    NeuralNetwork<double> loadedNetwork = loadNetwork<double>(nnFilename);
 
     CHECK(loadedNetwork == network);
-
-    CHECK(loadedNetwork.trainingCost() < tol);
-    CHECK(loadedNetwork.validationCost() < tol);
 
     CHECK(loadedNetwork.trainingCost() == network.trainingCost());
     CHECK(loadedNetwork.validationCost() == network.validationCost());

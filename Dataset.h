@@ -59,6 +59,11 @@ public:
         readFile.open(filePath);
         getline(readFile, line);
 
+        // Remove new line character so that files are read in the same way on both Mac and Windows
+        if (!line.empty() && line.back() == '\r') {
+            line.pop_back();
+        }
+
         // Save header line
         header = new string[numFields];
         int fieldIndex = 0;
@@ -68,64 +73,40 @@ public:
 
         int depInd = -1;    // Column index of the dependent variable column
 
-        for (char c : line) {
-            fieldLength++;
+        // Read header
+        string currentField = "";
+        for (int i = 0; i < line.length(); i++) {
+            char c = line[i];
 
-            // Handles quotes in the header
-            if (c == '"') {
-                // Remove quotes from the string
-                if (!quotes) {  // Start of the quote
-                    startIndex += 1;
+            // If a comma of the end of the line is reached, add currentField to header
+            if ((c == ',' && !quotes) || i == line.length() - 1) {
+
+                if (i == line.length() - 1 && c != '\"') {
+                    currentField += c;
                 }
-                fieldLength -= 1;
 
+                // If currentField is the dependent variable, record its index
+                if (currentField == depName) {
+                    depInd = fieldIndex;
+                    currentField = "";
+                }
+                else {  // Otherwise, add currentField to the header
+                    header[fieldIndex] = currentField;
+                    currentField = "";
+                    fieldIndex++;
+                }
+
+            }
+            else if (c == '\"') { // Handles quotes in the header
                 quotes = !quotes;
             }
-
-            int tokenStringLength = line.length();
-
-            if (c == ',' || (isspace(c) && !quotes)) {
-                string field = line.substr(startIndex, fieldLength - 1);
-
-                if (field == dependentVar) {
-                    startIndex += fieldLength;
-                    fieldLength = 0;
-
-                    depInd = fieldIndex;
-                } else {
-                    header[fieldIndex] = line.substr(startIndex, fieldLength - 1);
-
-                    fieldIndex++;
-                    startIndex += fieldLength;
-                    fieldLength = 0;
-                }
-
-            } else if (startIndex + fieldLength == tokenStringLength) {  // If the end of the string is reached, add the rest to header
-
-                // header[fieldIndex] = line.substr(startIndex, fieldLength);
-                //
-                // if (fieldIndex == numFields && line.substr(startIndex, fieldLength) == depName) {
-                //     depInd = fieldIndex;
-                // }
-
-                if (fieldIndex < numFields) {
-                    header[fieldIndex] = line.substr(startIndex, fieldLength);
-                }
-                else if (fieldIndex == numFields && line.substr(startIndex, fieldLength) == depName) {
-                    depInd = fieldIndex;
-                    header[fieldIndex] = line.substr(startIndex, fieldLength);
-                }
-
+            else {
+                currentField += c;
             }
         }
 
-        cout << "depInd: " << depInd << endl;
-        cout << depName << endl;
-        cout << endl;
-
         // If the dependent variable wasn't found, throw an error
         if (depInd == -1) {
-            delete [] header;
             throw DatasetException("The dependent variable '" + depName + "' is not listed in the .csv file");
         }
 
@@ -165,7 +146,7 @@ public:
                         depFound = true;
                     }
                     else {
-                        data.get(lineNum, fieldIndex) = castString(line.substr(startIndex, fieldLength - 1)); // TODO--here
+                        data.get(lineNum, fieldIndex) = castString(line.substr(startIndex, fieldLength - 1));
 
                         fieldIndex++;
                     }
@@ -463,7 +444,7 @@ public:
     Dataset normalize() {   // TODO--make this a void function so it doesn't copy the data each time?
         Dataset newDataset = *this;
 
-        if (getDatasetNormalized() == false) {   // TODO--print some message if true?
+        if (getDatasetNormalized() == false) {
             Matrix<T> col;
             for (int i = 0; i < newDataset.getData().getNumCols(); i++) {
                 col = newDataset.getData().getCol(i);
@@ -496,6 +477,8 @@ public:
             // }
 
             newDataset.setDatasetNormalized(true);
+        } else {
+            cout << "Dataset is already normalized." << endl;
         }
 
         return newDataset;

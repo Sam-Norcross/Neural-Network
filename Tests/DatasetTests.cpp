@@ -34,10 +34,10 @@ TEST_CASE("TestData1 read", "[Dataset]") {
 
 }
 
-TEST_CASE("TestData2 read", "[Dataset]") {  // TODO--FIX THIS!
+TEST_CASE("TestData2 read", "[Dataset]") {
     string fileName = "Tests/TestDatasets/TestData2.csv";
 
-    Dataset<double> dataset(fileName, "\"Column two\""); //depName = "\"Column one\"" works fine, "\"Column two\"" doesn't
+    Dataset<double> dataset(fileName, "Column two");
 
     CHECK(dataset.getNumEntries() == 3);
     CHECK(dataset.getNumFields() == 1);
@@ -73,12 +73,6 @@ TEST_CASE("Unknown dependent variable", "[Dataset]") {
     CHECK_THROWS(Dataset<double>(fileName1, "AAA"));
     CHECK_THROWS(Dataset<double>(fileName2, "Column four"));
     CHECK_THROWS(Dataset<double>(fileName3, "12345"));
-
-
-    // cout << endl << endl << endl;
-    // Dataset<double> dataset(fileName3, "12345");
-
-    // dataset.getDependent().display();
 }
 
 TEST_CASE("Dataset accessors", "[Dataset]") {

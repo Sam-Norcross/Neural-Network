@@ -33,8 +33,7 @@ public:
         // actFunc is the activation function, actDer is the derivative of the activation function
 
         weights = Matrix<T>(numNodes, previousNodes);
-        weights.randomize();//-.1, .1);    // TODO--add another constructor that has limits for randomized values?
-        // TODO--what is the best way to initialize the weights?
+        weights.randomize();    // TODO--adjust limits? maybe based on the activation?
 
         bias = zeros<T>(numNodes, 1);   // Setting biases to 0 is the standard for bias initialization
 
@@ -82,11 +81,6 @@ public:
 
         nextLayer = other.nextLayer;
         previousLayer = other.previousLayer;
-
-        // TODO--not needed?
-        // aCurrent = other.aCurrent;
-        // zCurrent = other.zCurrent;
-        // deltaCurrent = other.deltaCurrent;
     }
 
     ~Layer() {
@@ -111,11 +105,6 @@ public:
         nextLayer = other.getNextLayer();
         previousLayer = other.getPreviousLayer();
 
-        // TODO--probably not needed?
-        // aCurrent = other.getA();
-        // zCurrent = other.getZ();
-        // deltaCurrent = other.getDelta();
-
         return *this;
     }
 
@@ -134,20 +123,6 @@ public:
         if (getActivationType() != other.getActivationType()) {
             return false;
         }
-
-        // if (getNextLayer() != other.getNextLayer()) {
-        //     return false;
-        // }
-        //
-        // if (getPreviousLayer() != other.getPreviousLayer()) {
-        //     return false;
-        // }
-
-        // TODO--aCurrent, zCurrent, and deltaCurrent don't need to be checked because they are only stored temporarily
-        // // a = activation(z)
-        // Matrix<T> aCurrent; // Current pre-activation result of the feed forward process
-        // Matrix<T> zCurrent; // Current result of the feed forward process from this node
-        // Matrix<T> deltaCurrent; // Intermediate step for backprop, saved to pass to next layer
 
         return true;
     }

@@ -23,7 +23,6 @@ T bce(Matrix<T> predicted, Matrix<T> expected);
 template <typename T>
 Matrix<T> bceDerivative(Matrix<T> predicted, Matrix<T> expected);
 
-// TODO--add functionality to save the trained NN to a file so it can be loaded and used for predictions without retraining
 // TODO--add functionality so that the learning rate can be adjusted as the model trains to increase speed?
 
 
@@ -48,12 +47,15 @@ public:
 
     // For JSON deserialization
     NeuralNetwork(Dataset<T> data, string cost, bool dataPartitioned, Matrix<T> inTrain, Matrix<T> outTrain,
-                    Matrix<T> inValidate, Matrix<T> outValidate, double learningRate) :
+                    Matrix<T> inValidate, Matrix<T> outValidate, double learningRate, bool norm) :
                         dataset(data), costType(cost), dataPartitioned(dataPartitioned), numLayers(0),
                         outputLayer(nullptr), inputLayer(nullptr), learningRate(learningRate)  {
 
         setCostFunction(cost);
-        dataset = dataset.normalize();
+
+        if (norm) {
+            dataset = dataset.normalize();
+        }
 
         if (dataPartitioned == true) {
             inputTrain = inTrain;
@@ -71,6 +73,18 @@ public:
         setCostFunction(cost);
         dataset = dataset.normalize();
 
+    }
+
+    // For JSON deserialization
+    NeuralNetwork(Dataset<T> data, string cost, bool dataPartitioned, double learningRate, bool norm) :
+                        dataset(data), costType(cost), dataPartitioned(dataPartitioned), numLayers(0),
+                        outputLayer(nullptr), inputLayer(nullptr), learningRate(learningRate)  {
+
+        setCostFunction(cost);
+
+        if (norm) {
+            dataset = dataset.normalize();
+        }
     }
 
     // Copy constructor
@@ -571,10 +585,12 @@ void from_json(const nlohmann::json& j, NeuralNetwork<T>& network) {
     if (j["dataPartitioned"] == true) {
         network = NeuralNetwork<T>(j.at("dataset"), j["costType"], j.at("dataPartitioned"),
                         j.at("inputTrain"), j.at("outputTrain"), j.at("inputValidate"),
-                        j.at("outputValidate"), j.at("learningRate"));
+                        j.at("outputValidate"), j.at("learningRate"), false);
+                        // "false" avoids normalizing the dataset again
     } else {
         Dataset<T> dataset = j.at("dataset").get<Dataset<T>>(); // Necessary to remove constructor ambiguity
-        network = NeuralNetwork<T>(dataset, j["costType"], j.at("dataPartitioned"), j.at("learningRate"));
+        network = NeuralNetwork<T>(dataset, j["costType"], j.at("dataPartitioned"),
+            j.at("learningRate"), false);
     }
 
     // Add layers

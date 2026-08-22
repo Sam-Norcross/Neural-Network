@@ -741,6 +741,3 @@ Matrix<T> log2(Matrix<T> mat) {
     mat.map(log2Func);
     return mat;
 }
-
-
-// TODO--implement sin, cos

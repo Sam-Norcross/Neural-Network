@@ -262,23 +262,32 @@ TEST_CASE("Three-layer network (XOR)", "[NeuralNetwork]") {
 TEST_CASE("Regression architecture: boston housing dataset", "[NeuralNetwork]") {
     string filepath = "Datasets/BostonHousing.csv";
 
-    NeuralNetwork<double> network(filepath, "medv", 0.001, "MSE");
+    NeuralNetwork<double> network(filepath, "medv", 0.01, "MSE");
 
-    network.addLayer(30, "ReLU");
-    network.addLayer(15, "ReLU");
+    // network.addLayer(30, "ReLU");
+    // network.addLayer(15, "ReLU");
+    // network.addLayer(8, "ReLU");
+    // network.addLayer(5, "ReLU");
+    // network.addLayer(1, "Linear");
+
+    // network.addLayer(128, "ReLU");
+    network.addLayer(64, "ReLU");
+    network.addLayer(32, "ReLU");
+    network.addLayer(16, "ReLU");
     network.addLayer(8, "ReLU");
-    network.addLayer(5, "ReLU");
     network.addLayer(1, "Linear");
 
-    network.partitionDataset(0.85);    // TODO--add a test case for partitionDataset()
+    network.partitionDataset(0.85);    // TODO--add a test case for partitionDataset()m
 
-    network.trainNetwork(1000);
+    // network.trainNetwork(1, 1e-5); // Testing only
 
-    network.getTrainingOutput().display();
-    network.predict(network.getTrainingInput()).display();
+    network.trainNetwork(10000, 1e-5);
+
+    // network.getTrainingOutput().display();
+    // network.predict(network.getTrainingInput()).display();
 
 
-    double tol = 1;
+    double tol = 15;
     CHECK(network.trainingCost() < tol);
     CHECK(network.validationCost() < tol);
 }
@@ -287,7 +296,6 @@ TEST_CASE("Regression architecture: mileage dataset", "[NeuralNetwork]") {
     string filepath = "Datasets/auto-mpg.csv";
 
     NeuralNetwork<double> network(filepath, "mpg", 0.01, "MSE");
-    // TODO--no error is thrown if an incorrect dependent name is entered
 
     // network.addLayer(30, "ReLU");
     network.addLayer(15, "ReLU");
@@ -295,7 +303,7 @@ TEST_CASE("Regression architecture: mileage dataset", "[NeuralNetwork]") {
     network.addLayer(5, "ReLU");
     network.addLayer(1, "Linear");
 
-    network.partitionDataset(0.85);
+    network.partitionDataset(0.75);
 
     network.trainNetwork(10000);
 

@@ -23,7 +23,7 @@ T bce(Matrix<T> predicted, Matrix<T> expected);
 template <typename T>
 Matrix<T> bceDerivative(Matrix<T> predicted, Matrix<T> expected);
 
-// TODO--add functionality so that the learning rate can be adjusted as the model trains to increase speed?
+// TODO--implement an Adam optimizer
 
 
 template <typename T>
@@ -326,7 +326,7 @@ public:
         }
     }
 
-    void trainNetwork(int epochs) {    // TODO--add functionality for relTol stopping condition in addition to epoch number
+    void trainNetwork(int epochs, double relTol) {
         if (numLayers == 0) {
             throw NeuralNetworkException("Network has no layers.");
         }
@@ -335,7 +335,8 @@ public:
 
 
         Matrix<T> output;
-        double cost;
+        double previousCost = 10;
+        double cost = 1;
 
         // Training loop
         // cout << "TRAINING" << endl;
@@ -355,6 +356,14 @@ public:
 
             // Display progress bar--TODO--fix
             // progressBar(epoch, epochs);
+
+            previousCost = cost;
+            cost = costFunction(output, outputTrain);
+
+            if (abs(cost - previousCost) / previousCost < relTol) {
+                cout << "Stopping training after " << epoch << " epochs after a relative tolerance of " << relTol << " was reached." << endl;
+                break;
+            }
         }
         // cout << "]" << endl; // For progress bar
 
@@ -364,6 +373,10 @@ public:
 
         cout << "The cost of the validation data is " << cost << endl;
 
+    }
+
+    void trainNetwork(int epochs) {
+        trainNetwork(epochs, 1e-16);
     }
 
     // Returns the cost of the training data

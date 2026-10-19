@@ -277,7 +277,7 @@ TEST_CASE("Regression architecture: boston housing dataset", "[NeuralNetwork]") 
     network.addLayer(8, "ReLU");
     network.addLayer(1, "Linear");
 
-    network.partitionDataset(0.85);    // TODO--add a test case for partitionDataset()m
+    network.partitionDataset(0.85);    // TODO--add a test case for partitionDataset()
 
     // network.trainNetwork(1, 1e-5); // Testing only
 

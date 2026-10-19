@@ -739,3 +739,14 @@ TEST_CASE("Matrix JSON serialization", "[Matrix]") {
 
     CHECK(mat == matFromJSON);
 }
+
+TEST_CASE("Large matrix multiplication", "[Matrix]") {  // For testing timing--9s
+    int matSize = 1000;
+    Matrix<double> mat1(matSize, matSize);
+    mat1.randomize(-100.0, 100.0);
+
+    Matrix<double> mat2(matSize, matSize);
+    mat2.randomize(-100.0, 100.0);
+
+    mat1.matMul(mat2);
+}

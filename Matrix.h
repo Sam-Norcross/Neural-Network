@@ -452,6 +452,8 @@ public:
         Matrix newMat = Matrix(getNumRows(), mat2.getNumCols());
 
         double dotProduct = 0;
+
+        #pragma omp parallel for reduction(+:dotProduct)
         for (int r1 = 0; r1 < getNumRows(); r1++) {     // Iterate over the rows of mat1
             for (int c2 = 0; c2 < mat2.getNumCols(); c2++) {    // Iterate over the cols of mat2
                 for (int c1 = 0; c1 < getNumCols(); c1 ++) {    // Iterate over the cols of mat1/the rows of mat2

@@ -12,6 +12,8 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(json)
 
+find_package(OpenMP REQUIRED)
+
 
 
 add_executable(NeuralNetwork main.cpp

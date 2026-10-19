@@ -8,6 +8,8 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(json)
 
+find_package(OpenMP REQUIRED)
+
 add_executable(MatrixTestsRun MatrixTests.cpp)
 add_executable(DualTestsRun DualTests.cpp)
 add_executable(DatasetTestsRun DatasetTests.cpp)
